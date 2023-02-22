@@ -1,8 +1,6 @@
+import arrayStoreMutation from "./arrayStoreMutation.js";
 import createProxyStore from "./createProxyStore.js";
 import createStream from "./createStream.js";
-import push from "./push.js";
-import splice from "./splice.js";
-import unshift from "./unshift.js";
 export default function normalizeArrayStore(arrayStore, createStoreForItem = ((item) => item)) {
     const getter = () => itemStores.map((store) => store());
     const stream = createStream();
@@ -22,39 +20,16 @@ export default function normalizeArrayStore(arrayStore, createStoreForItem = ((i
         stream(getter());
     });
     arrayStore.mutate.subscribe(({ value, action, item, index$ }) => {
-        if (action === push) {
-            handlePush(item);
+        const handler = arrayStoreMutation.getHandler(action);
+        if (handler === null) {
+            console.error('Array was mutated with action but no handler found for the action.', action);
+            throw new Error('Array was mutated with action but no handler found for the action.');
         }
-        else if (action === unshift) {
-            handleUnshift(item);
-        }
-        else if (action === splice) {
-            handleSplice(index$);
-        }
-        else {
-            console.error('Action not supported', action);
-            throw new Error('Action not supported');
-        }
+        handler(createStoreForItem, stream, itemStores, {
+            item,
+            index$,
+        });
         stream(getter());
     });
-    function handlePush(item) {
-        const store = createStoreForItem(item);
-        store.subscribe((value) => {
-            // TODO: use emitted value
-            stream(getter());
-        });
-        itemStores.push(store);
-    }
-    function handleUnshift(item) {
-        const store = createStoreForItem(item);
-        store.subscribe((value) => {
-            // TODO: use emitted value
-            stream(getter());
-        });
-        itemStores.unshift(store);
-    }
-    function handleSplice(index$) {
-        itemStores.splice(index$(), 1);
-    }
     return createProxyStore(getter, stream);
 }

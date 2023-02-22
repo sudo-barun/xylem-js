@@ -4,12 +4,9 @@ import Comment from "./Comment.js";
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
 import createStore from "../core/createStore.js";
-import Element from "./Element.js";
+import forEachBlockMutation from "./forEachBlockMutation.js";
 import ForEachItemBuilder from "../types/ForEachItemBuilder.js";
-import push from "../core/push.js";
-import splice from "../core/splice.js";
 import Store from "../types/Store.js";
-import unshift from "../core/unshift.js";
 
 export default
 class ForEachBlock<T> extends Component
@@ -85,125 +82,19 @@ class ForEachBlock<T> extends Component
 			if ('mutate' in this._array) {
 				const unsubscribeMutation = this._array.mutate.subscribe(
 					({action, item, index$}: ArrayMutation<T>) => {
-						if (action === push) {
-							this._handlePush(item!);
-						} else if (action === unshift) {
-							this._handleUnshift(item!);
-						} else if (action === splice) {
-							this._handleSplice(index$!);
-						} else {
-							console.error('Action not supported', action);
-							throw new Error('Action not supported');
+						const handler = forEachBlockMutation.getHandler(action);
+						if (handler === null) {
+							console.error('Array was mutated with action but no handler found for the action.', action);
+							throw new Error('Array was mutated with action but no handler found for the action.');
 						}
+						handler.call(this, {
+							item,
+							index$,
+						});
 					}
 				);
 				this.beforeDetachFromDom.subscribe(() => unsubscribeMutation());
 			}
 		}
 	}
-
-	_handleUnshift(item: T)
-	{
-		const vDomFragment = this._buildVDomFragmentForNewlyAddedArrayItem(
-			item,
-			0
-		);
-		setupVDomFragment(vDomFragment);
-
-		getFlattenedDomNodesOfVDomFragment(vDomFragment)
-		.forEach((node) => {
-			if (this._placeholder) {
-				this._placeholder.getDomNode().parentNode!.insertBefore(
-					node,
-					this._placeholder.getDomNode()
-				);
-				this._placeholder.getDomNode().remove();
-				this._virtualDom.splice(
-					this._virtualDom.indexOf(this._placeholder), 1
-				);
-				this._placeholder = null;
-			} else {
-				const firstNode = this.getFirstNode();
-				firstNode!.parentNode!.insertBefore(node, firstNode);
-			}
-		});
-		this._forItems.unshift(vDomFragment);
-		this._virtualDom.unshift(...vDomFragment);
-	}
-
-	_handlePush(item: T)
-	{
-		const vDomFragment = this._buildVDomFragmentForNewlyAddedArrayItem(
-			item,
-			(this._array as ArrayStore<T>).length$() - 1
-		);
-		setupVDomFragment(vDomFragment);
-
-		getFlattenedDomNodesOfVDomFragment(vDomFragment)
-		.forEach((node) => {
-			if (this._placeholder) {
-				this._placeholder.getDomNode().parentNode!.append(node);
-				this._placeholder.getDomNode().remove();
-				this._virtualDom.splice(
-					this._virtualDom.indexOf(this._placeholder), 1
-				);
-				this._placeholder = null;
-			} else {
-				this.getLastNode()!.parentNode!.append(node);
-			}
-		});
-		this._forItems.push(vDomFragment);
-		this._virtualDom.push(...vDomFragment);
-	}
-
-	_handleSplice(index$: Store<number>)
-	{
-		if (this._forItems.length === 1) {
-			const fallback = this._getFallback();
-			fallback.setupDom();
-			this._placeholder = fallback;
-			this.getFirstNode()?.before(fallback.getDomNode());
-			this._virtualDom.push(fallback);
-		}
-
-		const removedFragment = this._forItems.splice(index$(), 1);
-		removedFragment[0].forEach((componentItem) => {
-			const index = this._virtualDom.indexOf(componentItem);
-			this._virtualDom.splice(index, 1);
-		})
-		removedFragment[0].forEach((componentItem) => {
-			if (componentItem instanceof Component) {
-				componentItem.getDomNodes().forEach((node) => node.remove());
-			} else {
-				componentItem.getDomNode().remove();
-			}
-		});
-	}
-}
-
-function setupVDomFragment(vDomFragment: ComponentItem[])
-{
-	vDomFragment.forEach(_vDom => {
-		if (
-			(_vDom instanceof Component)
-			||
-			(_vDom instanceof Element)
-		) {
-			_vDom.setup();
-		}
-	});
-	vDomFragment.forEach(_vDom => {
-		_vDom.setupDom();
-	});
-}
-
-function getFlattenedDomNodesOfVDomFragment(vDomFragment: ComponentItem[]): ChildNode[]
-{
-	return vDomFragment.map(componentItem => {
-		if (componentItem instanceof Component) {
-			return componentItem.getDomNodes();
-		} else {
-			return componentItem.getDomNode();
-		}
-	}).flat();
 }

@@ -1,11 +1,9 @@
 import ArrayMutation from "../types/ArrayMutation.js";
 import ArrayStore from "../types/ArrayStore.js";
 import Store from "../types/Store.js";
+import arrayStoreMutation from "./arrayStoreMutation.js";
 import createProxyStore from "./createProxyStore.js";
 import createStream from "./createStream.js";
-import push from "./push.js";
-import splice from "./splice.js";
-import unshift from "./unshift.js";
 
 export default
 function normalizeArrayStore<T,U>(
@@ -36,44 +34,23 @@ function normalizeArrayStore<T,U>(
 	});
 
 	arrayStore.mutate.subscribe(({ value, action, item, index$ }: ArrayMutation<T>) => {
-		if (action === push) {
-			handlePush(item!);
-		} else if (action === unshift) {
-			handleUnshift(item!);
-		} else if (action === splice) {
-			handleSplice(index$!);
-		} else {
-			console.error('Action not supported', action);
-			throw new Error('Action not supported');
+		const handler = arrayStoreMutation.getHandler(action);
+		if (handler === null) {
+			console.error('Array was mutated with action but no handler found for the action.', action);
+			throw new Error('Array was mutated with action but no handler found for the action.');
 		}
+		handler(
+			createStoreForItem,
+			stream,
+			itemStores,
+			{
+				item,
+				index$,
+			}
+		);
 
 		stream(getter());
 	});
-
-	function handlePush(item: T)
-	{
-		const store = createStoreForItem(item);
-		store.subscribe((value) => {
-			// TODO: use emitted value
-			stream(getter());
-		});
-		itemStores.push(store);
-	}
-
-	function handleUnshift(item: T)
-	{
-		const store = createStoreForItem(item);
-		store.subscribe((value) => {
-			// TODO: use emitted value
-			stream(getter());
-		});
-		itemStores.unshift(store);
-	}
-
-	function handleSplice(index$: Store<number>)
-	{
-		itemStores.splice(index$(), 1);
-	}
 
 	return createProxyStore(getter, stream);
 }
