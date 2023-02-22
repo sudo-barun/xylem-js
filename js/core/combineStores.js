@@ -1,4 +1,4 @@
-export default function deriveStoreFromArray(stores) {
+export default function combineStores(stores) {
     const subscribers = [];
     const store = function () {
         return stores.map(store => store());
@@ -23,7 +23,7 @@ export default function deriveStoreFromArray(stores) {
             });
         });
     });
-    store.members = stores;
-    Object.defineProperty(store, 'members', { value: store.members });
+    store._members = stores;
+    Object.defineProperty(store, '_members', { value: store._members });
     return store;
 }

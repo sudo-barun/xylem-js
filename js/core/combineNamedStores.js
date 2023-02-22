@@ -1,4 +1,4 @@
-export default function deriveStoreFromObject(stores) {
+export default function combineNamedStores(stores) {
     const subscribers = [];
     const store = function () {
         return Object.keys(stores).reduce(function (acc, key) {
@@ -31,7 +31,7 @@ export default function deriveStoreFromObject(stores) {
             });
         });
     });
-    store.members = stores;
-    Object.defineProperty(store, 'members', { value: store.members });
+    store._members = stores;
+    Object.defineProperty(store, '_members', { value: store._members });
     return store;
 }

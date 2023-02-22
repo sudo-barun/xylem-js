@@ -2,10 +2,8 @@ import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
 import Unsubscriber from "../types/Unsubscriber.js";
 
-type ObjectStore<T extends object> = Store<T> & { members: {[prop: string]: Store<any>}}
-
 export default
-function deriveStoreFromObject<T extends object>(stores: {[prop: string]: Store<any>}): ObjectStore<T>
+function combineNamedStores<T extends object>(stores: {[prop: string]: Store<any>}): Store<T>
 {
 	const subscribers: Subscriber<T>[] = [];
 	const store = function (): T {
@@ -44,8 +42,8 @@ function deriveStoreFromObject<T extends object>(stores: {[prop: string]: Store<
 		});
 	});
 
-	store.members = stores;
-	Object.defineProperty(store, 'members', { value: store.members });
+	store._members = stores;
+	Object.defineProperty(store, '_members', { value: store._members });
 
 	return store;
 }
