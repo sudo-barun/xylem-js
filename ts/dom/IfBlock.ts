@@ -14,6 +14,7 @@ class IfBlock extends Component
 	_ifConditions: Array<Condition> = [];
 	_hasElse: boolean = false;
 	_activeBlockIndex: number = -1;
+	_hasEnded: boolean = false;
 
 	constructor(condition: Store<any>, build: () => Array<ComponentItem>)
 	{
@@ -24,8 +25,11 @@ class IfBlock extends Component
 		});
 	}
 
-	elseIf(condition: Store<any>, build: () => Array<ComponentItem>)
+	elseIf(condition: Store<any>, build: () => Array<ComponentItem>): this
 	{
+		if (this._hasEnded) {
+			throw new Error('IfBlock has already ended');
+		}
 		if (this._hasElse) {
 			throw new Error('Else block has already been set');
 		}
@@ -38,8 +42,11 @@ class IfBlock extends Component
 		return this;
 	}
 
-	else(build: () => Array<ComponentItem>)
+	else(build: () => Array<ComponentItem>): this
 	{
+		if (this._hasEnded) {
+			throw new Error('IfBlock has already ended');
+		}
 		if (this._hasElse) {
 			throw new Error('Else block has already been set');
 		}
@@ -54,8 +61,23 @@ class IfBlock extends Component
 		return this;
 	}
 
+	endIf(): this
+	{
+		this._hasEnded = true;
+		return this;
+	}
+
+	hasEnded(): boolean
+	{
+		return this._hasEnded;
+	}
+
 	setup()
 	{
+		if (! this.hasEnded()) {
+			throw new Error('IfBlock was not ended.');
+		}
+
 		super.setup();
 		this._ifConditions.forEach((condition, index) => {
 			if (! (typeof condition.condition === 'function' && 'subscribe' in condition.condition)) {

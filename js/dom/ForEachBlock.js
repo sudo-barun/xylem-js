@@ -7,6 +7,7 @@ export default class ForEachBlock extends Component {
     _build;
     _placeholder = null;
     _forItems;
+    _hasEnded = false;
     constructor(array, build) {
         super();
         this._array = array;
@@ -37,6 +38,13 @@ export default class ForEachBlock extends Component {
         }
         return this._forItems.flat();
     }
+    endForEach() {
+        this._hasEnded = true;
+        return this;
+    }
+    hasEnded() {
+        return this._hasEnded;
+    }
     _getArray() {
         return this._array instanceof Array ? this._array : this._array();
     }
@@ -44,6 +52,9 @@ export default class ForEachBlock extends Component {
         return this._build(item, this._array.index$Array[index], this._array);
     }
     setup() {
+        if (!this.hasEnded()) {
+            throw new Error('ForEachBlock was not ended.');
+        }
         super.setup();
         if ('subscribe' in this._array) {
             const unsubscribe = this._array.subscribe((array) => {
