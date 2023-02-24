@@ -8,20 +8,20 @@ import Store from "../types/Store.js";
 import Stream from "../types/Stream.js";
 
 export default
-abstract class Component<Attrs extends object = {}>
+abstract class Component<Attributes = void>
 {
 	afterAttachToDom: Stream<void>;
 	beforeDetachFromDom: Stream<void>;
 
-	_attributes: Attrs;
+	_attributes: Attributes;
 	_virtualDom!: Array<ComponentItem>;
 	_notifyAfterAttachToDom: SourceStream<void>;
 	_notifyBeforeDetachFromDom: SourceStream<void>;
 	_eventUnsubscribers: Array<()=>void>;
 
-	constructor(attrs:Attrs = {} as Attrs)
+	constructor(attributes: Attributes)
 	{
-		this._attributes = attrs;
+		this._attributes = attributes;
 		this._notifyAfterAttachToDom = createStream<void>();
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
 		this._notifyBeforeDetachFromDom = createStream<void>();
@@ -29,7 +29,7 @@ abstract class Component<Attrs extends object = {}>
 		this._eventUnsubscribers = [];
 	}
 
-	build(attributes: Attrs): Array<ComponentItem>
+	build(attributes: Attributes): Array<ComponentItem>
 	{
 		throw new Error(
 			'Method "build" is not implemented in class '
