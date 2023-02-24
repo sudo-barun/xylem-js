@@ -31,6 +31,8 @@ export default class IfElseBlockBuilder {
         return this;
     }
     endIf() {
-        return new IfElseBlock(this._ifConditions);
+        return new IfElseBlock({
+            itemAttributesArray: this._ifConditions,
+        });
     }
 }

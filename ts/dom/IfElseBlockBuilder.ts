@@ -3,12 +3,15 @@ import IfElseBlock from "./IfElseBlock.js";
 import map from "../core/map.js";
 import Store from "../types/Store.js";
 
-type IfCondition = {condition: boolean|Store<boolean>, build: () => Array<ComponentItem>};
+type IfElseBlockItemData = {
+	condition: boolean|Store<boolean>,
+	build: () => Array<ComponentItem>,
+};
 
 export default
 class IfElseBlockBuilder
 {
-	_ifConditions: Array<IfCondition> = [];
+	_ifConditions: Array<IfElseBlockItemData> = [];
 	_hasElse: boolean = false;
 
 	constructor(condition: Store<any>, build: () => Array<ComponentItem>)
@@ -51,6 +54,8 @@ class IfElseBlockBuilder
 
 	endIf(): IfElseBlock
 	{
-		return new IfElseBlock(this._ifConditions);
+		return new IfElseBlock({
+			itemAttributesArray: this._ifConditions,
+		});
 	}
 }
