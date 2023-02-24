@@ -1,89 +1,31 @@
 import Comment from "./Comment.js";
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
-import createStore from "../core/createStore.js";
 import getValue from "../utilities/getValue.js";
-import map from "../core/map.js";
 import Store from "../types/Store.js";
 
 type Condition = {condition: boolean|Store<boolean>, build: () => Array<ComponentItem>};
 
 export default
-class IfBlock extends Component
+class IfElseBlock extends Component
 {
 	_ifConditions: Array<Condition> = [];
-	_hasElse: boolean = false;
 	_activeBlockIndex: number = -1;
-	_hasEnded: boolean = false;
 
-	constructor(condition: Store<any>, build: () => Array<ComponentItem>)
+	constructor(ifConditions: Array<Condition> = [])
 	{
 		super();
-		this._ifConditions.push({
-			condition: map<any,boolean>(this.deriveStore(condition), Boolean),
-			build,
-		});
-	}
-
-	elseIf(condition: Store<any>, build: () => Array<ComponentItem>): this
-	{
-		if (this._hasEnded) {
-			throw new Error('IfBlock has already ended');
-		}
-		if (this._hasElse) {
-			throw new Error('Else block has already been set');
-		}
-
-		this._ifConditions.push({
-			condition: map<any,boolean>(this.deriveStore(condition), Boolean),
-			build,
-		});
-
-		return this;
-	}
-
-	else(build: () => Array<ComponentItem>): this
-	{
-		if (this._hasEnded) {
-			throw new Error('IfBlock has already ended');
-		}
-		if (this._hasElse) {
-			throw new Error('Else block has already been set');
-		}
-
-		this._ifConditions.push({
-			condition: createStore<boolean>(true),
-			build,
-		});
-
-		this._hasElse = true;
-
-		return this;
-	}
-
-	endIf(): this
-	{
-		this._hasEnded = true;
-		return this;
-	}
-
-	hasEnded(): boolean
-	{
-		return this._hasEnded;
+		this._ifConditions = ifConditions;
 	}
 
 	setup()
 	{
-		if (! this.hasEnded()) {
-			throw new Error('IfBlock was not ended.');
-		}
-
 		super.setup();
 		this._ifConditions.forEach((condition, index) => {
 			if (! (typeof condition.condition === 'function' && 'subscribe' in condition.condition)) {
 				return;
 			}
-			
+
 			const unsubscribe = condition.condition.subscribe((c) => {
 
 				if (c) {

@@ -1,9 +1,9 @@
 import Comment from './Comment.js';
 import Component from './Component.js';
 import Element from './Element.js';
+import ForEachBuilder from './ForEachBlockBuilder.js';
+import IfElseBlockBuilder from './IfElseBlockBuilder.js';
 import Text from './Text.js';
-import IfBlock from './IfBlock.js';
-import ForEachBlock from './ForEachBlock.js';
 export default function arrayToVirtualDom(arr) {
     let unclosedElements = [];
     let unclosedComment = null;
@@ -80,15 +80,15 @@ export default function arrayToVirtualDom(arr) {
             }
             unclosedElements[unclosedElements.length - 1].children.push(...arrayToVirtualDom(item));
         }
+        else if (item instanceof IfElseBlockBuilder) {
+            console.error(`IfBlockBuilder was found. Close IfBlockBuilder with "endIf" inside following array at index ${i} : `, arr);
+            throw new Error('IfBlockBuilder was found. Close IfBlockBuilder with "endIf"');
+        }
+        else if (item instanceof ForEachBuilder) {
+            console.error(`ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach" inside following array at index ${i} : `, arr);
+            throw new Error('ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach"');
+        }
         else if (item instanceof Component) {
-            if ((item instanceof IfBlock) && !item.hasEnded()) {
-                console.error(`IfBlock was found without ending with "endIf" inside following array at index ${i} : `, arr);
-                throw new Error('IfBlock was found without ending with "endIf"');
-            }
-            if ((item instanceof ForEachBlock) && !item.hasEnded()) {
-                console.error(`ForEachBlock was found without ending with "endForEach" inside following array at index ${i} : `, arr);
-                throw new Error('ForEachBlock was found without ending with "endForEach"');
-            }
             vNodes.push(item);
         }
         else if (typeof item === 'object') {

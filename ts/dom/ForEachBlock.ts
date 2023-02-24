@@ -15,7 +15,6 @@ class ForEachBlock<T> extends Component
 	_build: (item: T, index: Store<number>, array: T[]|Store<T[]>|ArrayStore<T>) => Array<ComponentItem>;
 	_placeholder: Comment|null = null;
 	_forItems!: Array<ComponentItem[]>;
-	_hasEnded: boolean = false;
 
 	constructor(array: any[]|Store<any[]>, build: ForEachItemBuilder<T>)
 	{
@@ -53,17 +52,6 @@ class ForEachBlock<T> extends Component
 		return this._forItems.flat();
 	}
 
-	endForEach(): this
-	{
-		this._hasEnded = true;
-		return this;
-	}
-
-	hasEnded(): boolean
-	{
-		return this._hasEnded;
-	}
-
 	_getArray(): T[]
 	{
 		return this._array instanceof Array ? this._array : this._array();
@@ -80,10 +68,6 @@ class ForEachBlock<T> extends Component
 
 	setup(): void
 	{
-		if (! this.hasEnded()) {
-			throw new Error('ForEachBlock was not ended.');
-		}
-
 		super.setup();
 
 		if ('subscribe' in this._array) {

@@ -1,58 +1,14 @@
 import Comment from "./Comment.js";
 import Component from "./Component.js";
-import createStore from "../core/createStore.js";
 import getValue from "../utilities/getValue.js";
-import map from "../core/map.js";
-export default class IfBlock extends Component {
+export default class IfElseBlock extends Component {
     _ifConditions = [];
-    _hasElse = false;
     _activeBlockIndex = -1;
-    _hasEnded = false;
-    constructor(condition, build) {
+    constructor(ifConditions = []) {
         super();
-        this._ifConditions.push({
-            condition: map(this.deriveStore(condition), Boolean),
-            build,
-        });
-    }
-    elseIf(condition, build) {
-        if (this._hasEnded) {
-            throw new Error('IfBlock has already ended');
-        }
-        if (this._hasElse) {
-            throw new Error('Else block has already been set');
-        }
-        this._ifConditions.push({
-            condition: map(this.deriveStore(condition), Boolean),
-            build,
-        });
-        return this;
-    }
-    else(build) {
-        if (this._hasEnded) {
-            throw new Error('IfBlock has already ended');
-        }
-        if (this._hasElse) {
-            throw new Error('Else block has already been set');
-        }
-        this._ifConditions.push({
-            condition: createStore(true),
-            build,
-        });
-        this._hasElse = true;
-        return this;
-    }
-    endIf() {
-        this._hasEnded = true;
-        return this;
-    }
-    hasEnded() {
-        return this._hasEnded;
+        this._ifConditions = ifConditions;
     }
     setup() {
-        if (!this.hasEnded()) {
-            throw new Error('IfBlock was not ended.');
-        }
         super.setup();
         this._ifConditions.forEach((condition, index) => {
             if (!(typeof condition.condition === 'function' && 'subscribe' in condition.condition)) {
