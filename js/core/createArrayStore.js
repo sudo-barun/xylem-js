@@ -17,6 +17,9 @@ export default function createArrayStore(value) {
             return state.value;
         }
         else {
+            if (!(value instanceof Array)) {
+                throw new Error('Value must be an array.');
+            }
             state.value = newValue;
             subscribers.forEach(subscriber => subscriber(state.value));
             return state.value;

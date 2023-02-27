@@ -10,7 +10,7 @@ function createStreamOfDomEvent(
 	return createProxyStream<Event>((sourceStream) => {
 		eventTarget.addEventListener(eventName, sourceStream);
 		return () => {
-			document.removeEventListener(eventName, sourceStream);
+			eventTarget.removeEventListener(eventName, sourceStream);
 		};
 	});
 }

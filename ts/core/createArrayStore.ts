@@ -27,6 +27,9 @@ function createArrayStore<T> (value: Array<T>): SourceArrayStore<T>
 		if (arguments.length === 0) {
 			return state.value;
 		} else {
+			if (! (value instanceof Array)) {
+				throw new Error('Value must be an array.');
+			}
 			state.value = newValue!;
 			subscribers.forEach(subscriber => subscriber(state.value));
 			return state.value;

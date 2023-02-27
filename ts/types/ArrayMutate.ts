@@ -5,7 +5,7 @@ import Unsubscriber from "./Unsubscriber";
 
 type ArrayMutate<T> = (
 	(
-		(action: ArrayMutateAction, item?: T, index$?: Store<number>) => any
+		(action: ArrayMutateAction, item?: T, index$?: Store<number>) => void
 	)
 	&
 	{

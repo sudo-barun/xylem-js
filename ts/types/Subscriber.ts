@@ -1,3 +1,3 @@
-type Subscriber<T> = (value: T) => any;
+type Subscriber<T> = (value: T) => void;
 
 export default Subscriber;
