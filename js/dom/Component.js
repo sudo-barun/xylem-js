@@ -10,7 +10,7 @@ export default class Component {
     _notifyAfterAttachToDom;
     _notifyBeforeDetachFromDom;
     _eventUnsubscribers;
-    constructor(attributes) {
+    constructor(attributes = {}) {
         this._attributes = attributes;
         this._notifyAfterAttachToDom = createStream();
         this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;

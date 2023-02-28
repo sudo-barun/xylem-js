@@ -8,7 +8,7 @@ import Store from "../types/Store.js";
 import Stream from "../types/Stream.js";
 
 export default
-abstract class Component<Attributes = void>
+abstract class Component<Attributes extends object = {}>
 {
 	afterAttachToDom: Stream<void>;
 	beforeDetachFromDom: Stream<void>;
@@ -19,7 +19,7 @@ abstract class Component<Attributes = void>
 	_notifyBeforeDetachFromDom: SourceStream<void>;
 	_eventUnsubscribers: Array<()=>void>;
 
-	constructor(attributes: Attributes)
+	constructor(attributes: Attributes = {} as Attributes)
 	{
 		this._attributes = attributes;
 		this._notifyAfterAttachToDom = createStream<void>();
