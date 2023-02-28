@@ -22,8 +22,8 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 		if (typeof item === 'string') {
 			const elementStartRegex = /^<(?<tagName>[0-9a-zA-Z-]+)>$/;
 			const elementEndRegex = /^<\/(?<tagName>[0-9a-zA-Z-]+)>$/;
-			const commentStartRegex = /<!--/;
-			const commentEndRegex = /-->/;
+			const commentStartRegex = /^<!--$/;
+			const commentEndRegex = /^-->$/;
 			if (unclosedComment) {
 				if (commentEndRegex.test(item)) {
 					unclosedComment = null;
