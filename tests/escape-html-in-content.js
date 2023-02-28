@@ -10,9 +10,9 @@ class EscapedContent extends Component
 			'<div>',
 			[
 				'This is a text without any special character.',
-				'<br>',
+				'<br/>',
 				'<b>This is a bold text text.</b>',
-				'<br>',
+				'<br/>',
 				'<!--This is a comment-->.',
 			],
 			'</div>',

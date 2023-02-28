@@ -7,6 +7,7 @@ import Text from './Text.js';
 export default function arrayToVirtualDom(arr) {
     let unclosedElements = [];
     let unclosedComment = null;
+    let previousElementWasSelfClosed;
     const vNodes = [];
     if (arr.length === 0) {
         throw new Error('Array cannot be empty.');
@@ -16,6 +17,7 @@ export default function arrayToVirtualDom(arr) {
         if (typeof item === 'string') {
             const elementStartRegex = /^<(?<tagName>[0-9a-zA-Z-]+)>$/;
             const elementEndRegex = /^<\/(?<tagName>[0-9a-zA-Z-]+)>$/;
+            const selfClosingElementRegex = /^<(?<tagName>[0-9a-zA-Z-]+)\/>$/;
             const commentStartRegex = /^<!--$/;
             const commentEndRegex = /^-->$/;
             if (unclosedComment) {
@@ -27,11 +29,18 @@ export default function arrayToVirtualDom(arr) {
                 }
             }
             else {
-                if (elementStartRegex.test(item)) {
+                if (selfClosingElementRegex.test(item)) {
+                    const [, tagName] = selfClosingElementRegex.exec(item);
+                    const element = new Element(tagName);
+                    vNodes.push(element);
+                    previousElementWasSelfClosed = true;
+                }
+                else if (elementStartRegex.test(item)) {
                     const [, tagName] = elementStartRegex.exec(item);
                     const element = new Element(tagName);
                     unclosedElements.push(element);
                     vNodes.push(element);
+                    previousElementWasSelfClosed = false;
                 }
                 else if (elementEndRegex.test(item)) {
                     const [, tagName] = elementEndRegex.exec(item);
@@ -95,31 +104,57 @@ export default function arrayToVirtualDom(arr) {
             Object.keys(item).forEach(function (key) {
                 const listenerRegex = /^@(?<event>[a-zA-Z]+)$/;
                 const classRegex = /^\.(?<class>[a-zA-Z-]+)$/;
+                const getElementOfAttributes = () => {
+                    if (previousElementWasSelfClosed) {
+                        const vNode = vNodes[vNodes.length - 1];
+                        if (!(vNode instanceof Element)) {
+                            console.log('Last item is not Element', vNode);
+                            throw Error('Last item is not Element');
+                        }
+                        return vNode;
+                    }
+                    return unclosedElements[unclosedElements.length - 1];
+                };
                 if (listenerRegex.test(key)) {
                     const [, event] = listenerRegex.exec(key);
                     if (typeof item[key] !== 'function') {
                         throw new Error('listener must be function');
                     }
-                    (unclosedElements[unclosedElements.length - 1]).listeners[event] = item[key];
+                    getElementOfAttributes().listeners[event] = item[key];
                 }
                 else if (classRegex.test(key)) {
                     const [, class_] = classRegex.exec(key);
-                    unclosedElements[unclosedElements.length - 1].classes[class_] = item[key];
+                    getElementOfAttributes().classes[class_] = item[key];
                 }
                 else if (key === '<>') {
-                    unclosedElements[unclosedElements.length - 1].elementStoreSubscriber = item[key];
+                    getElementOfAttributes().elementStoreSubscriber = item[key];
                 }
                 else if (key === '=') {
-                    item[key](unclosedElements[unclosedElements.length - 1]);
+                    item[key](getElementOfAttributes());
                 }
                 else {
-                    unclosedElements[unclosedElements.length - 1].attributes[key] = item[key];
+                    getElementOfAttributes().attributes[key] = item[key];
                 }
             });
         }
         else {
             vNodes.push(new Text(item));
         }
+    }
+    if (unclosedComment) {
+        console.error('Unclosed comment found', arr);
+        throw new Error('Unclosed comment found');
+    }
+    if (unclosedElements.length) {
+        const errorMessage = [
+            `Unclosed element found with tagName "${unclosedElements[0].tagName}".`,
+            ' ',
+            `Close it with corresponding end tag (</${unclosedElements[0].tagName}>)`,
+            ` or make it self-closing (<${unclosedElements[0].tagName}/>)`,
+            ` if it is a void element.`,
+        ].join('');
+        console.error(errorMessage, arr);
+        throw new Error(errorMessage);
     }
     return vNodes;
 }
