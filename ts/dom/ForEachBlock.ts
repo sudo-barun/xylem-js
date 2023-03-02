@@ -4,24 +4,24 @@ import Comment from "./Comment.js";
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
 import createStore from "../core/createStore.js";
+import ForEachBlockItem from "./ForEachBlockItem.js";
 import forEachBlockMutation from "./forEachBlockMutation.js";
-import ForEachItemBuilder from "../types/ForEachItemBuilder.js";
 import Store from "../types/Store.js";
 
-export default
-class ForEachBlock<T> extends Component
-{
-	_array: T[]|Store<T[]>|ArrayStore<T>;
-	_build: (item: T, index: Store<number>, array: T[]|Store<T[]>|ArrayStore<T>) => Array<ComponentItem>;
-	_placeholder: Comment|null = null;
-	_forItems!: Array<ComponentItem[]>;
+type Attributes<T> = {
+	array: T[]|Store<T[]>|ArrayStore<T>;
+	build: (item: T, index: Store<number>, array: T[]|Store<T[]>|ArrayStore<T>) => Array<ComponentItem>;
+};
 
-	constructor(array: any[]|Store<any[]>, build: ForEachItemBuilder<T>)
-	{
-		super();
-		this._array = array;
-		this._build = build;
-	}
+function getArray<T>(attributes: Attributes<T>): T[]
+{
+	return attributes.array instanceof Array ? attributes.array : attributes.array();
+}
+
+export default
+class ForEachBlock<T> extends Component<Attributes<T>>
+{
+	_placeholder: Comment|null = null;
 
 	_getFallback(): Comment
 	{
@@ -30,57 +30,58 @@ class ForEachBlock<T> extends Component
 		return commentVNode;
 	}
 
-	build(): ComponentItem[]
+	build(attributes: Attributes<T>): ComponentItem[]
 	{
-		const array = this._getArray();
+		const array = getArray(attributes);
 
-		this._forItems = array.map((value, index, array) => {
+		const _forItems = array.map((value, index, array) => {
 			let index$;
-			if (this._array instanceof Array) {
+			if (attributes.array instanceof Array) {
 				index$ = createStore(index);
-			} else if ('index$Array' in this._array) {
-				index$ = this._array.index$Array[index];
+			} else if ('index$Array' in attributes.array) {
+				index$ = attributes.array.index$Array[index];
 			} else {
 				index$ = createStore(index);
 			}
-			return this._build.bind(this)(value, index$, array);
+			return new ForEachBlockItem<T>({
+				build: attributes.build,
+				buildArgs: [value, index$, array],
+			});
 		});
 
 		if (array.length === 0) {
 			return [this._getFallback()];
 		}
-		return this._forItems.flat();
+		return _forItems;
 	}
 
-	_getArray(): T[]
+	_buildVDomFragmentForNewlyAddedArrayItem(item: T, index: number): ForEachBlockItem<T>
 	{
-		return this._array instanceof Array ? this._array : this._array();
-	}
-
-	_buildVDomFragmentForNewlyAddedArrayItem(item: T, index: number)
-	{
-		return this._build(
-			item,
-			(this._array as ArrayStore<T>).index$Array[index],
-			this._array
-		)
+		return new ForEachBlockItem<T>({
+			build: this._attributes.build,
+			buildArgs: [
+				item,
+				(this._attributes.array as ArrayStore<T>).index$Array[index],
+				this._attributes.array,
+			],
+		});
 	}
 
 	setup(): void
 	{
 		super.setup();
 
-		if ('subscribe' in this._array) {
-			const unsubscribe = this._array.subscribe((array) => {
+		if ('subscribe' in this._attributes.array) {
+			const unsubscribe = this._attributes.array.subscribe((array) => {
 				super.setup();
-				if (this._forItems.length) {
+				if (this._virtualDom.length) {
 					this._placeholder = null;
 				}
 			});
 			this.beforeDetachFromDom.subscribe(() => unsubscribe());
 
-			if ('mutate' in this._array) {
-				const unsubscribeMutation = this._array.mutate.subscribe(
+			if ('mutate' in this._attributes.array) {
+				const unsubscribeMutation = this._attributes.array.mutate.subscribe(
 					({action, item, index$}: ArrayMutation<T>) => {
 						const handler = forEachBlockMutation.getHandler(action);
 						if (handler === null) {
@@ -95,6 +96,15 @@ class ForEachBlock<T> extends Component
 				);
 				this.beforeDetachFromDom.subscribe(() => unsubscribeMutation());
 			}
+		}
+	}
+
+	getLength(): number
+	{
+		if (this._attributes.array instanceof Array) {
+			return this._attributes.array.length;
+		} else {
+			return this._attributes.array().length;
 		}
 	}
 }

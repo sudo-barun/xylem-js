@@ -2,11 +2,10 @@ import Comment from "./Comment.js";
 import Component from "./Component.js";
 export default class IfElseBlockItem extends Component {
     setup() {
-        const attributes = this._attributes;
         super.setup();
-        const unsubscribe = attributes.isActive$.subscribe(() => {
+        const unsubscribe = this._attributes.isActive$.subscribe(() => {
             super.setup();
-            this.attachToDom();
+            this.notifyAfterAttachToDom();
         });
         this.beforeDetachFromDom.subscribe(unsubscribe);
     }

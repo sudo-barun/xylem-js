@@ -62,7 +62,12 @@ abstract class Component<Attributes extends object = {}>
 					}
 				});
 			}
-			oldVirtualDom.forEach(vDom => vDom.detachFromDom());
+			oldVirtualDom.forEach(vDomItem => {
+				if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
+					vDomItem.notifyBeforeDetachFromDom();
+				}
+				vDomItem.detachFromDom();
+			});
 		}
 
 		this._virtualDom = newVirtualDom;
@@ -141,19 +146,30 @@ abstract class Component<Attributes extends object = {}>
 		return null;
 	}
 
-	attachToDom()
+	notifyAfterAttachToDom()
 	{
 		this._notifyAfterAttachToDom();
-        this._virtualDom.forEach((vDomItem) => {
+		this._virtualDom.forEach((vDomItem) => {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
-				vDomItem.attachToDom();
+				vDomItem.notifyAfterAttachToDom();
+			}
+		});
+	}
+
+	notifyBeforeDetachFromDom()
+	{
+		this._notifyBeforeDetachFromDom();
+		this._virtualDom.forEach((vDomItem) => {
+			if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
+				vDomItem.notifyBeforeDetachFromDom();
 			}
 		});
 	}
 
 	detachFromDom()
 	{
-		this._notifyBeforeDetachFromDom();
-		this._virtualDom.forEach(vDom => vDom.detachFromDom());
+		this._virtualDom.forEach((vDomItem) => {
+			vDomItem.detachFromDom();
+		});
 	}
 }

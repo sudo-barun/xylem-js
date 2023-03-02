@@ -13,12 +13,11 @@ class IfElseBlockItem extends Component<Attributes>
 {
 	setup(): void
 	{
-		const attributes = this._attributes;
 		super.setup();
 
-		const unsubscribe = attributes.isActive$.subscribe(() => {
+		const unsubscribe = this._attributes.isActive$.subscribe(() => {
 			super.setup();
-			this.attachToDom();
+			this.notifyAfterAttachToDom();
 		});
 		this.beforeDetachFromDom.subscribe(unsubscribe);
 	}

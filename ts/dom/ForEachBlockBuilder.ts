@@ -17,6 +17,9 @@ class ForEachBlockBuilder<T>
 
 	endForEach(): ForEachBlock<T>
 	{
-		return new ForEachBlock<T>(this._array, this._build);
+		return new ForEachBlock<T>({
+			array: this._array,
+			build: this._build
+		});
 	}
 }

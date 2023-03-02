@@ -1,19 +1,16 @@
-import ArrayStore from "../types/ArrayStore.js";
-import ComponentItem from "../types/ComponentItem.js";
-import Component from "./Component.js";
-import Element from "./Element.js";
 import ForEachBlock from "./ForEachBlock.js";
 
 export default
 function handlePushInForEachBlock<T>(this: ForEachBlock<T>, {item}: {item: T})
 {
-	const vDomFragment = this._buildVDomFragmentForNewlyAddedArrayItem(
+	const forEachBlockItem = this._buildVDomFragmentForNewlyAddedArrayItem(
 		item,
-		(this._array as ArrayStore<T>).length$() - 1
+		this.getLength() - 1
 	);
-	setupVDomFragment(vDomFragment);
+	forEachBlockItem.setup();
+	forEachBlockItem.setupDom();
 
-	getFlattenedDomNodesOfVDomFragment(vDomFragment)
+	forEachBlockItem.getDomNodes()
 	.forEach((node) => {
 		if (this._placeholder) {
 			this._placeholder.getDomNode().parentNode!.append(node);
@@ -26,33 +23,6 @@ function handlePushInForEachBlock<T>(this: ForEachBlock<T>, {item}: {item: T})
 			this.getLastNode()!.parentNode!.append(node);
 		}
 	});
-	this._forItems.push(vDomFragment);
-	this._virtualDom.push(...vDomFragment);
-}
-
-function setupVDomFragment(vDomFragment: ComponentItem[])
-{
-	vDomFragment.forEach(_vDom => {
-		if (
-			(_vDom instanceof Component)
-			||
-			(_vDom instanceof Element)
-		) {
-			_vDom.setup();
-		}
-	});
-	vDomFragment.forEach(_vDom => {
-		_vDom.setupDom();
-	});
-}
-
-function getFlattenedDomNodesOfVDomFragment(vDomFragment: ComponentItem[]): ChildNode[]
-{
-	return vDomFragment.map(componentItem => {
-		if (componentItem instanceof Component) {
-			return componentItem.getDomNodes();
-		} else {
-			return componentItem.getDomNode();
-		}
-	}).flat();
+	this._virtualDom.push(forEachBlockItem);
+	forEachBlockItem.notifyAfterAttachToDom();
 }

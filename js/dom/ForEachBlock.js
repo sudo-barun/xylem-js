@@ -1,60 +1,63 @@
 import Comment from "./Comment.js";
 import Component from "./Component.js";
 import createStore from "../core/createStore.js";
+import ForEachBlockItem from "./ForEachBlockItem.js";
 import forEachBlockMutation from "./forEachBlockMutation.js";
+function getArray(attributes) {
+    return attributes.array instanceof Array ? attributes.array : attributes.array();
+}
 export default class ForEachBlock extends Component {
-    _array;
-    _build;
     _placeholder = null;
-    _forItems;
-    constructor(array, build) {
-        super();
-        this._array = array;
-        this._build = build;
-    }
     _getFallback() {
         const commentVNode = new Comment(`For placeholder ${(new Date).toUTCString()}`);
         this._placeholder = commentVNode;
         return commentVNode;
     }
-    build() {
-        const array = this._getArray();
-        this._forItems = array.map((value, index, array) => {
+    build(attributes) {
+        const array = getArray(attributes);
+        const _forItems = array.map((value, index, array) => {
             let index$;
-            if (this._array instanceof Array) {
+            if (attributes.array instanceof Array) {
                 index$ = createStore(index);
             }
-            else if ('index$Array' in this._array) {
-                index$ = this._array.index$Array[index];
+            else if ('index$Array' in attributes.array) {
+                index$ = attributes.array.index$Array[index];
             }
             else {
                 index$ = createStore(index);
             }
-            return this._build.bind(this)(value, index$, array);
+            return new ForEachBlockItem({
+                build: attributes.build,
+                buildArgs: [value, index$, array],
+            });
         });
         if (array.length === 0) {
             return [this._getFallback()];
         }
-        return this._forItems.flat();
-    }
-    _getArray() {
-        return this._array instanceof Array ? this._array : this._array();
+        return _forItems;
     }
     _buildVDomFragmentForNewlyAddedArrayItem(item, index) {
-        return this._build(item, this._array.index$Array[index], this._array);
+        return new ForEachBlockItem({
+            build: this._attributes.build,
+            buildArgs: [
+                item,
+                this._attributes.array.index$Array[index],
+                this._attributes.array,
+            ],
+        });
     }
     setup() {
         super.setup();
-        if ('subscribe' in this._array) {
-            const unsubscribe = this._array.subscribe((array) => {
+        if ('subscribe' in this._attributes.array) {
+            const unsubscribe = this._attributes.array.subscribe((array) => {
                 super.setup();
-                if (this._forItems.length) {
+                if (this._virtualDom.length) {
                     this._placeholder = null;
                 }
             });
             this.beforeDetachFromDom.subscribe(() => unsubscribe());
-            if ('mutate' in this._array) {
-                const unsubscribeMutation = this._array.mutate.subscribe(({ action, item, index$ }) => {
+            if ('mutate' in this._attributes.array) {
+                const unsubscribeMutation = this._attributes.array.mutate.subscribe(({ action, item, index$ }) => {
                     const handler = forEachBlockMutation.getHandler(action);
                     if (handler === null) {
                         console.error('Array was mutated with action but no handler found for the action.', action);
@@ -67,6 +70,14 @@ export default class ForEachBlock extends Component {
                 });
                 this.beforeDetachFromDom.subscribe(() => unsubscribeMutation());
             }
+        }
+    }
+    getLength() {
+        if (this._attributes.array instanceof Array) {
+            return this._attributes.array.length;
+        }
+        else {
+            return this._attributes.array().length;
         }
     }
 }

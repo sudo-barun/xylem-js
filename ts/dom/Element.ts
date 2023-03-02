@@ -126,11 +126,20 @@ class Element
 		return this._domNode;
 	}
 
-	attachToDom()
+	notifyAfterAttachToDom()
 	{
 		this._virtualDom.forEach((vDomItem) => {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
-				vDomItem.attachToDom();
+				vDomItem.notifyAfterAttachToDom();
+			}
+		});
+	}
+
+	notifyBeforeDetachFromDom()
+	{
+		this._virtualDom.forEach((vDomItem) => {
+			if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
+				vDomItem.notifyBeforeDetachFromDom();
 			}
 		});
 	}
@@ -138,6 +147,5 @@ class Element
 	detachFromDom()
 	{
 		this._domNode.parentNode!.removeChild(this._domNode);
-		this._virtualDom.forEach((vDom) => vDom.detachFromDom());
 	}
 }

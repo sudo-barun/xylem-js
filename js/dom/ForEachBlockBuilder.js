@@ -7,6 +7,9 @@ export default class ForEachBlockBuilder {
         this._build = build;
     }
     endForEach() {
-        return new ForEachBlock(this._array, this._build);
+        return new ForEachBlock({
+            array: this._array,
+            build: this._build
+        });
     }
 }

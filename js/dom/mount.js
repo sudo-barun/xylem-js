@@ -4,5 +4,5 @@ export default function mount(component, element) {
     component.getDomNodes().forEach(element_ => {
         element.appendChild(element_);
     });
-    component.attachToDom();
+    component.notifyAfterAttachToDom();
 }
