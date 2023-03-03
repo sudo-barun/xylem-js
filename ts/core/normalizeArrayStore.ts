@@ -8,7 +8,7 @@ import createStream from "./createStream.js";
 export default
 function normalizeArrayStore<T,U>(
 	arrayStore: ArrayStore<T>,
-	createStoreForItem: ((item: T) => Store<U>) = ((item: T) => item as Store<U>)
+	createStoreForItem: (item: T) => Store<U>
 ): Store<U[]>
 {
 	const getter = () => itemStores.map((store) => store());
@@ -33,7 +33,7 @@ function normalizeArrayStore<T,U>(
 		stream(getter());
 	});
 
-	arrayStore.mutate.subscribe(({ value, action, item, index$ }: ArrayMutation<T>) => {
+	arrayStore.mutate.subscribe(([ value, action, mutationArgs ]: ArrayMutation<T>) => {
 		const handler = arrayStoreMutation.getHandler(action);
 		if (handler === null) {
 			console.error('Array was mutated with action but no handler found for the action.', action);
@@ -43,10 +43,7 @@ function normalizeArrayStore<T,U>(
 			createStoreForItem,
 			stream,
 			itemStores,
-			{
-				item,
-				index$,
-			}
+			mutationArgs
 		);
 
 		stream(getter());

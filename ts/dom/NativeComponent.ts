@@ -6,7 +6,7 @@ abstract class NativeComponent
 {
 	abstract _domNode: ChildNode;
 	
-	abstract _cleanup?: () => void;
+	// abstract _cleanup?: () => void;
 	
 	abstract setupDom(): void;
 	
@@ -17,7 +17,22 @@ abstract class NativeComponent
 		}
 		return this._domNode;
 	}
-	
+
+	getDomNodes(): ChildNode[]
+	{
+		return [ this.getDomNode() ];
+	}
+
+	getFirstNode(): ChildNode
+	{
+		return this.getDomNode();
+	}
+
+	getLastNode(): ChildNode
+	{
+		return this.getDomNode();
+	}
+
 	afterAttachToDom?(): void
 }
 

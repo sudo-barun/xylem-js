@@ -66,14 +66,18 @@ function createArrayStore<T> (value: Array<T>): SourceArrayStore<T>
 	arrayStore.readonly = readonly;
 	Object.defineProperty(arrayStore, 'readonly', { value: readonly });
 
-	const mutate: ArrayMutate<T> = function (action: ArrayMutateAction, item?: T, index$?: Store<number>) {
-		action<T>(state.value, arrayStore.index$Array, item, index$);
-		state.mutationSubscribers.forEach(subscriber => subscriber({
-			value: state.value,
-			action,
-			item,
-			index$,
-		}));
+	const mutate: ArrayMutate<T> = function<MutationArgs extends any[]>(
+		action: ArrayMutateAction<MutationArgs>,
+		...otherArgs: MutationArgs
+	) {
+		// The mutation argument can change, for example index$ value can change.
+		// So, initial value of arguments is returned from action and used.
+		const otherArgs_ = action<T>(state.value, arrayStore.index$Array, ...otherArgs);
+		state.mutationSubscribers.forEach(subscriber => subscriber([
+			state.value,
+			action as unknown as ArrayMutateAction<any[]>,
+			...otherArgs_
+		]));
 	};
 
 	const unsubscribeMutation = function (subscriber: ArrayMutationSubscriber<T>)
@@ -105,7 +109,7 @@ function createArrayStore<T> (value: Array<T>): SourceArrayStore<T>
 
 	subscribe((value) => arrayStore.index$Array = value.map((_, index) => createStore(index)));
 	subscribe((value) => lengthStream(value.length));
-	mutate.subscribe(({value}) => lengthStream(value.length));
+	mutate.subscribe(([value]) => lengthStream(value.length));
 
 	const length$ = createProxyStore(lengthGetter, lengthStream);
 

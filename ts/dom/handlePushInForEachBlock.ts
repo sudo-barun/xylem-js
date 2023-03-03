@@ -1,7 +1,7 @@
 import ForEachBlock from "./ForEachBlock.js";
 
 export default
-function handlePushInForEachBlock<T>(this: ForEachBlock<T>, {item}: {item: T})
+function handlePushInForEachBlock<T>(this: ForEachBlock<T>, item: T)
 {
 	const forEachBlockItem = this._buildVDomFragmentForNewlyAddedArrayItem(
 		item,
@@ -12,16 +12,8 @@ function handlePushInForEachBlock<T>(this: ForEachBlock<T>, {item}: {item: T})
 
 	forEachBlockItem.getDomNodes()
 	.forEach((node) => {
-		if (this._placeholder) {
-			this._placeholder.getDomNode().parentNode!.append(node);
-			this._placeholder.getDomNode().remove();
-			this._virtualDom.splice(
-				this._virtualDom.indexOf(this._placeholder), 1
-			);
-			this._placeholder = null;
-		} else {
-			this.getLastNode()!.parentNode!.append(node);
-		}
+		const lastNode = this.getLastNode();
+		lastNode.parentNode!.insertBefore(node, lastNode);
 	});
 	this._virtualDom.push(forEachBlockItem);
 	forEachBlockItem.notifyAfterAttachToDom();

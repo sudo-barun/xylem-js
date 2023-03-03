@@ -10,6 +10,8 @@ export default class Component {
     _notifyAfterAttachToDom;
     _notifyBeforeDetachFromDom;
     _eventUnsubscribers;
+    _firstNode;
+    _lastNode;
     constructor(attributes = {}) {
         this._attributes = attributes;
         this._notifyAfterAttachToDom = createStream();
@@ -35,14 +37,14 @@ export default class Component {
             const parentNode = lastNode?.parentNode;
             newVirtualDom.forEach(vDom => vDom.setupDom());
             if (parentNode) {
-                newVirtualDom.slice().reverse().forEach((vDom) => {
+                newVirtualDom.slice().forEach((vDom) => {
                     if (vDom instanceof Component) {
                         vDom.getDomNodes().forEach((node) => {
-                            parentNode.insertBefore(node, lastNode.nextSibling);
+                            parentNode.insertBefore(node, lastNode);
                         });
                     }
                     else {
-                        parentNode.insertBefore(vDom.getDomNode(), lastNode.nextSibling);
+                        parentNode.insertBefore(vDom.getDomNode(), lastNode);
                     }
                 });
             }
@@ -55,13 +57,18 @@ export default class Component {
         }
         this._virtualDom = newVirtualDom;
     }
+    getComponentName() {
+        return Object.getPrototypeOf(this).constructor.name;
+    }
     setupDom() {
+        this._firstNode = new Comment(`${this.getComponentName()}`);
+        this._lastNode = new Comment(`/${this.getComponentName()}`);
         this._virtualDom.forEach(vDom => {
             vDom.setupDom();
         });
     }
     getDomNodes() {
-        return this._virtualDom.map(vDom => {
+        const nodes = this._virtualDom.map(vDom => {
             if (vDom instanceof Component) {
                 return vDom.getDomNodes();
             }
@@ -69,6 +76,9 @@ export default class Component {
                 return [vDom.getDomNode()];
             }
         }).flat();
+        nodes.unshift(this._firstNode);
+        nodes.push(this._lastNode);
+        return nodes;
     }
     getVirtualDom() {
         return this._virtualDom;
@@ -84,38 +94,10 @@ export default class Component {
         return createProxy(immutSubFuncVar, this.beforeDetachFromDom.subscribe);
     }
     getFirstNode() {
-        if (this._virtualDom) {
-            for (const vDom of this._virtualDom) {
-                let node = null;
-                if (vDom instanceof Component) {
-                    node = vDom.getFirstNode();
-                    if (node !== null) {
-                        return node;
-                    }
-                }
-                else {
-                    return vDom.getDomNode();
-                }
-            }
-        }
-        return null;
+        return this._firstNode;
     }
     getLastNode() {
-        if (this._virtualDom) {
-            for (const vDom of this._virtualDom.slice().reverse()) {
-                if (vDom instanceof Component) {
-                    let node = null;
-                    node = vDom.getLastNode();
-                    if (node !== null) {
-                        return node;
-                    }
-                }
-                else {
-                    return vDom.getDomNode();
-                }
-            }
-        }
-        return null;
+        return this._lastNode;
     }
     notifyAfterAttachToDom() {
         this._notifyAfterAttachToDom();
@@ -136,6 +118,8 @@ export default class Component {
     detachFromDom() {
         this._virtualDom.forEach((vDomItem) => {
             vDomItem.detachFromDom();
+            this._firstNode.parentNode.removeChild(this._firstNode);
+            this._lastNode.parentNode.removeChild(this._lastNode);
         });
     }
 }

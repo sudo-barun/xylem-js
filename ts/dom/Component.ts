@@ -19,6 +19,9 @@ abstract class Component<Attributes extends object = {}>
 	_notifyBeforeDetachFromDom: SourceStream<void>;
 	_eventUnsubscribers: Array<()=>void>;
 
+	_firstNode!: Comment;
+	_lastNode!: Comment;
+
 	constructor(attributes: Attributes = {} as Attributes)
 	{
 		this._attributes = attributes;
@@ -52,13 +55,13 @@ abstract class Component<Attributes extends object = {}>
 			const parentNode = lastNode?.parentNode;
 			newVirtualDom.forEach(vDom => vDom.setupDom());
 			if (parentNode) {
-				newVirtualDom.slice().reverse().forEach((vDom) => {
+				newVirtualDom.slice().forEach((vDom) => {
 					if (vDom instanceof Component) {
 						vDom.getDomNodes().forEach((node) => {
-							parentNode.insertBefore(node, lastNode.nextSibling);
+							parentNode.insertBefore(node, lastNode);
 						});
 					} else {
-						parentNode.insertBefore(vDom.getDomNode(), lastNode.nextSibling);
+						parentNode.insertBefore(vDom.getDomNode(), lastNode);
 					}
 				});
 			}
@@ -73,8 +76,16 @@ abstract class Component<Attributes extends object = {}>
 		this._virtualDom = newVirtualDom;
 	}
 
+	getComponentName(): string
+	{
+		return Object.getPrototypeOf(this).constructor.name;
+	}
+
 	setupDom(): void
 	{
+		this._firstNode = new Comment(`${this.getComponentName()}`);
+		this._lastNode = new Comment(`/${this.getComponentName()}`);
+
 		this._virtualDom.forEach(vDom => {
 			vDom.setupDom();
 		});
@@ -82,13 +93,16 @@ abstract class Component<Attributes extends object = {}>
 
 	getDomNodes(): Array<ChildNode>
 	{
-		return this._virtualDom.map(vDom => {
+		const nodes = this._virtualDom.map(vDom => {
 			if (vDom instanceof Component) {
 				return vDom.getDomNodes();
 			} else {
 				return [vDom.getDomNode()];
 			}
 		}).flat();
+		nodes.unshift(this._firstNode);
+		nodes.push(this._lastNode);
+		return nodes;
 	}
 
 	getVirtualDom(): Array<ComponentItem>
@@ -110,40 +124,14 @@ abstract class Component<Attributes extends object = {}>
 		return createProxy(immutSubFuncVar, this.beforeDetachFromDom.subscribe);
 	}
 
-	getFirstNode(): ChildNode|null
+	getFirstNode(): ChildNode
 	{
-		if (this._virtualDom) {
-			for (const vDom of this._virtualDom) {
-				let node = null;
-				if (vDom instanceof Component) {
-					node = vDom.getFirstNode();
-					if (node !== null) {
-						return node;
-					}
-				} else {
-					return vDom.getDomNode();
-				}
-			}
-		}
-		return null;
+		return this._firstNode;
 	}
 
-	getLastNode(): ChildNode|null
+	getLastNode(): ChildNode
 	{
-		if (this._virtualDom) {
-			for (const vDom of this._virtualDom.slice().reverse()) {
-				if (vDom instanceof Component) {
-					let node = null;
-					node = vDom.getLastNode();
-					if (node !== null) {
-						return node;
-					}
-				} else {
-					return vDom.getDomNode();
-				}
-			}
-		}
-		return null;
+		return this._lastNode;
 	}
 
 	notifyAfterAttachToDom()
@@ -170,6 +158,8 @@ abstract class Component<Attributes extends object = {}>
 	{
 		this._virtualDom.forEach((vDomItem) => {
 			vDomItem.detachFromDom();
+			this._firstNode.parentNode!.removeChild(this._firstNode);
+			this._lastNode.parentNode!.removeChild(this._lastNode);
 		});
 	}
 }

@@ -6,8 +6,8 @@ function handleSplice<T,U>(
 	createStoreForItem: ((item: T) => Store<U>) = ((item: T) => item as Store<U>),
 	emit: Emitter<U[]>,
 	itemStores: Store<U>[],
-	{index$} : {index$: Store<number>}
+	index : number
 ): void
 {
-	itemStores.splice(index$(), 1);
+	itemStores.splice(index, 1);
 }

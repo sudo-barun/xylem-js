@@ -7,9 +7,10 @@ import Store from "../types/Store.js";
 import styleAttr from "./styleAttr.js";
 import Subscriber from "../types/Subscriber.js";
 import Text from "./Text.js";
+import NativeComponent from "./NativeComponent.js";
 
 export default
-class Element
+class Element extends NativeComponent
 {
 	tagName: string;
 	attributes: { [key:string]: any };
@@ -26,6 +27,7 @@ class Element
 		attributes = {},
 		children = []
 	) {
+		super();
 		this.tagName = tagName;
 		this.attributes = attributes;
 		this.children = children;

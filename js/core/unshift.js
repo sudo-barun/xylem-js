@@ -4,6 +4,7 @@ const unshift = function (array, index$Array, item) {
     for (let i = 1; i < index$Array.length; i++) {
         index$Array[i](index$Array[i]() + 1);
     }
-    return array.unshift(item);
+    array.unshift(item);
+    return [item];
 };
 export default unshift;

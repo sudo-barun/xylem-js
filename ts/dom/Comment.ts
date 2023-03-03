@@ -6,7 +6,6 @@ export default
 class Comment extends NativeComponent
 {
 	_textContent: string|Getter<string>|SubscribableGetter<string>;
-	_cleanup?: () => void;
 	_domNode!: globalThis.Comment;
 
 	constructor(textContent: string|Getter<string>|SubscribableGetter<string>)

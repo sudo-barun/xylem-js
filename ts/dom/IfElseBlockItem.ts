@@ -1,4 +1,3 @@
-import Comment from "./Comment.js";
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
 import Store from "../types/Store.js";
@@ -28,8 +27,6 @@ class IfElseBlockItem extends Component<Attributes>
 			return attributes.build.apply(this);
 		}
 
-		const commentVNode = new Comment(`If placeholder ${(new Date).toUTCString()}`);
-
-		return [commentVNode];
+		return [];
 	}
 }

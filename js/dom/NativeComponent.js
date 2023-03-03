@@ -5,6 +5,15 @@ export default class NativeComponent {
         }
         return this._domNode;
     }
+    getDomNodes() {
+        return [this.getDomNode()];
+    }
+    getFirstNode() {
+        return this.getDomNode();
+    }
+    getLastNode() {
+        return this.getDomNode();
+    }
 }
 export const ComponentWithSingleTextContentMixin = {
     afterAttachToDom() {

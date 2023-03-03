@@ -1,6 +1,5 @@
 import ArrayMutation from "../types/ArrayMutation.js";
 import ArrayStore from "../types/ArrayStore.js";
-import Comment from "./Comment.js";
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
 import createStore from "../core/createStore.js";
@@ -21,20 +20,12 @@ function getArray<T>(attributes: Attributes<T>): T[]
 export default
 class ForEachBlock<T> extends Component<Attributes<T>>
 {
-	_placeholder: Comment|null = null;
-
-	_getFallback(): Comment
-	{
-		const commentVNode = new Comment(`For placeholder ${(new Date).toUTCString()}`);
-		this._placeholder = commentVNode;
-		return commentVNode;
-	}
 
 	build(attributes: Attributes<T>): ComponentItem[]
 	{
 		const array = getArray(attributes);
 
-		const _forItems = array.map((value, index, array) => {
+		return array.map((value, index, array) => {
 			let index$;
 			if (attributes.array instanceof Array) {
 				index$ = createStore(index);
@@ -48,11 +39,6 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 				buildArgs: [value, index$, array],
 			});
 		});
-
-		if (array.length === 0) {
-			return [this._getFallback()];
-		}
-		return _forItems;
 	}
 
 	_buildVDomFragmentForNewlyAddedArrayItem(item: T, index: number): ForEachBlockItem<T>
@@ -74,24 +60,19 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 		if ('subscribe' in this._attributes.array) {
 			const unsubscribe = this._attributes.array.subscribe((array) => {
 				super.setup();
-				if (this._virtualDom.length) {
-					this._placeholder = null;
-				}
 			});
 			this.beforeDetachFromDom.subscribe(() => unsubscribe());
 
 			if ('mutate' in this._attributes.array) {
 				const unsubscribeMutation = this._attributes.array.mutate.subscribe(
-					({action, item, index$}: ArrayMutation<T>) => {
+					(arrayMutation: ArrayMutation<T>) => {
+						const [_, action, ...mutationArgs] = arrayMutation;
 						const handler = forEachBlockMutation.getHandler(action);
 						if (handler === null) {
 							console.error('Array was mutated with action but no handler found for the action.', action);
 							throw new Error('Array was mutated with action but no handler found for the action.');
 						}
-						handler.call(this, {
-							item,
-							index$,
-						});
+						handler.apply(this, mutationArgs);
 					}
 				);
 				this.beforeDetachFromDom.subscribe(() => unsubscribeMutation());

@@ -1,4 +1,4 @@
-export default function handlePush(createStoreForItem = ((item) => item), emit, itemStores, { item }) {
+export default function handlePush(createStoreForItem = ((item) => item), emit, itemStores, item) {
     const getter = () => itemStores.map((store) => store());
     const store = createStoreForItem(item);
     store.subscribe((value) => {

@@ -6,7 +6,6 @@ import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeCo
 export default class Text extends NativeComponent
 {
 	_textContent: string|Getter<string>|SubscribableGetter<string>;
-	_cleanup?: () => void;
 	_domNode!: globalThis.Text;
 
 	constructor(textContent: string|Getter<string>|Store<string>)

@@ -4,7 +4,8 @@ import createFunctionToSetClassList from "./createFunctionToSetClassList.js";
 import setAttribute from "./setAttribute.js";
 import styleAttr from "./styleAttr.js";
 import Text from "./Text.js";
-export default class Element {
+import NativeComponent from "./NativeComponent.js";
+export default class Element extends NativeComponent {
     tagName;
     attributes;
     children;
@@ -14,6 +15,7 @@ export default class Element {
     _domNode;
     _virtualDom;
     constructor(tagName, attributes = {}, children = []) {
+        super();
         this.tagName = tagName;
         this.attributes = attributes;
         this.children = children;

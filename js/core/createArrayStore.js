@@ -48,14 +48,15 @@ export default function createArrayStore(value) {
     readonly.subscribe = subscribe;
     arrayStore.readonly = readonly;
     Object.defineProperty(arrayStore, 'readonly', { value: readonly });
-    const mutate = function (action, item, index$) {
-        action(state.value, arrayStore.index$Array, item, index$);
-        state.mutationSubscribers.forEach(subscriber => subscriber({
-            value: state.value,
+    const mutate = function (action, ...otherArgs) {
+        // The mutation argument can change, for example index$ value can change.
+        // So, initial value of arguments is returned from action and used.
+        const otherArgs_ = action(state.value, arrayStore.index$Array, ...otherArgs);
+        state.mutationSubscribers.forEach(subscriber => subscriber([
+            state.value,
             action,
-            item,
-            index$,
-        }));
+            ...otherArgs_
+        ]));
     };
     const unsubscribeMutation = function (subscriber) {
         const index = mutationSubscribers.indexOf(subscriber);
@@ -80,7 +81,7 @@ export default function createArrayStore(value) {
     const lengthStream = createStream();
     subscribe((value) => arrayStore.index$Array = value.map((_, index) => createStore(index)));
     subscribe((value) => lengthStream(value.length));
-    mutate.subscribe(({ value }) => lengthStream(value.length));
+    mutate.subscribe(([value]) => lengthStream(value.length));
     const length$ = createProxyStore(lengthGetter, lengthStream);
     arrayStore.length$ = length$;
     arrayStore.index$Array = value.map((_, index) => createStore(index));

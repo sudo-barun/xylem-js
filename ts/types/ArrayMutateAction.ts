@@ -1,11 +1,9 @@
 import SourceStore from "./SourceStore";
-import Store from "./Store";
 
-type ArrayMutateAction = <T>(
+type ArrayMutateAction<MutationArgs extends any[] = any[]> = <T>(
 	array: T[],
 	index$Array: SourceStore<number>[],
-	item?: T,
-	index$?: Store<number>
+	...mutationArgs: MutationArgs
 ) => any;
 
 export default ArrayMutateAction;

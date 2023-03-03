@@ -1,4 +1,3 @@
-import Comment from "./Comment.js";
 import Component from "./Component.js";
 export default class IfElseBlockItem extends Component {
     setup() {
@@ -13,7 +12,6 @@ export default class IfElseBlockItem extends Component {
         if (attributes.isActive$()) {
             return attributes.build.apply(this);
         }
-        const commentVNode = new Comment(`If placeholder ${(new Date).toUTCString()}`);
-        return [commentVNode];
+        return [];
     }
 }

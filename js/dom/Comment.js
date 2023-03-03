@@ -1,7 +1,6 @@
 import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeComponent.js";
 export default class Comment extends NativeComponent {
     _textContent;
-    _cleanup;
     _domNode;
     constructor(textContent) {
         super();

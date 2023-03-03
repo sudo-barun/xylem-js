@@ -6,7 +6,7 @@ function handleUnshift<T,U>(
 	createStoreForItem: ((item: T) => Store<U>) = ((item: T) => item as Store<U>),
 	emit: Emitter<U[]>,
 	itemStores: Store<U>[],
-	{item} : {item: T}
+	item: T
 ): void
 {
 	const getter = () => itemStores.map((store) => store());

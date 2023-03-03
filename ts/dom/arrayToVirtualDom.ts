@@ -14,10 +14,6 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 	let previousElementWasSelfClosed: boolean;
 	const vNodes: Array<Element|Comment|Component> = [];
 
-	if (arr.length === 0) {
-		throw new Error('Array cannot be empty.');
-	}
-
 	for (let i = 0; i < arr.length; i++) {
 		const item = arr[i];
 		if (typeof item === 'string') {
@@ -83,6 +79,11 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 				console.error('No unclosed element found.', item, arr);
 				throw new Error('No unclosed element found.');
 			}
+
+			if (item.length === 0) {
+				console.warn(`Empty array found inside following array at index ${i}.`, arr);
+			}
+
 			unclosedElements[unclosedElements.length-1].children.push(
 				...arrayToVirtualDom(item)
 			);
