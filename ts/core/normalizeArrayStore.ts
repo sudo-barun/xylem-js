@@ -33,7 +33,7 @@ function normalizeArrayStore<T,U>(
 		stream(getter());
 	});
 
-	arrayStore.mutate.subscribe(([ value, action, mutationArgs ]: ArrayMutation<T>) => {
+	arrayStore.mutate.subscribe(([ value, action, ...mutationArgs ]: ArrayMutation<T>) => {
 		const handler = arrayStoreMutation.getHandler(action);
 		if (handler === null) {
 			console.error('Array was mutated with action but no handler found for the action.', action);
@@ -43,7 +43,7 @@ function normalizeArrayStore<T,U>(
 			createStoreForItem,
 			stream,
 			itemStores,
-			mutationArgs
+			...mutationArgs
 		);
 
 		stream(getter());

@@ -19,13 +19,13 @@ export default function normalizeArrayStore(arrayStore, createStoreForItem) {
         initItemStores(value);
         stream(getter());
     });
-    arrayStore.mutate.subscribe(([value, action, mutationArgs]) => {
+    arrayStore.mutate.subscribe(([value, action, ...mutationArgs]) => {
         const handler = arrayStoreMutation.getHandler(action);
         if (handler === null) {
             console.error('Array was mutated with action but no handler found for the action.', action);
             throw new Error('Array was mutated with action but no handler found for the action.');
         }
-        handler(createStoreForItem, stream, itemStores, mutationArgs);
+        handler(createStoreForItem, stream, itemStores, ...mutationArgs);
         stream(getter());
     });
     return createProxyStore(getter, stream);

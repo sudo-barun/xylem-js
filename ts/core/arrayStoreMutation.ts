@@ -6,7 +6,7 @@ type Handler = <T,U>(
 	createStoreForItem: (item: T) => Store<U>,
 	emit: Emitter<U[]>,
 	itemStores: Store<U>[],
-	mutationArgs: any[]
+	...mutationArgs: any[]
 ) => void;
 
 const registeredArrayMutateActionAndHandlerList: Array<[ArrayMutateAction, Handler]> = [];
