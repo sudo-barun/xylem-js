@@ -5,4 +5,8 @@ export default function mount(component, element) {
         element.appendChild(element_);
     });
     component.notifyAfterAttachToDom();
+    return () => {
+        component.notifyBeforeDetachFromDom();
+        component.detachFromDom();
+    };
 }
