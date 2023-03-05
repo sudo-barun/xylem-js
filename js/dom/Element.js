@@ -1,10 +1,10 @@
 import Component from "./Component.js";
 import createAttributeFunction from "./createAttributeFunction.js";
 import createFunctionToSetClassList from "./createFunctionToSetClassList.js";
+import NativeComponent from "./NativeComponent.js";
 import setAttribute from "./setAttribute.js";
 import styleAttr from "./styleAttr.js";
 import Text from "./Text.js";
-import NativeComponent from "./NativeComponent.js";
 export default class Element extends NativeComponent {
     tagName;
     attributes;
@@ -23,10 +23,10 @@ export default class Element extends NativeComponent {
         this.listeners = {};
         this._virtualDom = children;
     }
-    setup() {
-        this.children.forEach(node => {
-            if ((node instanceof Component) || (node instanceof Element)) {
-                return node.setup();
+    setup(modifier) {
+        this.children.forEach(virtualNode => {
+            if ((virtualNode instanceof Component) || (virtualNode instanceof Element)) {
+                virtualNode.setup(modifier);
             }
         });
     }

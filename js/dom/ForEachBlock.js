@@ -7,6 +7,24 @@ function getArray(attributes) {
 }
 export default class ForEachBlock extends Component {
     build(attributes) {
+        if ('subscribe' in this._attributes.array) {
+            const unsubscribe = this._attributes.array.subscribe((array) => {
+                super.reload();
+            });
+            this.beforeDetachFromDom.subscribe(unsubscribe);
+            if ('mutate' in this._attributes.array) {
+                const unsubscribeMutation = this._attributes.array.mutate.subscribe((arrayMutation) => {
+                    const [_, action, ...mutationArgs] = arrayMutation;
+                    const handler = forEachBlockMutation.getHandler(action);
+                    if (handler === null) {
+                        console.error('Array was mutated with action but no handler found for the action.', action);
+                        throw new Error('Array was mutated with action but no handler found for the action.');
+                    }
+                    handler.apply(this, mutationArgs);
+                });
+                this.beforeDetachFromDom.subscribe(unsubscribeMutation);
+            }
+        }
         const array = getArray(attributes);
         return array.map((value, index, array) => {
             let index$;
@@ -34,27 +52,6 @@ export default class ForEachBlock extends Component {
                 this._attributes.array,
             ],
         });
-    }
-    setup() {
-        super.setup();
-        if ('subscribe' in this._attributes.array) {
-            const unsubscribe = this._attributes.array.subscribe((array) => {
-                super.reload();
-            });
-            this.beforeDetachFromDom.subscribe(() => unsubscribe());
-            if ('mutate' in this._attributes.array) {
-                const unsubscribeMutation = this._attributes.array.mutate.subscribe((arrayMutation) => {
-                    const [_, action, ...mutationArgs] = arrayMutation;
-                    const handler = forEachBlockMutation.getHandler(action);
-                    if (handler === null) {
-                        console.error('Array was mutated with action but no handler found for the action.', action);
-                        throw new Error('Array was mutated with action but no handler found for the action.');
-                    }
-                    handler.apply(this, mutationArgs);
-                });
-                this.beforeDetachFromDom.subscribe(() => unsubscribeMutation());
-            }
-        }
     }
     getLength() {
         if (this._attributes.array instanceof Array) {

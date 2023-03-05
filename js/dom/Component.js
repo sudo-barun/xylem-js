@@ -6,6 +6,7 @@ export default class Component {
     afterAttachToDom;
     beforeDetachFromDom;
     _attributes;
+    _modifier;
     _virtualDom;
     _notifyAfterAttachToDom;
     _notifyBeforeDetachFromDom;
@@ -24,11 +25,26 @@ export default class Component {
         throw new Error('Method "build" is not implemented in class '
             + Object.getPrototypeOf(this).constructor.name);
     }
-    setup() {
+    injectAttributes(attributes) {
+        this._attributes = { ...attributes, ...this._attributes };
+    }
+    setModifier(modifier) {
+        this._modifier = modifier;
+    }
+    setup(modifier) {
+        if (arguments.length === 0) {
+            modifier = this._modifier;
+        }
+        else {
+            this._modifier = modifier;
+        }
+        if (modifier) {
+            modifier(this);
+        }
         const virtualDom = this.build(this._attributes);
         virtualDom.forEach(_vDom => {
             if ((_vDom instanceof Component) || (_vDom instanceof Element)) {
-                _vDom.setup();
+                _vDom.setup(modifier);
             }
         });
         this._virtualDom = virtualDom;
@@ -42,7 +58,7 @@ export default class Component {
         this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
         this._notifyBeforeDetachFromDom = createStream();
         this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
-        this.setup();
+        this.setup(this._modifier);
         this._virtualDom.forEach(vDom => {
             vDom.setupDom();
         });

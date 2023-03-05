@@ -1,4 +1,5 @@
 import ComponentItem from "../types/ComponentItem.js";
+import ComponentModifier from "../types/ComponentModifier.js";
 import createProxy from "../core/createProxy.js";
 import createProxyStore from "../core/createProxyStore.js";
 import createStream from "../core/createStream.js";
@@ -8,12 +9,13 @@ import Store from "../types/Store.js";
 import Stream from "../types/Stream.js";
 
 export default
-abstract class Component<Attributes extends object = {}>
+abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}>
 {
 	afterAttachToDom: Stream<void>;
 	beforeDetachFromDom: Stream<void>;
 
-	_attributes: Attributes;
+	_attributes: EarlyAttributes & LateAttributes;
+	_modifier?: ComponentModifier;
 	_virtualDom!: Array<ComponentItem>;
 	_notifyAfterAttachToDom: SourceStream<void>;
 	_notifyBeforeDetachFromDom: SourceStream<void>;
@@ -22,9 +24,9 @@ abstract class Component<Attributes extends object = {}>
 	_firstNode!: Comment;
 	_lastNode!: Comment;
 
-	constructor(attributes: Attributes = {} as Attributes)
+	constructor(attributes: EarlyAttributes = {} as EarlyAttributes)
 	{
-		this._attributes = attributes;
+		this._attributes = attributes as typeof this._attributes;
 		this._notifyAfterAttachToDom = createStream<void>();
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
 		this._notifyBeforeDetachFromDom = createStream<void>();
@@ -32,7 +34,7 @@ abstract class Component<Attributes extends object = {}>
 		this._eventUnsubscribers = [];
 	}
 
-	build(attributes: Attributes): Array<ComponentItem>
+	build(attributes: EarlyAttributes & LateAttributes): Array<ComponentItem>
 	{
 		throw new Error(
 			'Method "build" is not implemented in class '
@@ -40,12 +42,31 @@ abstract class Component<Attributes extends object = {}>
 		);
 	}
 
-	setup(): void
+	injectAttributes(attributes: LateAttributes)
 	{
+		this._attributes = { ...attributes, ...this._attributes };
+	}
+
+	setModifier(modifier: ComponentModifier)
+	{
+		this._modifier = modifier;
+	}
+
+	setup(modifier?: ComponentModifier): void
+	{
+		if (arguments.length === 0) {
+			modifier = this._modifier;
+		} else {
+			this._modifier = modifier;
+		}
+		if (modifier) {
+			modifier(this);
+		}
+
 		const virtualDom = this.build(this._attributes);
 		virtualDom.forEach(_vDom => {
 			if ((_vDom instanceof Component) || (_vDom instanceof Element)) {
-				_vDom.setup();
+				_vDom.setup(modifier);
 			}
 		});
 
@@ -64,7 +85,7 @@ abstract class Component<Attributes extends object = {}>
 		this._notifyBeforeDetachFromDom = createStream<void>();
 		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
 
-		this.setup();
+		this.setup(this._modifier);
 		this._virtualDom.forEach(vDom => {
 			vDom.setupDom();
 		});

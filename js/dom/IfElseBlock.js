@@ -23,10 +23,8 @@ export default class IfElseBlock extends Component {
         this._activeBlockIndex = index;
         this._isActiveStores.forEach((isActive$, index) => isActive$(index === this._activeBlockIndex));
     }
-    setup() {
-        const attributes = this._attributes;
+    build(attributes) {
         this.setActive(getActiveBlockIndex(attributes.itemAttributesArray.map((itemAttributes) => itemAttributes.condition)));
-        super.setup();
         attributes.itemAttributesArray.forEach((itemAttributes, index) => {
             if (!(typeof itemAttributes.condition === 'function' && 'subscribe' in itemAttributes.condition)) {
                 return;
@@ -53,8 +51,6 @@ export default class IfElseBlock extends Component {
             });
             this.beforeDetachFromDom.subscribe(unsubscribe);
         });
-    }
-    build(attributes) {
         return attributes.itemAttributesArray.map((itemAttributes, index) => {
             return new IfElseBlockItem({
                 build: itemAttributes.build,

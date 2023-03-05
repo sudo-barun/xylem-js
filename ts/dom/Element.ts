@@ -1,13 +1,14 @@
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
+import ComponentModifier from "../types/ComponentModifier.js";
 import createAttributeFunction from "./createAttributeFunction.js";
 import createFunctionToSetClassList from "./createFunctionToSetClassList.js";
+import NativeComponent from "./NativeComponent.js";
 import setAttribute from "./setAttribute.js";
 import Store from "../types/Store.js";
 import styleAttr from "./styleAttr.js";
 import Subscriber from "../types/Subscriber.js";
 import Text from "./Text.js";
-import NativeComponent from "./NativeComponent.js";
 
 export default
 class Element extends NativeComponent
@@ -36,11 +37,11 @@ class Element extends NativeComponent
 		this._virtualDom = children;
 	}
 
-	setup(): void
+	setup(modifier?: ComponentModifier): void
 	{
-		this.children.forEach(node => {
-			if ((node instanceof Component) || (node instanceof Element)) {
-				return node.setup();
+		this.children.forEach(virtualNode => {
+			if ((virtualNode instanceof Component) || (virtualNode instanceof Element)) {
+				virtualNode.setup(modifier);
 			}
 		});
 	}
