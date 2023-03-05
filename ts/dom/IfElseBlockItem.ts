@@ -10,20 +10,15 @@ type Attributes = {
 export default
 class IfElseBlockItem extends Component<Attributes>
 {
-	setup(): void
-	{
-		super.setup();
-
-		const unsubscribe = this._attributes.isActive$.subscribe(() => {
-			super.setup();
-			this.notifyAfterAttachToDom();
-		});
-		this.beforeDetachFromDom.subscribe(unsubscribe);
-	}
-
 	build(attributes: Attributes): ComponentItem[]
 	{
-		if (attributes.isActive$()) {
+		const isActive$ = this.deriveStore(this._attributes.isActive$);
+
+		isActive$.subscribe(() => {
+			this.reload();
+		});
+
+		if (isActive$()) {
 			return attributes.build.apply(this);
 		}
 

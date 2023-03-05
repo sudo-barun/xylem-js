@@ -42,38 +42,46 @@ abstract class Component<Attributes extends object = {}>
 
 	setup(): void
 	{
-		const oldVirtualDom = this._virtualDom;
-		const newVirtualDom = this.build(this._attributes);
-		newVirtualDom.forEach(_vDom => {
+		const virtualDom = this.build(this._attributes);
+		virtualDom.forEach(_vDom => {
 			if ((_vDom instanceof Component) || (_vDom instanceof Element)) {
 				_vDom.setup();
 			}
 		});
 
-		if (oldVirtualDom) {
-			const lastNode = this.getLastNode();
-			const parentNode = lastNode?.parentNode;
-			newVirtualDom.forEach(vDom => vDom.setupDom());
-			if (parentNode) {
-				newVirtualDom.slice().forEach((vDom) => {
-					if (vDom instanceof Component) {
-						vDom.getDomNodes().forEach((node) => {
-							parentNode.insertBefore(node, lastNode);
-						});
-					} else {
-						parentNode.insertBefore(vDom.getDomNode(), lastNode);
-					}
-				});
-			}
-			oldVirtualDom.forEach(vDomItem => {
-				if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
-					vDomItem.notifyBeforeDetachFromDom();
-				}
-				vDomItem.detachFromDom();
-			});
-		}
+		this._virtualDom = virtualDom;
+	}
 
-		this._virtualDom = newVirtualDom;
+	reload(): void
+	{
+		this.notifyBeforeDetachFromDom();
+		this._virtualDom.forEach(vDomItem => {
+			vDomItem.detachFromDom();
+		});
+
+		this._notifyAfterAttachToDom = createStream<void>();
+		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
+		this._notifyBeforeDetachFromDom = createStream<void>();
+		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+
+		this.setup();
+		this._virtualDom.forEach(vDom => {
+			vDom.setupDom();
+		});
+
+		const nodes = this._virtualDom.map(vDom => {
+			if (vDom instanceof Component) {
+				return vDom.getDomNodes();
+			} else {
+				return [vDom.getDomNode()];
+			}
+		}).flat();
+
+		nodes.forEach((node) => {
+			this._lastNode.parentNode!.insertBefore(node, this._lastNode);
+		});
+
+		this.notifyAfterAttachToDom();
 	}
 
 	getComponentName(): string

@@ -59,7 +59,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 
 		if ('subscribe' in this._attributes.array) {
 			const unsubscribe = this._attributes.array.subscribe((array) => {
-				super.setup();
+				super.reload();
 			});
 			this.beforeDetachFromDom.subscribe(() => unsubscribe());
 

@@ -39,7 +39,7 @@ export default class ForEachBlock extends Component {
         super.setup();
         if ('subscribe' in this._attributes.array) {
             const unsubscribe = this._attributes.array.subscribe((array) => {
-                super.setup();
+                super.reload();
             });
             this.beforeDetachFromDom.subscribe(() => unsubscribe());
             if ('mutate' in this._attributes.array) {
