@@ -6,6 +6,9 @@ export default class Text extends NativeComponent {
         super();
         this._textContent = textContent;
     }
+    setTextContent(textContent) {
+        this._textContent = textContent;
+    }
     createDomNode(textContent) {
         return document.createTextNode(textContent);
     }

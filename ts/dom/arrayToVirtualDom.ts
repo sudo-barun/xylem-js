@@ -3,7 +3,9 @@ import Component from './Component.js';
 import ComponentItem from '../types/ComponentItem.js';
 import Element from './Element.js';
 import ForEachBuilder from './ForEachBlockBuilder.js';
+import Getter from '../types/Getter.js';
 import IfElseBlockBuilder from './IfElseBlockBuilder.js';
+import SubscribableGetter from '../types/SubscribableGetter.js';
 import Text from './Text.js';
 
 export default
@@ -11,65 +13,101 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 {
 	let unclosedElements: Element[] = [];
 	let unclosedComment: Comment|null = null;
+	let unclosedCommentContent: string|Getter<string>|SubscribableGetter<string>|null = null;
+	let unclosedText: Text|null = null;
+	let unclosedTextContent: string|Getter<string>|SubscribableGetter<string>|null = null;
 	let previousElementWasSelfClosed: boolean;
 	const vNodes: Array<Element|Comment|Component> = [];
 
+	const elementStartRegex = /^<(?<tagName>[0-9a-zA-Z-]+)>$/;
+	const elementEndRegex = /^<\/(?<tagName>[0-9a-zA-Z-]+)>$/;
+	const selfClosingElementRegex = /^<(?<tagName>[0-9a-zA-Z-]+)\/>$/;
+	const commentStartRegex = /^<!--$/;
+	const commentEndRegex = /^-->$/;
+	const textStartRegex = /^<>$/;
+	const textEndRegex = /^<\/>$/;
+
 	for (let i = 0; i < arr.length; i++) {
 		const item = arr[i];
-		if (typeof item === 'string') {
-			const elementStartRegex = /^<(?<tagName>[0-9a-zA-Z-]+)>$/;
-			const elementEndRegex = /^<\/(?<tagName>[0-9a-zA-Z-]+)>$/;
-			const selfClosingElementRegex = /^<(?<tagName>[0-9a-zA-Z-]+)\/>$/;
-			const commentStartRegex = /^<!--$/;
-			const commentEndRegex = /^-->$/;
-			if (unclosedComment) {
-				if (commentEndRegex.test(item)) {
-					unclosedComment = null;
-				} else {
-					unclosedComment._textContent = item;
+		if (unclosedComment) {
+			if (commentEndRegex.test(item)) {
+				if (unclosedCommentContent === null) {
+					console.error(`Comment end marker found without any content. Check following array at index ${i} : `, arr);
+					throw new Error('Comment end marker found without any content.');
 				}
+				unclosedComment = null;
+				unclosedCommentContent = null;
 			} else {
-				if (selfClosingElementRegex.test(item)) {
-					const [ , tagName ] = selfClosingElementRegex.exec(item)!;
-					const element = new Element(tagName);
-					vNodes.push(element);
-					previousElementWasSelfClosed = true;
-				} else if (elementStartRegex.test(item)) {
-					const [ , tagName ] = elementStartRegex.exec(item)!;
-					const element = new Element(tagName);
-					unclosedElements.push(element);
-					vNodes.push(element);
-					previousElementWasSelfClosed = false;
-				} else if (elementEndRegex.test(item)) {
-					const [ , tagName ] = elementEndRegex.exec(item)!;
-					const lastIndex = unclosedElements.findLastIndex(e => e.tagName === tagName);
-					if (lastIndex >= 0) {
-						const unclosedElement = unclosedElements[lastIndex];
-						if (unclosedElement.tagName !== tagName) {
-							throw new Error(`No matching opening tag found for </${tagName}>`);
-						}
-						unclosedElements.splice(lastIndex);
-					} else {
-						console.error(`Closing tag "${tagName}" does not match any unclosed tag. Source:`, arr);
-						throw new Error(`Closing tag "${tagName}" does not match any unclosed tag.`);
-					}
-				} else if (commentStartRegex.test(item)) {
-					const comment = new Comment('');
-					unclosedComment = comment;
-					vNodes.push(comment);
-				} else if (commentEndRegex.test(item)) {
-					throw new Error(`Comment end marker(-->) found without preceeding comment start marker(<!--).`);
-				} else {
-					const partiallyResemblingElementStartRegex = /<(?<tagName>[a-zA-Z]+)/;
-					if (partiallyResemblingElementStartRegex.test(item)) {
-						console.warn(`Text partially resembling start tag found: ${item} . Consider using getter function.`);
-					}
-					const partiallyResemblingElementEndRegex = /<\/(?<tagName>[a-zA-Z]+)/;
-					if (partiallyResemblingElementEndRegex.test(item)) {
-						console.warn(`Text partially resembling end tag found: ${item} . Consider using getter function.`);
-					}
-					vNodes.push(new Text(item));
+				if (unclosedCommentContent !== null) {
+					console.error(`Comment content already defined inside comment markers. Check following array at index ${i} : `, arr);
+					throw new Error('Comment content already defined inside comment markers.');
 				}
+				unclosedComment.setTextContent(item);
+				unclosedCommentContent = item;
+			}
+		} else if (unclosedText) {
+			if (textEndRegex.test(item)) {
+				if (unclosedTextContent === null) {
+					console.error(`Text end marker found without any content. Check following array at index ${i} : `, arr);
+					throw new Error('Text end marker found without any content.');
+				}
+				unclosedText = null;
+				unclosedTextContent = null;
+			} else {
+				if (unclosedTextContent !== null) {
+					console.error(`Text content already defined inside text markers. Check following array at index ${i} : `, arr);
+					throw new Error('Text content already defined inside text markers.');
+				}
+				unclosedText.setTextContent(item);
+				unclosedTextContent = item;
+			}
+		} else if (typeof item === 'string') {
+			if (selfClosingElementRegex.test(item)) {
+				const [ , tagName ] = selfClosingElementRegex.exec(item)!;
+				const element = new Element(tagName);
+				vNodes.push(element);
+				previousElementWasSelfClosed = true;
+			} else if (elementStartRegex.test(item)) {
+				const [ , tagName ] = elementStartRegex.exec(item)!;
+				const element = new Element(tagName);
+				unclosedElements.push(element);
+				vNodes.push(element);
+				previousElementWasSelfClosed = false;
+			} else if (elementEndRegex.test(item)) {
+				const [ , tagName ] = elementEndRegex.exec(item)!;
+				const lastIndex = unclosedElements.findLastIndex(e => e.tagName === tagName);
+				if (lastIndex >= 0) {
+					const unclosedElement = unclosedElements[lastIndex];
+					if (unclosedElement.tagName !== tagName) {
+						throw new Error(`No matching opening tag found for </${tagName}>`);
+					}
+					unclosedElements.splice(lastIndex);
+				} else {
+					console.error(`Closing tag "${tagName}" does not match any unclosed tag. Source:`, arr);
+					throw new Error(`Closing tag "${tagName}" does not match any unclosed tag.`);
+				}
+			} else if (commentStartRegex.test(item)) {
+				const comment = new Comment('');
+				unclosedComment = comment;
+				vNodes.push(comment);
+			} else if (commentEndRegex.test(item)) {
+				throw new Error(`Comment end marker(-->) found without preceeding comment start marker(<!--).`);
+			} else if (textStartRegex.test(item)) {
+				const text = new Text('');
+				unclosedText = text;
+				vNodes.push(text);
+			} else if (textEndRegex.test(item)) {
+				throw new Error(`Text end marker(</>) found without preceeding text start marker(<>).`);
+			} else {
+				const partiallyResemblingElementStartRegex = /<(?<tagName>[a-zA-Z]+)/;
+				if (partiallyResemblingElementStartRegex.test(item)) {
+					console.warn(`Text partially resembling start tag found: ${item} . Consider using text markers.`);
+				}
+				const partiallyResemblingElementEndRegex = /<\/(?<tagName>[a-zA-Z]+)/;
+				if (partiallyResemblingElementEndRegex.test(item)) {
+					console.warn(`Text partially resembling end tag found: ${item} . Consider using text markers.`);
+				}
+				vNodes.push(new Text(item));
 			}
 		} else if (typeof item === 'function') {
 			const text = new Text(item);
@@ -137,6 +175,11 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 	if (unclosedComment) {
 		console.error('Unclosed comment found', arr);
 		throw new Error('Unclosed comment found');
+	}
+
+	if (unclosedText) {
+		console.error('Unclosed text found', arr);
+		throw new Error('Unclosed text found');
 	}
 
 	if (unclosedElements.length) {

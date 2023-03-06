@@ -14,6 +14,11 @@ export default class Text extends NativeComponent
 		this._textContent = textContent;
 	}
 
+	setTextContent(textContent: string|Getter<string>|SubscribableGetter<string>)
+	{
+		this._textContent = textContent;
+	}
+
 	createDomNode(textContent: string): globalThis.Text
 	{
 		return document.createTextNode(textContent);

@@ -14,6 +14,11 @@ class Comment extends NativeComponent
 		this._textContent = textContent;
 	}
 
+	setTextContent(textContent: string|Getter<string>|SubscribableGetter<string>)
+	{
+		this._textContent = textContent;
+	}
+
 	setupDom()
 	{
 		if (this._domNode !== undefined) {
