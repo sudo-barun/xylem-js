@@ -1,12 +1,12 @@
+import combineNamedStores from "../core/combineNamedStores.js";
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
 import ComponentModifier from "../types/ComponentModifier.js";
 import createAttributeFunction from "./createAttributeFunction.js";
-import createFunctionToSetClassList from "./createFunctionToSetClassList.js";
+import map from "../core/map.js";
 import NativeComponent from "./NativeComponent.js";
 import setAttribute from "./setAttribute.js";
 import Store from "../types/Store.js";
-import styleAttr from "./styleAttr.js";
 import Subscriber from "../types/Subscriber.js";
 import Text from "./Text.js";
 
@@ -16,7 +16,6 @@ class Element extends NativeComponent
 	tagName: string;
 	attributes: { [key:string]: any };
 	children: ComponentItem[];
-	classes: { [key:string]: boolean|Store<boolean> };
 	listeners: { [key:string]: ()=>{} };
 	elementStoreSubscriber?: Subscriber<HTMLElement>;
 
@@ -32,7 +31,6 @@ class Element extends NativeComponent
 		this.tagName = tagName;
 		this.attributes = attributes;
 		this.children = children;
-		this.classes = {};
 		this.listeners = {};
 		this._virtualDom = children;
 	}
@@ -61,14 +59,14 @@ class Element extends NativeComponent
 				this.attributes[attr](element, attr);
 			} else if (typeof this.attributes[attr] === 'function') {
 				createAttributeFunction(this.attributes[attr])(element, attr);
-			} else if (attr === 'style' && this.attributes[attr] instanceof Object) {
-				createAttributeFunction(styleAttr(this.attributes[attr]))(element, attr);
+			} else if (attr === 'class' && typeof this.attributes[attr] === 'object') {
+				createAttributeFunction(attrClass(this.attributes[attr]))(element, attr);
+			} else if (attr === 'style' && typeof this.attributes[attr] === 'object') {
+				createAttributeFunction(attrStyle(this.attributes[attr]))(element, attr);
 			} else {
 				setAttribute(element, attr, this.attributes[attr]);
 			}
 		});
-
-		createFunctionToSetClassList(this.classes)(element);
 
 		Object.keys(this.listeners).forEach((event) => {
 			element.addEventListener(event, this.listeners[event]);
@@ -150,5 +148,55 @@ class Element extends NativeComponent
 	detachFromDom()
 	{
 		this._domNode.parentNode!.removeChild(this._domNode);
+	}
+}
+
+type StyleDefinitions = {
+	[cssProperty: string]: Store<string>,
+};
+
+function attrStyle(styleDefinitions: StyleDefinitions|[string, StyleDefinitions]): Store<string>
+{
+	if (styleDefinitions instanceof Array) {
+		return map(attrStyle(styleDefinitions[1]), (v) => {
+			if (v) {
+				return [styleDefinitions[0], v].join(' ');
+			} else {
+				return styleDefinitions[0];
+			}
+		});
+	} else {
+		return map(combineNamedStores(styleDefinitions), (v) => {
+			return Object.keys(v).reduce((acc, cssProperty) => {
+				acc.push(`${cssProperty}:${styleDefinitions[cssProperty]}`);
+				return acc;
+			}, [] as string[]).join('; ');
+		});
+	}
+}
+
+type ClassDefinitions = {
+	[className: string]: Store<boolean>,
+};
+
+function attrClass(classDefinitions: ClassDefinitions|[string, ClassDefinitions]): Store<string>
+{
+	if (classDefinitions instanceof Array) {
+		return map(attrClass(classDefinitions[1]), (v) => {
+			if (v) {
+				return [classDefinitions[0], v].join(' ');
+			} else {
+				return classDefinitions[0];
+			}
+		});
+	} else {
+		return map(combineNamedStores(classDefinitions), (v) => {
+			return Object.keys(v).reduce((acc, className) => {
+				if (v[className]) {
+					acc.push(className);
+				}
+				return acc;
+			}, [] as string[]).join(' ');
+		});
 	}
 }

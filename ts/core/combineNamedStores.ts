@@ -3,7 +3,7 @@ import Subscriber from "../types/Subscriber.js";
 import Unsubscriber from "../types/Unsubscriber.js";
 
 export default
-function combineNamedStores<T extends object>(stores: {[prop: string]: Store<any>}): Store<T>
+function combineNamedStores<T extends {[prop: string]: any}>(stores: {[prop: string]: Store<any>}): Store<T>
 {
 	const subscribers: Subscriber<T>[] = [];
 	const store = function (): T {

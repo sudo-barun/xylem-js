@@ -1,7 +1,6 @@
 import Comment from './Comment.js';
 import Component from './Component.js';
 import createAttributeFunction from './createAttributeFunction.js';
-import createFunctionToSetClassList from './createFunctionToSetClassList.js';
 import Element from './Element.js';
 import setAttribute from './setAttribute.js';
 import Text from './Text.js';
@@ -24,7 +23,7 @@ export default function virtualDomToDom(vNodes) {
                     setAttribute(element, attr, vNode.attributes[attr]);
                 }
             });
-            createFunctionToSetClassList(vNode.classes)(element);
+            // createFunctionToSetClassList(vNode.classes)(element);
             Object.keys(vNode.listeners).forEach(function (event) {
                 element.addEventListener(event, vNode.listeners[event]);
             });

@@ -136,7 +136,6 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 		} else if (typeof item === 'object') {
 			Object.keys(item).forEach(function (key) {
 				const listenerRegex = /^@(?<event>[a-zA-Z]+)$/;
-				const classRegex = /^\.(?<class>[a-zA-Z-]+)$/;
 
 				const getElementOfAttributes = (): Element => {
 					if (previousElementWasSelfClosed) {
@@ -156,9 +155,6 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 						throw new Error('listener must be function');
 					}
 					getElementOfAttributes().listeners[event] = item[key];
-				} else if (classRegex.test(key)) {
-					const [ , class_ ] = classRegex.exec(key)!;
-					getElementOfAttributes().classes[class_] = item[key];
 				} else if (key === '<>') {
 					getElementOfAttributes().elementStoreSubscriber = item[key];
 				} else if (key === '=') {

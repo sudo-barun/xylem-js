@@ -1,15 +1,14 @@
+import combineNamedStores from "../core/combineNamedStores.js";
 import Component from "./Component.js";
 import createAttributeFunction from "./createAttributeFunction.js";
-import createFunctionToSetClassList from "./createFunctionToSetClassList.js";
+import map from "../core/map.js";
 import NativeComponent from "./NativeComponent.js";
 import setAttribute from "./setAttribute.js";
-import styleAttr from "./styleAttr.js";
 import Text from "./Text.js";
 export default class Element extends NativeComponent {
     tagName;
     attributes;
     children;
-    classes;
     listeners;
     elementStoreSubscriber;
     _domNode;
@@ -19,7 +18,6 @@ export default class Element extends NativeComponent {
         this.tagName = tagName;
         this.attributes = attributes;
         this.children = children;
-        this.classes = {};
         this.listeners = {};
         this._virtualDom = children;
     }
@@ -43,14 +41,16 @@ export default class Element extends NativeComponent {
             else if (typeof this.attributes[attr] === 'function') {
                 createAttributeFunction(this.attributes[attr])(element, attr);
             }
-            else if (attr === 'style' && this.attributes[attr] instanceof Object) {
-                createAttributeFunction(styleAttr(this.attributes[attr]))(element, attr);
+            else if (attr === 'class' && typeof this.attributes[attr] === 'object') {
+                createAttributeFunction(attrClass(this.attributes[attr]))(element, attr);
+            }
+            else if (attr === 'style' && typeof this.attributes[attr] === 'object') {
+                createAttributeFunction(attrStyle(this.attributes[attr]))(element, attr);
             }
             else {
                 setAttribute(element, attr, this.attributes[attr]);
             }
         });
-        createFunctionToSetClassList(this.classes)(element);
         Object.keys(this.listeners).forEach((event) => {
             element.addEventListener(event, this.listeners[event]);
         });
@@ -122,5 +122,47 @@ export default class Element extends NativeComponent {
     }
     detachFromDom() {
         this._domNode.parentNode.removeChild(this._domNode);
+    }
+}
+function attrStyle(styleDefinitions) {
+    if (styleDefinitions instanceof Array) {
+        return map(attrStyle(styleDefinitions[1]), (v) => {
+            if (v) {
+                return [styleDefinitions[0], v].join(' ');
+            }
+            else {
+                return styleDefinitions[0];
+            }
+        });
+    }
+    else {
+        return map(combineNamedStores(styleDefinitions), (v) => {
+            return Object.keys(v).reduce((acc, cssProperty) => {
+                acc.push(`${cssProperty}:${styleDefinitions[cssProperty]}`);
+                return acc;
+            }, []).join('; ');
+        });
+    }
+}
+function attrClass(classDefinitions) {
+    if (classDefinitions instanceof Array) {
+        return map(attrClass(classDefinitions[1]), (v) => {
+            if (v) {
+                return [classDefinitions[0], v].join(' ');
+            }
+            else {
+                return classDefinitions[0];
+            }
+        });
+    }
+    else {
+        return map(combineNamedStores(classDefinitions), (v) => {
+            return Object.keys(v).reduce((acc, className) => {
+                if (v[className]) {
+                    acc.push(className);
+                }
+                return acc;
+            }, []).join(' ');
+        });
     }
 }
