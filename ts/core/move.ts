@@ -3,6 +3,11 @@ import reduce from "./reduce.js";
 import SourceStore from "../types/SourceStore.js";
 import Store from "../types/Store.js";
 
+function isInteger(value: any): boolean
+{
+	return (value ^ 0) === value;
+}
+
 const move: ArrayMutateAction<[number|Store<number>, number|Store<number>]> = function <T>(
 	array: T[],
 	index$Array: SourceStore<number>[],
@@ -13,10 +18,10 @@ const move: ArrayMutateAction<[number|Store<number>, number|Store<number>]> = fu
 	const fromIndex_ = typeof fromIndex === 'function' ? fromIndex() : fromIndex;
 	const toIndex_ = typeof toIndex === 'function' ? toIndex() : toIndex;
 
-	if (! Number.isInteger(fromIndex_)) {
+	if (! isInteger(fromIndex_)) {
 		throw new Error('"fromIndex" must be integer.');
 	}
-	if (! Number.isInteger(toIndex_)) {
+	if (! isInteger(toIndex_)) {
 		throw new Error('"toIndex" must be integer.');
 	}
 

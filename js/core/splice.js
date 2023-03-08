@@ -1,6 +1,9 @@
+function isInteger(value) {
+    return (value ^ 0) === value;
+}
 const splice = function (array, index$Array, index) {
     const index_ = typeof index === 'function' ? index() : index;
-    if (!Number.isInteger(index_)) {
+    if (!isInteger(index_)) {
         throw new Error('"index" must be integer.');
     }
     if (!(array.hasOwnProperty(index_))) {

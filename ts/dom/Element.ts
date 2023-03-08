@@ -76,14 +76,8 @@ class Element extends NativeComponent
 
 		this.children.forEach(node => node.setupDom());
 		if (! nodeExists) {
-			this.children.map(c => {
-				if (c instanceof Component) {
-					return c.getDomNodes();
-				} else {
-					return c.getDomNode();
-				}
-			}).flat().forEach((node) => {
-				element.appendChild(node)
+			this.getChildNodes().forEach((node) => {
+				element.appendChild(node);
 			});
 		}
 	}
@@ -96,6 +90,15 @@ class Element extends NativeComponent
 	getDomNode(): HTMLElement
 	{
 		return this._domNode;
+	}
+
+	getChildNodes(): ChildNode[]
+	{
+		return this.children.map(c => c.getDomNodes())
+		.reduce((acc, item) => {
+			acc.push(...item);
+			return acc;
+		}, [] as ChildNode[]);
 	}
 
 	notifyAfterAttachToDom()

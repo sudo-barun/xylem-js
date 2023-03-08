@@ -2,6 +2,11 @@ import ArrayMutateAction from "../types/ArrayMutateAction.js";
 import SourceStore from "../types/SourceStore.js";
 import Store from "../types/Store.js";
 
+function isInteger(value: any): boolean
+{
+	return (value ^ 0) === value;
+}
+
 const splice: ArrayMutateAction<[number|Store<number>]> = function <T>(
 	array: T[],
 	index$Array: SourceStore<number>[],
@@ -10,7 +15,7 @@ const splice: ArrayMutateAction<[number|Store<number>]> = function <T>(
 {
 	const index_ = typeof index === 'function' ? index() : index;
 
-	if (! Number.isInteger(index_)) {
+	if (! isInteger(index_)) {
 		throw new Error('"index" must be integer.');
 	}
 

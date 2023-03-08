@@ -4,6 +4,14 @@ import Element from './Element.js';
 import ForEachBuilder from './ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './IfElseBlockBuilder.js';
 import Text from './Text.js';
+function findIndex(predicate) {
+    for (let i = 0; i < this.length; i++) {
+        if (predicate(this[i], i, this)) {
+            return i;
+        }
+    }
+    return -1;
+}
 export default function arrayToVirtualDom(arr) {
     let unclosedElements = [];
     let unclosedComment = null;
@@ -12,9 +20,9 @@ export default function arrayToVirtualDom(arr) {
     let unclosedTextContent = null;
     let previousElementWasSelfClosed;
     const vNodes = [];
-    const elementStartRegex = /^<(?<tagName>[0-9a-zA-Z-]+)>$/;
-    const elementEndRegex = /^<\/(?<tagName>[0-9a-zA-Z-]+)>$/;
-    const selfClosingElementRegex = /^<(?<tagName>[0-9a-zA-Z-]+)\/>$/;
+    const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
+    const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
+    const selfClosingElementRegex = /^<([0-9a-zA-Z-]+)\/>$/;
     const commentStartRegex = /^<!--$/;
     const commentEndRegex = /^-->$/;
     const textStartRegex = /^<>$/;
@@ -73,7 +81,7 @@ export default function arrayToVirtualDom(arr) {
             }
             else if (elementEndRegex.test(item)) {
                 const [, tagName] = elementEndRegex.exec(item);
-                const lastIndex = unclosedElements.reverse().findIndex(e => e.tagName === tagName);
+                const lastIndex = findIndex.call(unclosedElements.reverse(), e => e.tagName === tagName);
                 if (lastIndex >= 0) {
                     const unclosedElement = unclosedElements[lastIndex];
                     if (unclosedElement.tagName !== tagName) {
@@ -103,11 +111,11 @@ export default function arrayToVirtualDom(arr) {
                 throw new Error(`Text end marker(</>) found without preceeding text start marker(<>).`);
             }
             else {
-                const partiallyResemblingElementStartRegex = /<(?<tagName>[a-zA-Z]+)/;
+                const partiallyResemblingElementStartRegex = /<([a-zA-Z]+)/;
                 if (partiallyResemblingElementStartRegex.test(item)) {
                     console.warn(`Text partially resembling start tag found: ${item} . Consider using text markers.`);
                 }
-                const partiallyResemblingElementEndRegex = /<\/(?<tagName>[a-zA-Z]+)/;
+                const partiallyResemblingElementEndRegex = /<\/([a-zA-Z]+)/;
                 if (partiallyResemblingElementEndRegex.test(item)) {
                     console.warn(`Text partially resembling end tag found: ${item} . Consider using text markers.`);
                 }
@@ -141,7 +149,7 @@ export default function arrayToVirtualDom(arr) {
         }
         else if (typeof item === 'object') {
             Object.keys(item).forEach(function (key) {
-                const listenerRegex = /^@(?<event>[a-zA-Z]+)$/;
+                const listenerRegex = /^@([a-zA-Z]+)$/;
                 const getElementOfAttributes = () => {
                     if (previousElementWasSelfClosed) {
                         const vNode = vNodes[vNodes.length - 1];

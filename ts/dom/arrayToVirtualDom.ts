@@ -8,6 +8,16 @@ import IfElseBlockBuilder from './IfElseBlockBuilder.js';
 import SubscribableGetter from '../types/SubscribableGetter.js';
 import Text from './Text.js';
 
+function findIndex<T>(this: Array<T>, predicate: (value: T, index: number, obj: T[]) => unknown): number
+{
+	for (let i = 0; i < this.length; i++) {
+		if (predicate(this[i], i, this)) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 export default
 function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 {
@@ -19,9 +29,9 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 	let previousElementWasSelfClosed: boolean;
 	const vNodes: Array<Element|Comment|Component> = [];
 
-	const elementStartRegex = /^<(?<tagName>[0-9a-zA-Z-]+)>$/;
-	const elementEndRegex = /^<\/(?<tagName>[0-9a-zA-Z-]+)>$/;
-	const selfClosingElementRegex = /^<(?<tagName>[0-9a-zA-Z-]+)\/>$/;
+	const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
+	const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
+	const selfClosingElementRegex = /^<([0-9a-zA-Z-]+)\/>$/;
 	const commentStartRegex = /^<!--$/;
 	const commentEndRegex = /^-->$/;
 	const textStartRegex = /^<>$/;
@@ -75,7 +85,7 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 				previousElementWasSelfClosed = false;
 			} else if (elementEndRegex.test(item)) {
 				const [ , tagName ] = elementEndRegex.exec(item)!;
-				const lastIndex = unclosedElements.reverse().findIndex(e => e.tagName === tagName);
+				const lastIndex = findIndex.call(unclosedElements.reverse(), e => (e as Element).tagName === tagName);
 				if (lastIndex >= 0) {
 					const unclosedElement = unclosedElements[lastIndex];
 					if (unclosedElement.tagName !== tagName) {
@@ -99,11 +109,11 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 			} else if (textEndRegex.test(item)) {
 				throw new Error(`Text end marker(</>) found without preceeding text start marker(<>).`);
 			} else {
-				const partiallyResemblingElementStartRegex = /<(?<tagName>[a-zA-Z]+)/;
+				const partiallyResemblingElementStartRegex = /<([a-zA-Z]+)/;
 				if (partiallyResemblingElementStartRegex.test(item)) {
 					console.warn(`Text partially resembling start tag found: ${item} . Consider using text markers.`);
 				}
-				const partiallyResemblingElementEndRegex = /<\/(?<tagName>[a-zA-Z]+)/;
+				const partiallyResemblingElementEndRegex = /<\/([a-zA-Z]+)/;
 				if (partiallyResemblingElementEndRegex.test(item)) {
 					console.warn(`Text partially resembling end tag found: ${item} . Consider using text markers.`);
 				}
@@ -135,7 +145,7 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 			vNodes.push(item);
 		} else if (typeof item === 'object') {
 			Object.keys(item).forEach(function (key) {
-				const listenerRegex = /^@(?<event>[a-zA-Z]+)$/;
+				const listenerRegex = /^@([a-zA-Z]+)$/;
 
 				const getElementOfAttributes = (): Element => {
 					if (previousElementWasSelfClosed) {

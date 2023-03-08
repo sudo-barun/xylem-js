@@ -58,14 +58,7 @@ export default class Element extends NativeComponent {
         });
         this.children.forEach(node => node.setupDom());
         if (!nodeExists) {
-            this.children.map(c => {
-                if (c instanceof Component) {
-                    return c.getDomNodes();
-                }
-                else {
-                    return c.getDomNode();
-                }
-            }).flat().forEach((node) => {
+            this.getChildNodes().forEach((node) => {
                 element.appendChild(node);
             });
         }
@@ -75,6 +68,13 @@ export default class Element extends NativeComponent {
     }
     getDomNode() {
         return this._domNode;
+    }
+    getChildNodes() {
+        return this.children.map(c => c.getDomNodes())
+            .reduce((acc, item) => {
+            acc.push(...item);
+            return acc;
+        }, []);
     }
     notifyAfterAttachToDom() {
         this._virtualDom.forEach((vDomItem) => {

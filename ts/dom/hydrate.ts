@@ -8,7 +8,7 @@ export default
 function hydrate(component: Component, domNodes: ArrayLike<Node>, currentIndex = 0): number
 {
 	const componentFirstNode = domNodes[currentIndex];
-	if (! (componentFirstNode instanceof globalThis.Comment)) {
+	if (! (componentFirstNode instanceof window.Comment)) {
 		throw new Error('The first node of component was not found');
 	}
 	component.setFirstNode(componentFirstNode);
@@ -17,7 +17,7 @@ function hydrate(component: Component, domNodes: ArrayLike<Node>, currentIndex =
 	currentIndex = hydrateComponentItems(component.getVirtualDom(), domNodes, currentIndex);
 
 	const componentLastNode = domNodes[currentIndex];
-	if (! (componentLastNode instanceof globalThis.Comment)) {
+	if (! (componentLastNode instanceof window.Comment)) {
 		throw new Error('The last node of component was not found');
 	}
 	component.setLastNode(componentLastNode);
@@ -34,7 +34,7 @@ function hydrateComponentItems(componentItems: ComponentItem[], domNodes: ArrayL
 
 		if (componentItem instanceof Text) {
 
-			if (! (node instanceof globalThis.Text)) {
+			if (! (node instanceof window.Text)) {
 				throw new Error('Text not found');
 			}
 			componentItem.setDomNode(node);
@@ -42,7 +42,7 @@ function hydrateComponentItems(componentItems: ComponentItem[], domNodes: ArrayL
 
 		} else if (componentItem instanceof Comment) {
 
-			if (! (node instanceof globalThis.Comment)) {
+			if (! (node instanceof window.Comment)) {
 				throw new Error('Comment not found');
 			}
 			componentItem.setDomNode(node);
@@ -59,7 +59,7 @@ function hydrateComponentItems(componentItems: ComponentItem[], domNodes: ArrayL
 				}
 			});
 			componentItem.setDomNode(node);
-			hydrateComponentItems(componentItem.children, [...node.childNodes]);
+			hydrateComponentItems(componentItem.children, node.childNodes);
 			currentIndex++;
 
 		} else if (componentItem instanceof Component) {

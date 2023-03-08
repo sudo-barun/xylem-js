@@ -90,15 +90,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 			vDom.setupDom();
 		});
 
-		const nodes = this._virtualDom.map(vDom => {
-			if (vDom instanceof Component) {
-				return vDom.getDomNodes();
-			} else {
-				return [vDom.getDomNode()];
-			}
-		}).flat();
-
-		nodes.forEach((node) => {
+		this.getChildNodes().forEach((node) => {
 			this._lastNode.parentNode!.insertBefore(node, this._lastNode);
 		});
 
@@ -107,13 +99,14 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	getComponentName(): string
 	{
-		return Object.getPrototypeOf(this).constructor.name;
+		const componentName = Object.getPrototypeOf(this).constructor.name;
+		return typeof componentName === 'string' ? componentName : '';
 	}
 
 	setupDom(): void
 	{
-		this._firstNode = this._firstNode || new Comment(`${this.getComponentName()}`);
-		this._lastNode = this._lastNode || new Comment(`/${this.getComponentName()}`);
+		this._firstNode = this._firstNode || document.createComment(`${this.getComponentName()}`);
+		this._lastNode = this._lastNode || document.createComment(`/${this.getComponentName()}`);
 
 		this._virtualDom.forEach(vDom => {
 			vDom.setupDom();
@@ -122,16 +115,19 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	getDomNodes(): Array<ChildNode>
 	{
-		const nodes = this._virtualDom.map(vDom => {
-			if (vDom instanceof Component) {
-				return vDom.getDomNodes();
-			} else {
-				return [vDom.getDomNode()];
-			}
-		}).flat();
+		const nodes = this.getChildNodes();
 		nodes.unshift(this._firstNode);
 		nodes.push(this._lastNode);
 		return nodes;
+	}
+
+	getChildNodes(): ChildNode[]
+	{
+		return this._virtualDom.map(vDom => vDom.getDomNodes())
+		.reduce((acc, item) => {
+			acc.push(...item);
+			return acc;
+		}, [] as ChildNode[]);
 	}
 
 	getVirtualDom(): Array<ComponentItem>

@@ -1,11 +1,14 @@
 import reduce from "./reduce.js";
+function isInteger(value) {
+    return (value ^ 0) === value;
+}
 const move = function (array, index$Array, fromIndex, toIndex) {
     const fromIndex_ = typeof fromIndex === 'function' ? fromIndex() : fromIndex;
     const toIndex_ = typeof toIndex === 'function' ? toIndex() : toIndex;
-    if (!Number.isInteger(fromIndex_)) {
+    if (!isInteger(fromIndex_)) {
         throw new Error('"fromIndex" must be integer.');
     }
-    if (!Number.isInteger(toIndex_)) {
+    if (!isInteger(toIndex_)) {
         throw new Error('"toIndex" must be integer.');
     }
     if (!(array.hasOwnProperty(fromIndex_))) {
