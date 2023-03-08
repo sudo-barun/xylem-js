@@ -26,8 +26,18 @@ export default class Text extends NativeComponent {
         }
     }
     setupDom() {
+        const nodeExists = !!this._domNode;
+        if (nodeExists) {
+            const textContent = this.getTextContentAsString();
+            if (textContent !== this._domNode.textContent) {
+                console.error('Content of Text object is different from content of Text node.');
+                console.error('Content of Text node:', this._domNode.textContent);
+                console.error('Content of Text object:', textContent);
+                throw new Error('Content of Text object is different from content of Text node.');
+            }
+        }
         this.setupSubscribers();
-        this._domNode = this._domNode ?? this.createDomNode(this.getTextContentAsString());
+        this._domNode = this._domNode || this.createDomNode(this.getTextContentAsString());
     }
     setDomNode(domNode) {
         this._domNode = domNode;

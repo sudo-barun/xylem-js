@@ -73,7 +73,7 @@ export default function arrayToVirtualDom(arr) {
             }
             else if (elementEndRegex.test(item)) {
                 const [, tagName] = elementEndRegex.exec(item);
-                const lastIndex = unclosedElements.findLastIndex(e => e.tagName === tagName);
+                const lastIndex = unclosedElements.reverse().findIndex(e => e.tagName === tagName);
                 if (lastIndex >= 0) {
                     const unclosedElement = unclosedElements[lastIndex];
                     if (unclosedElement.tagName !== tagName) {

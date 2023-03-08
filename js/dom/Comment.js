@@ -26,4 +26,13 @@ export default class Comment extends NativeComponent {
         this._domNode.parentNode.removeChild(this._domNode);
     }
     afterAttachToDom = ComponentWithSingleTextContentMixin.afterAttachToDom;
+    setDomNode(domNode) {
+        this._domNode = domNode;
+    }
+    getTextContentAsString() {
+        if (typeof this._textContent === 'function') {
+            return this._textContent();
+        }
+        return this._textContent;
+    }
 }

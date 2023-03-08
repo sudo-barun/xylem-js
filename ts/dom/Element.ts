@@ -8,7 +8,6 @@ import NativeComponent from "./NativeComponent.js";
 import setAttribute from "./setAttribute.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
-import Text from "./Text.js";
 
 export default
 class Element extends NativeComponent
@@ -51,8 +50,11 @@ class Element extends NativeComponent
 
 	setupDom()
 	{
-		const element = this._domNode = this._domNode ?? this.createDomNode();
-		this.elementStoreSubscriber?.(element);
+		const nodeExists = !!this._domNode;
+		const element = this._domNode = this._domNode || this.createDomNode();
+		if (this.elementStoreSubscriber) {
+			this.elementStoreSubscriber(element);
+		}
 
 		Object.keys(this.attributes).forEach((attr) => {
 			if (attr === '()') {
@@ -72,39 +74,8 @@ class Element extends NativeComponent
 			element.addEventListener(event, this.listeners[event]);
 		});
 
-
-		if (element.childNodes.length) {
-			if (this.children.length > 1) {
-				throw new Error('Currently not supported');
-			}
-			this.children.forEach(c => {
-				if (c instanceof Text) {
-					const childNode = element.childNodes[0];
-					if (! (childNode instanceof globalThis.Text)) {
-						throw new Error('Currently not supported');
-					}
-					c.setDomNode(childNode);
-					const textContent = c.getTextContentAsString();
-					if (textContent !== c.getDomNode().textContent) {
-						console.warn('text content was not found to be in sync for element: ', element);
-						console.warn('text content of Text DOM node: ', c.getDomNode().textContent);
-						console.warn('text content of Text object: ', textContent);
-					}
-					c.getDomNode().textContent = c.getTextContentAsString();
-					c.setupSubscribers();
-				} else {
-					throw new Error('Currently not supported');
-				}
-			});
-		} else {
-			this.children.forEach(node => node.setupDom());
-			// element.append(...this.children.map(c => {
-			// 	if (c instanceof Component) {
-			// 		return c.getDomNodes();
-			// 	} else {
-			// 		return c.getDomNode();
-			// 	}
-			// }).flat());
+		this.children.forEach(node => node.setupDom());
+		if (! nodeExists) {
 			this.children.map(c => {
 				if (c instanceof Component) {
 					return c.getDomNodes();

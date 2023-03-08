@@ -39,4 +39,17 @@ class Comment extends NativeComponent
 	}
 
 	afterAttachToDom = ComponentWithSingleTextContentMixin.afterAttachToDom;
+
+	setDomNode(domNode: globalThis.Comment): void
+	{
+		this._domNode = domNode;
+	}
+
+	getTextContentAsString(): string
+	{
+		if (typeof this._textContent === 'function') {
+			return this._textContent();
+		}
+		return this._textContent;
+	}
 }

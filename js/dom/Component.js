@@ -79,8 +79,8 @@ export default class Component {
         return Object.getPrototypeOf(this).constructor.name;
     }
     setupDom() {
-        this._firstNode = new Comment(`${this.getComponentName()}`);
-        this._lastNode = new Comment(`/${this.getComponentName()}`);
+        this._firstNode = this._firstNode || new Comment(`${this.getComponentName()}`);
+        this._lastNode = this._lastNode || new Comment(`/${this.getComponentName()}`);
         this._virtualDom.forEach(vDom => {
             vDom.setupDom();
         });
@@ -114,8 +114,14 @@ export default class Component {
     getFirstNode() {
         return this._firstNode;
     }
+    setFirstNode(node) {
+        this._firstNode = node;
+    }
     getLastNode() {
         return this._lastNode;
+    }
+    setLastNode(node) {
+        this._lastNode = node;
     }
     notifyAfterAttachToDom() {
         this._notifyAfterAttachToDom();

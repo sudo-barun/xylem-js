@@ -112,8 +112,8 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	setupDom(): void
 	{
-		this._firstNode = new Comment(`${this.getComponentName()}`);
-		this._lastNode = new Comment(`/${this.getComponentName()}`);
+		this._firstNode = this._firstNode || new Comment(`${this.getComponentName()}`);
+		this._lastNode = this._lastNode || new Comment(`/${this.getComponentName()}`);
 
 		this._virtualDom.forEach(vDom => {
 			vDom.setupDom();
@@ -153,14 +153,24 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		return createProxy(immutSubFuncVar, this.beforeDetachFromDom.subscribe);
 	}
 
-	getFirstNode(): ChildNode
+	getFirstNode(): Comment
 	{
 		return this._firstNode;
 	}
 
-	getLastNode(): ChildNode
+	setFirstNode(node: Comment): void
+	{
+		this._firstNode = node;
+	}
+
+	getLastNode(): Comment
 	{
 		return this._lastNode;
+	}
+
+	setLastNode(node: Comment): void
+	{
+		this._lastNode = node;
 	}
 
 	notifyAfterAttachToDom()
