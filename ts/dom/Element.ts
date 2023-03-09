@@ -15,6 +15,7 @@ class Element extends NativeComponent
 	tagName: string;
 	attributes: { [key:string]: any };
 	children: ComponentItem[];
+	_isSelfClosing: boolean;
 	listeners: { [key:string]: ()=>{} };
 	elementStoreSubscriber?: Subscriber<HTMLElement>;
 
@@ -30,8 +31,17 @@ class Element extends NativeComponent
 		this.tagName = tagName;
 		this.attributes = attributes;
 		this.children = children;
+		this._isSelfClosing = false;
 		this.listeners = {};
 		this._virtualDom = children;
+	}
+
+	isSelfClosing(isSelfClosing?: boolean): boolean
+	{
+		if (arguments.length !== 0) {
+			this._isSelfClosing = isSelfClosing!;
+		}
+		return this._isSelfClosing;
 	}
 
 	setup(modifier?: ComponentModifier): void

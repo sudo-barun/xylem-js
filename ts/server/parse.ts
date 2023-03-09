@@ -42,7 +42,14 @@ function parseComponentItems(componentItems: ComponentItem[]): string
 				acc.push(`${attributeName}="${attributeValue}"`);
 				return acc;
 			}, [] as string[]).join(' ');
-			return `<${[componentItem.tagName, attributesString].join(' ')}>${parseComponentItems(componentItem.children)}</${componentItem.tagName}>`;
+
+			const tagName = componentItem.tagName;
+			const childrenString = parseComponentItems(componentItem.children);
+			const tagWithAttributes = attributesString ? [tagName, attributesString].join(' ') : tagName;
+			if (componentItem.isSelfClosing()) {
+				return `<${tagWithAttributes}/>`;
+			}
+			return `<${tagWithAttributes}>${childrenString}</${tagName}>`;
 
 		} else if (componentItem instanceof Component) {
 

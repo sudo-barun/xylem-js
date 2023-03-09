@@ -69,6 +69,7 @@ export default function arrayToVirtualDom(arr) {
             if (selfClosingElementRegex.test(item)) {
                 const [, tagName] = selfClosingElementRegex.exec(item);
                 const element = new Element(tagName);
+                element.isSelfClosing(true);
                 vNodes.push(element);
                 previousElementWasSelfClosed = true;
             }

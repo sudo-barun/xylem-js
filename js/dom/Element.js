@@ -8,6 +8,7 @@ export default class Element extends NativeComponent {
     tagName;
     attributes;
     children;
+    _isSelfClosing;
     listeners;
     elementStoreSubscriber;
     _domNode;
@@ -17,8 +18,15 @@ export default class Element extends NativeComponent {
         this.tagName = tagName;
         this.attributes = attributes;
         this.children = children;
+        this._isSelfClosing = false;
         this.listeners = {};
         this._virtualDom = children;
+    }
+    isSelfClosing(isSelfClosing) {
+        if (arguments.length !== 0) {
+            this._isSelfClosing = isSelfClosing;
+        }
+        return this._isSelfClosing;
     }
     setup(modifier) {
         this.children.forEach(virtualNode => {

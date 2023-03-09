@@ -75,6 +75,7 @@ function arrayToVirtualDom (arr: any[]): Array<ComponentItem>
 			if (selfClosingElementRegex.test(item)) {
 				const [ , tagName ] = selfClosingElementRegex.exec(item)!;
 				const element = new Element(tagName);
+				element.isSelfClosing(true);
 				vNodes.push(element);
 				previousElementWasSelfClosed = true;
 			} else if (elementStartRegex.test(item)) {
