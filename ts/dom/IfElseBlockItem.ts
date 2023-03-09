@@ -12,7 +12,7 @@ class IfElseBlockItem extends Component<Attributes>
 {
 	build(attributes: Attributes): ComponentItem[]
 	{
-		const isActive$ = this.deriveStore(this._attributes.isActive$);
+		const isActive$ = this.deriveStore(attributes.isActive$);
 
 		isActive$.subscribe(() => {
 			this.reload();

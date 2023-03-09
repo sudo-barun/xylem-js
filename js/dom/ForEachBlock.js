@@ -2,8 +2,8 @@ import Component from "./Component.js";
 import createStore from "../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
 import forEachBlockMutation from "./forEachBlockMutation.js";
-function getArray(attributes) {
-    return attributes.array instanceof Array ? attributes.array : attributes.array();
+function getArray(array) {
+    return array instanceof Array ? array : array();
 }
 export default class ForEachBlock extends Component {
     build(attributes) {
@@ -25,7 +25,7 @@ export default class ForEachBlock extends Component {
                 this.beforeDetachFromDom.subscribe(unsubscribeMutation);
             }
         }
-        const array = getArray(attributes);
+        const array = getArray(attributes.array);
         return array.map((value, index, array) => {
             let index$;
             if (attributes.array instanceof Array) {

@@ -1,7 +1,7 @@
 import Component from "./Component.js";
 export default class IfElseBlockItem extends Component {
     build(attributes) {
-        const isActive$ = this.deriveStore(this._attributes.isActive$);
+        const isActive$ = this.deriveStore(attributes.isActive$);
         isActive$.subscribe(() => {
             this.reload();
         });

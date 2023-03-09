@@ -12,9 +12,9 @@ type Attributes<T> = {
 	build: (item: T, index: Store<number>, array: T[]|Store<T[]>|ArrayStore<T>) => Array<ComponentItem>;
 };
 
-function getArray<T>(attributes: Attributes<T>): T[]
+function getArray<T>(array: T[]|Store<T[]>|ArrayStore<T>): T[]
 {
-	return attributes.array instanceof Array ? attributes.array : attributes.array();
+	return array instanceof Array ? array : array();
 }
 
 export default
@@ -45,7 +45,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			}
 		}
 
-		const array = getArray(attributes);
+		const array = getArray(attributes.array);
 
 		return array.map((value, index, array) => {
 			let index$;
