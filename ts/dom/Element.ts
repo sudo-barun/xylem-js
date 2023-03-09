@@ -1,16 +1,17 @@
+import applyNativeComponentMixin from "./_internal/applyNativeComponentMixin.js";
 import combineNamedStores from "../core/combineNamedStores.js";
 import Component from "./Component.js";
 import ComponentItem from "../types/ComponentItem.js";
 import ComponentModifier from "../types/ComponentModifier.js";
 import createAttributeFunction from "./createAttributeFunction.js";
 import map from "../core/map.js";
-import NativeComponent from "./NativeComponent.js";
+import NativeComponent from "../types/_internal/NativeComponent.js";
 import setAttribute from "./setAttribute.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
 
 export default
-class Element extends NativeComponent
+class Element
 {
 	declare tagName: string;
 	declare attributes: { [key:string]: any };
@@ -27,7 +28,6 @@ class Element extends NativeComponent
 		attributes = {},
 		children = []
 	) {
-		super();
 		this.tagName = tagName;
 		this.attributes = attributes;
 		this.children = children;
@@ -94,16 +94,6 @@ class Element extends NativeComponent
 		}
 	}
 
-	setDomNode(domNode: HTMLElement): void
-	{
-		this._domNode = domNode;
-	}
-
-	getDomNode(): HTMLElement
-	{
-		return this._domNode;
-	}
-
 	getChildNodes(): ChildNode[]
 	{
 		return this.children.map(c => c.getDomNodes())
@@ -130,12 +120,12 @@ class Element extends NativeComponent
 			}
 		});
 	}
-
-	detachFromDom()
-	{
-		this._domNode.parentNode!.removeChild(this._domNode);
-	}
 }
+
+export default
+interface Element extends NativeComponent {}
+
+applyNativeComponentMixin(Element);
 
 type StyleDefinitions = {
 	[cssProperty: string]: Store<string>,

@@ -1,7 +1,6 @@
-import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeComponent.js";
-export default class Text extends NativeComponent {
+import applyNativeComponentMixin from "./_internal/applyNativeComponentMixin.js";
+export default class Text {
     constructor(textContent) {
-        super();
         this._textContent = textContent;
         this._domNode = undefined;
     }
@@ -38,11 +37,5 @@ export default class Text extends NativeComponent {
         this.setupSubscribers();
         this._domNode = this._domNode || this.createDomNode(this.getTextContentAsString());
     }
-    setDomNode(domNode) {
-        this._domNode = domNode;
-    }
-    afterAttachToDom = ComponentWithSingleTextContentMixin.afterAttachToDom;
-    detachFromDom() {
-        this._domNode.parentNode.removeChild(this._domNode);
-    }
 }
+applyNativeComponentMixin(Text);

@@ -1,7 +1,6 @@
-import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeComponent.js";
-export default class Comment extends NativeComponent {
+import applyNativeComponentMixin from "./_internal/applyNativeComponentMixin.js";
+export default class Comment {
     constructor(textContent) {
-        super();
         this._textContent = textContent;
         this._domNode = undefined;
     }
@@ -21,13 +20,6 @@ export default class Comment extends NativeComponent {
         }
         this._domNode = document.createComment(textContent);
     }
-    detachFromDom() {
-        this._domNode.parentNode.removeChild(this._domNode);
-    }
-    afterAttachToDom = ComponentWithSingleTextContentMixin.afterAttachToDom;
-    setDomNode(domNode) {
-        this._domNode = domNode;
-    }
     getTextContentAsString() {
         if (typeof this._textContent === 'function') {
             return this._textContent();
@@ -35,3 +27,4 @@ export default class Comment extends NativeComponent {
         return this._textContent;
     }
 }
+applyNativeComponentMixin(Comment);

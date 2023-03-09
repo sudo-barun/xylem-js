@@ -1,16 +1,16 @@
+import applyNativeComponentMixin from "./_internal/applyNativeComponentMixin.js";
 import Getter from "../types/Getter.js";
+import NativeComponent from "../types/_internal/NativeComponent.js";
 import SubscribableGetter from "../types/SubscribableGetter.js";
-import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeComponent.js";
 
 export default
-class Comment extends NativeComponent
+class Comment
 {
 	declare _textContent: string|Getter<string>|SubscribableGetter<string>;
 	declare _domNode: globalThis.Comment;
 
 	constructor(textContent: string|Getter<string>|SubscribableGetter<string>)
 	{
-		super();
 		this._textContent = textContent;
 		this._domNode = undefined!;
 	}
@@ -34,18 +34,6 @@ class Comment extends NativeComponent
 		this._domNode = document.createComment(textContent);
 	}
 
-	detachFromDom()
-	{
-		this._domNode.parentNode!.removeChild(this._domNode);
-	}
-
-	afterAttachToDom = ComponentWithSingleTextContentMixin.afterAttachToDom;
-
-	setDomNode(domNode: globalThis.Comment): void
-	{
-		this._domNode = domNode;
-	}
-
 	getTextContentAsString(): string
 	{
 		if (typeof this._textContent === 'function') {
@@ -54,3 +42,8 @@ class Comment extends NativeComponent
 		return this._textContent;
 	}
 }
+
+export default
+interface Comment extends NativeComponent {}
+
+applyNativeComponentMixin(Comment);

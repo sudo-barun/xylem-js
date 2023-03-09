@@ -38,13 +38,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._lastNode = undefined!;
 	}
 
-	build(attributes: EarlyAttributes & LateAttributes): Array<ComponentItem>
-	{
-		throw new Error(
-			'Method "build" is not implemented in class '
-			+ Object.getPrototypeOf(this).constructor.name
-		);
-	}
+	abstract build(attributes: EarlyAttributes & LateAttributes): Array<ComponentItem>;
 
 	injectAttributes(attributes: LateAttributes)
 	{

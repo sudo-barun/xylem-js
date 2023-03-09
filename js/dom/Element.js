@@ -1,12 +1,11 @@
+import applyNativeComponentMixin from "./_internal/applyNativeComponentMixin.js";
 import combineNamedStores from "../core/combineNamedStores.js";
 import Component from "./Component.js";
 import createAttributeFunction from "./createAttributeFunction.js";
 import map from "../core/map.js";
-import NativeComponent from "./NativeComponent.js";
 import setAttribute from "./setAttribute.js";
-export default class Element extends NativeComponent {
+export default class Element {
     constructor(tagName, attributes = {}, children = []) {
-        super();
         this.tagName = tagName;
         this.attributes = attributes;
         this.children = children;
@@ -65,12 +64,6 @@ export default class Element extends NativeComponent {
             });
         }
     }
-    setDomNode(domNode) {
-        this._domNode = domNode;
-    }
-    getDomNode() {
-        return this._domNode;
-    }
     getChildNodes() {
         return this.children.map(c => c.getDomNodes())
             .reduce((acc, item) => {
@@ -92,10 +85,8 @@ export default class Element extends NativeComponent {
             }
         });
     }
-    detachFromDom() {
-        this._domNode.parentNode.removeChild(this._domNode);
-    }
 }
+applyNativeComponentMixin(Element);
 function attrStyle(styleDefinitions) {
     if (styleDefinitions instanceof Array) {
         return map(attrStyle(styleDefinitions[1]), (v) => {

@@ -1,17 +1,17 @@
+import applyNativeComponentMixin from "./_internal/applyNativeComponentMixin.js";
 import Getter from "../types/Getter.js";
+import NativeComponent from "../types/_internal/NativeComponent.js";
 import Store from "../types/Store.js";
 import SubscribableGetter from "../types/SubscribableGetter.js";
-import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeComponent.js";
 
 export default
-class Text extends NativeComponent
+class Text
 {
 	declare _textContent: string|Getter<string>|SubscribableGetter<string>;
 	declare _domNode: globalThis.Text;
 
 	constructor(textContent: string|Getter<string>|Store<string>)
 	{
-		super();
 		this._textContent = textContent;
 		this._domNode = undefined!;
 	}
@@ -60,16 +60,9 @@ class Text extends NativeComponent
 		this.setupSubscribers();
 		this._domNode = this._domNode || this.createDomNode(this.getTextContentAsString());
 	}
-
-	setDomNode(domNode: globalThis.Text): void
-	{
-		this._domNode = domNode;
-	}
-
-	afterAttachToDom = ComponentWithSingleTextContentMixin.afterAttachToDom;
-
-	detachFromDom()
-	{
-		this._domNode.parentNode!.removeChild(this._domNode);
-	}
 }
+
+export default
+interface Text extends NativeComponent {}
+
+applyNativeComponentMixin(Text);

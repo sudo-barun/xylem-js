@@ -15,10 +15,6 @@ export default class Component {
         this._firstNode = undefined;
         this._lastNode = undefined;
     }
-    build(attributes) {
-        throw new Error('Method "build" is not implemented in class '
-            + Object.getPrototypeOf(this).constructor.name);
-    }
     injectAttributes(attributes) {
         this._attributes = { ...attributes, ...this._attributes };
     }
