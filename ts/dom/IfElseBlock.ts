@@ -28,14 +28,15 @@ function getActiveBlockIndex(conditions: Array<boolean|Store<boolean>>): number
 export default
 class IfElseBlock extends Component<Attributes>
 {
-	_activeBlockIndex: number = -1;
-	_conditionStores: Store<boolean>[];
-	_isActiveStores: SourceStore<boolean>[];
+	declare _activeBlockIndex: number;
+	declare _conditionStores: Store<boolean>[];
+	declare _isActiveStores: SourceStore<boolean>[];
 
 	constructor(attributes: Attributes)
 	{
 		super(attributes);
 
+		this._activeBlockIndex = -1;
 		this._conditionStores = attributes.itemAttributesArray.map(() => createStore(false));
 		this._isActiveStores = attributes.itemAttributesArray.map(() => createStore(false));
 	}

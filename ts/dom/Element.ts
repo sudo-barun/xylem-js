@@ -12,15 +12,15 @@ import Subscriber from "../types/Subscriber.js";
 export default
 class Element extends NativeComponent
 {
-	tagName: string;
-	attributes: { [key:string]: any };
-	children: ComponentItem[];
-	_isSelfClosing: boolean;
-	listeners: { [key:string]: ()=>{} };
-	elementStoreSubscriber?: Subscriber<HTMLElement>;
+	declare tagName: string;
+	declare attributes: { [key:string]: any };
+	declare children: ComponentItem[];
+	declare _isSelfClosing: boolean;
+	declare listeners: { [key:string]: ()=>{} };
+	declare elementStoreSubscriber?: Subscriber<HTMLElement>;
 
-	_domNode!: HTMLElement;
-	_virtualDom!: Array<ComponentItem>;
+	declare _domNode: HTMLElement;
+	declare _virtualDom: Array<ComponentItem>;
 
 	constructor(
 		tagName: string,
@@ -34,6 +34,8 @@ class Element extends NativeComponent
 		this._isSelfClosing = false;
 		this.listeners = {};
 		this._virtualDom = children;
+		this._domNode = undefined!;
+		this.elementStoreSubscriber = undefined;
 	}
 
 	isSelfClosing(isSelfClosing?: boolean): boolean

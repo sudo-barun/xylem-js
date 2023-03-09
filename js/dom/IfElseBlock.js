@@ -11,11 +11,9 @@ function getActiveBlockIndex(conditions) {
     return -1;
 }
 export default class IfElseBlock extends Component {
-    _activeBlockIndex = -1;
-    _conditionStores;
-    _isActiveStores;
     constructor(attributes) {
         super(attributes);
+        this._activeBlockIndex = -1;
         this._conditionStores = attributes.itemAttributesArray.map(() => createStore(false));
         this._isActiveStores = attributes.itemAttributesArray.map(() => createStore(false));
     }

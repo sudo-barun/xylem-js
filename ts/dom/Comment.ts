@@ -5,13 +5,14 @@ import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeCo
 export default
 class Comment extends NativeComponent
 {
-	_textContent: string|Getter<string>|SubscribableGetter<string>;
-	_domNode!: globalThis.Comment;
+	declare _textContent: string|Getter<string>|SubscribableGetter<string>;
+	declare _domNode: globalThis.Comment;
 
 	constructor(textContent: string|Getter<string>|SubscribableGetter<string>)
 	{
 		super();
 		this._textContent = textContent;
+		this._domNode = undefined!;
 	}
 
 	setTextContent(textContent: string|Getter<string>|SubscribableGetter<string>)

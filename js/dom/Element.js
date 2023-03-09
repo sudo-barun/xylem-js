@@ -5,14 +5,6 @@ import map from "../core/map.js";
 import NativeComponent from "./NativeComponent.js";
 import setAttribute from "./setAttribute.js";
 export default class Element extends NativeComponent {
-    tagName;
-    attributes;
-    children;
-    _isSelfClosing;
-    listeners;
-    elementStoreSubscriber;
-    _domNode;
-    _virtualDom;
     constructor(tagName, attributes = {}, children = []) {
         super();
         this.tagName = tagName;
@@ -21,6 +13,8 @@ export default class Element extends NativeComponent {
         this._isSelfClosing = false;
         this.listeners = {};
         this._virtualDom = children;
+        this._domNode = undefined;
+        this.elementStoreSubscriber = undefined;
     }
     isSelfClosing(isSelfClosing) {
         if (arguments.length !== 0) {

@@ -3,16 +3,6 @@ import createProxyStore from "../core/createProxyStore.js";
 import createStream from "../core/createStream.js";
 import Element from "./Element.js";
 export default class Component {
-    afterAttachToDom;
-    beforeDetachFromDom;
-    _attributes;
-    _modifier;
-    _virtualDom;
-    _notifyAfterAttachToDom;
-    _notifyBeforeDetachFromDom;
-    _eventUnsubscribers;
-    _firstNode;
-    _lastNode;
     constructor(attributes = {}) {
         this._attributes = attributes;
         this._notifyAfterAttachToDom = createStream();
@@ -20,6 +10,10 @@ export default class Component {
         this._notifyBeforeDetachFromDom = createStream();
         this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
         this._eventUnsubscribers = [];
+        this._modifier = undefined;
+        this._virtualDom = undefined;
+        this._firstNode = undefined;
+        this._lastNode = undefined;
     }
     build(attributes) {
         throw new Error('Method "build" is not implemented in class '

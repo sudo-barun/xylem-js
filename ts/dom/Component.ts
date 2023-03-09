@@ -11,18 +11,18 @@ import Stream from "../types/Stream.js";
 export default
 abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}>
 {
-	afterAttachToDom: Stream<void>;
-	beforeDetachFromDom: Stream<void>;
+	declare afterAttachToDom: Stream<void>;
+	declare beforeDetachFromDom: Stream<void>;
 
-	_attributes: EarlyAttributes & LateAttributes;
-	_modifier?: ComponentModifier;
-	_virtualDom!: Array<ComponentItem>;
-	_notifyAfterAttachToDom: SourceStream<void>;
-	_notifyBeforeDetachFromDom: SourceStream<void>;
-	_eventUnsubscribers: Array<()=>void>;
+	declare _attributes: EarlyAttributes & LateAttributes;
+	declare _modifier?: ComponentModifier;
+	declare _virtualDom: Array<ComponentItem>;
+	declare _notifyAfterAttachToDom: SourceStream<void>;
+	declare _notifyBeforeDetachFromDom: SourceStream<void>;
+	declare _eventUnsubscribers: Array<()=>void>;
 
-	_firstNode!: Comment;
-	_lastNode!: Comment;
+	declare _firstNode: Comment;
+	declare _lastNode: Comment;
 
 	constructor(attributes: EarlyAttributes = {} as EarlyAttributes)
 	{
@@ -32,6 +32,10 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._notifyBeforeDetachFromDom = createStream<void>();
 		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
 		this._eventUnsubscribers = [];
+		this._modifier = undefined;
+		this._virtualDom = undefined!;
+		this._firstNode = undefined!;
+		this._lastNode = undefined!;
 	}
 
 	build(attributes: EarlyAttributes & LateAttributes): Array<ComponentItem>

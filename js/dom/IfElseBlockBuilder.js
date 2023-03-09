@@ -1,13 +1,12 @@
 import IfElseBlock from "./IfElseBlock.js";
 import map from "../core/map.js";
 export default class IfElseBlockBuilder {
-    _ifConditions = [];
-    _hasElse = false;
     constructor(condition, build) {
-        this._ifConditions.push({
-            condition: map(condition, Boolean),
-            build,
-        });
+        this._ifConditions = [{
+                condition: map(condition, Boolean),
+                build,
+            }];
+        this._hasElse = false;
     }
     elseIf(condition, build) {
         if (this._hasElse) {

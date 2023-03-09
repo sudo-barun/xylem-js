@@ -3,15 +3,17 @@ import Store from "../types/Store.js";
 import SubscribableGetter from "../types/SubscribableGetter.js";
 import NativeComponent, { ComponentWithSingleTextContentMixin } from "./NativeComponent.js";
 
-export default class Text extends NativeComponent
+export default
+class Text extends NativeComponent
 {
-	_textContent: string|Getter<string>|SubscribableGetter<string>;
-	_domNode!: globalThis.Text;
+	declare _textContent: string|Getter<string>|SubscribableGetter<string>;
+	declare _domNode: globalThis.Text;
 
 	constructor(textContent: string|Getter<string>|Store<string>)
 	{
 		super();
 		this._textContent = textContent;
+		this._domNode = undefined!;
 	}
 
 	setTextContent(textContent: string|Getter<string>|SubscribableGetter<string>)

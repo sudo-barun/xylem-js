@@ -6,8 +6,8 @@ import Store from "../types/Store.js";
 export default
 class ForEachBlockBuilder<T>
 {
-	_array: T[]|Store<T[]>|ArrayStore<T>;
-	_build: ForEachItemBuilder<T>;
+	declare _array: T[]|Store<T[]>|ArrayStore<T>;
+	declare _build: ForEachItemBuilder<T>;
 
 	constructor(array: T[]|Store<T[]>|ArrayStore<T>, build: ForEachItemBuilder<T>)
 	{

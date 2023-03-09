@@ -11,15 +11,16 @@ type IfElseBlockItemData = {
 export default
 class IfElseBlockBuilder
 {
-	_ifConditions: Array<IfElseBlockItemData> = [];
-	_hasElse: boolean = false;
+	declare _ifConditions: Array<IfElseBlockItemData>;
+	declare _hasElse: boolean;
 
 	constructor(condition: Store<any>, build: () => Array<ComponentItem>)
 	{
-		this._ifConditions.push({
+		this._ifConditions = [{
 			condition: map<any,boolean>(condition, Boolean),
 			build,
-		});
+		}];
+		this._hasElse = false;
 	}
 
 	elseIf(condition: Store<any>, build: () => Array<ComponentItem>): this
