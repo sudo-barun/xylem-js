@@ -1,7 +1,7 @@
 function isInteger(value) {
     return (value ^ 0) === value;
 }
-const splice = function (array, index$Array, index) {
+const remove = function (array, index$Array, index) {
     const index_ = typeof index === 'function' ? index() : index;
     if (!isInteger(index_)) {
         throw new Error('"index" must be integer.');
@@ -16,4 +16,4 @@ const splice = function (array, index$Array, index) {
     array.splice(index_, 1);
     return [index_];
 };
-export default splice;
+export default remove;

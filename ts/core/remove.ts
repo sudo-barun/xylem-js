@@ -7,7 +7,7 @@ function isInteger(value: any): boolean
 	return (value ^ 0) === value;
 }
 
-const splice: ArrayMutateAction<[number|Store<number>]> = function <T>(
+const remove: ArrayMutateAction<[number|Store<number>]> = function <T>(
 	array: T[],
 	index$Array: SourceStore<number>[],
 	index: number|Store<number>,
@@ -33,4 +33,4 @@ const splice: ArrayMutateAction<[number|Store<number>]> = function <T>(
 	return [index_];
 }
 
-export default splice;
+export default remove;
