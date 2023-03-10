@@ -19,7 +19,7 @@ export default function parseHTML(arr) {
     let unclosedText = null;
     let unclosedTextContent = null;
     let previousElementWasSelfClosed;
-    const vNodes = [];
+    const children = [];
     const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
     const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
     const selfClosingElementRegex = /^<([0-9a-zA-Z-]+)\/>$/;
@@ -70,14 +70,14 @@ export default function parseHTML(arr) {
                 const [, tagName] = selfClosingElementRegex.exec(item);
                 const element = new ElementComponent(tagName);
                 element.isSelfClosing(true);
-                vNodes.push(element);
+                children.push(element);
                 previousElementWasSelfClosed = true;
             }
             else if (elementStartRegex.test(item)) {
                 const [, tagName] = elementStartRegex.exec(item);
                 const element = new ElementComponent(tagName);
                 unclosedElements.push(element);
-                vNodes.push(element);
+                children.push(element);
                 previousElementWasSelfClosed = false;
             }
             else if (elementEndRegex.test(item)) {
@@ -98,7 +98,7 @@ export default function parseHTML(arr) {
             else if (commentStartRegex.test(item)) {
                 const comment = new CommentComponent('');
                 unclosedComment = comment;
-                vNodes.push(comment);
+                children.push(comment);
             }
             else if (commentEndRegex.test(item)) {
                 throw new Error(`Comment end marker(-->) found without preceeding comment start marker(<!--).`);
@@ -106,7 +106,7 @@ export default function parseHTML(arr) {
             else if (textStartRegex.test(item)) {
                 const text = new TextComponent('');
                 unclosedText = text;
-                vNodes.push(text);
+                children.push(text);
             }
             else if (textEndRegex.test(item)) {
                 throw new Error(`Text end marker(</>) found without preceeding text start marker(<>).`);
@@ -120,12 +120,12 @@ export default function parseHTML(arr) {
                 if (partiallyResemblingElementEndRegex.test(item)) {
                     console.warn(`Text partially resembling end tag found: ${item} . Consider using text markers.`);
                 }
-                vNodes.push(new TextComponent(item));
+                children.push(new TextComponent(item));
             }
         }
         else if (typeof item === 'function') {
             const text = new TextComponent(item);
-            vNodes.push(text);
+            children.push(text);
         }
         else if (Array.isArray(item)) {
             if (unclosedElements.length === 0) {
@@ -146,19 +146,19 @@ export default function parseHTML(arr) {
             throw new Error('ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach"');
         }
         else if (item instanceof Component) {
-            vNodes.push(item);
+            children.push(item);
         }
         else if (typeof item === 'object') {
             Object.keys(item).forEach(function (key) {
                 const listenerRegex = /^@([a-zA-Z]+)$/;
                 const getElementOfAttributes = () => {
                     if (previousElementWasSelfClosed) {
-                        const vNode = vNodes[vNodes.length - 1];
-                        if (!(vNode instanceof ElementComponent)) {
-                            console.log('Last item is not Element', vNode);
+                        const child = children[children.length - 1];
+                        if (!(child instanceof ElementComponent)) {
+                            console.error('Last item is not Element', child);
                             throw Error('Last item is not Element');
                         }
-                        return vNode;
+                        return child;
                     }
                     return unclosedElements[unclosedElements.length - 1];
                 };
@@ -181,7 +181,7 @@ export default function parseHTML(arr) {
             });
         }
         else {
-            vNodes.push(new TextComponent(item));
+            children.push(new TextComponent(item));
         }
     }
     if (unclosedComment) {
@@ -203,6 +203,6 @@ export default function parseHTML(arr) {
         console.error(errorMessage, arr);
         throw new Error(errorMessage);
     }
-    return vNodes;
+    return children;
 }
 ;

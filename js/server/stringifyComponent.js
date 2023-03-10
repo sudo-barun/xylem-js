@@ -51,7 +51,7 @@ function stringifyComponentChildren(componentChildren) {
     });
     return strings.join('');
 }
-function stringifyComponent(component) {
+export default function stringifyComponent(component) {
     return [
         `<!--${escapeHTML(component.getComponentName())}-->`,
         stringifyComponentChildren(component.children()),

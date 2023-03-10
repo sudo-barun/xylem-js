@@ -40,9 +40,9 @@ export default class ElementComponent {
         return this._isSelfClosing;
     }
     setup(modifier) {
-        this._children.forEach(virtualNode => {
-            if ((virtualNode instanceof Component) || (virtualNode instanceof ElementComponent)) {
-                virtualNode.setup(modifier);
+        this._children.forEach(child => {
+            if ((child instanceof Component) || (child instanceof ElementComponent)) {
+                child.setup(modifier);
             }
         });
     }

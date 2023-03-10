@@ -8,7 +8,7 @@ export default
 function hydrate(component: Component, domNodes: ArrayLike<Node>, currentIndex = 0): number
 {
 	const componentFirstNode = domNodes[currentIndex];
-	if (! (componentFirstNode instanceof window.Comment)) {
+	if (! (componentFirstNode instanceof Comment)) {
 		throw new Error('The first node of component was not found');
 	}
 	component.firstNode(componentFirstNode);
@@ -17,7 +17,7 @@ function hydrate(component: Component, domNodes: ArrayLike<Node>, currentIndex =
 	currentIndex = hydrateComponentChildren(component.children(), domNodes, currentIndex);
 
 	const componentLastNode = domNodes[currentIndex];
-	if (! (componentLastNode instanceof window.Comment)) {
+	if (! (componentLastNode instanceof Comment)) {
 		throw new Error('The last node of component was not found');
 	}
 	component.lastNode(componentLastNode);
@@ -34,7 +34,7 @@ function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes
 
 		if (componentChild instanceof TextComponent) {
 
-			if (! (node instanceof window.Text)) {
+			if (! (node instanceof Text)) {
 				throw new Error('Text not found');
 			}
 			componentChild.domNode(node);
@@ -42,7 +42,7 @@ function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes
 
 		} else if (componentChild instanceof CommentComponent) {
 
-			if (! (node instanceof window.Comment)) {
+			if (! (node instanceof Comment)) {
 				throw new Error('Comment not found');
 			}
 			componentChild.domNode(node);

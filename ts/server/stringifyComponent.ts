@@ -67,6 +67,7 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 	return strings.join('');
 }
 
+export default
 function stringifyComponent(component: Component): string
 {
 	return [

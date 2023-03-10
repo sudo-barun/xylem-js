@@ -61,14 +61,14 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 			modifier(this);
 		}
 
-		const virtualDom = this.build(this._attributes);
-		virtualDom.forEach(_vDom => {
+		const children = this.build(this._attributes);
+		children.forEach(_vDom => {
 			if ((_vDom instanceof Component) || (_vDom instanceof ElementComponent)) {
 				_vDom.setup(modifier);
 			}
 		});
 
-		this._children = virtualDom;
+		this._children = children;
 	}
 
 	reload(): void

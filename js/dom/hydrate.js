@@ -4,14 +4,14 @@ import ElementComponent from './_internal/ElementComponent.js';
 import TextComponent from './_internal/TextComponent.js';
 export default function hydrate(component, domNodes, currentIndex = 0) {
     const componentFirstNode = domNodes[currentIndex];
-    if (!(componentFirstNode instanceof window.Comment)) {
+    if (!(componentFirstNode instanceof Comment)) {
         throw new Error('The first node of component was not found');
     }
     component.firstNode(componentFirstNode);
     currentIndex++;
     currentIndex = hydrateComponentChildren(component.children(), domNodes, currentIndex);
     const componentLastNode = domNodes[currentIndex];
-    if (!(componentLastNode instanceof window.Comment)) {
+    if (!(componentLastNode instanceof Comment)) {
         throw new Error('The last node of component was not found');
     }
     component.lastNode(componentLastNode);
@@ -22,14 +22,14 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
     componentChildren.forEach((componentChild) => {
         const node = domNodes[currentIndex];
         if (componentChild instanceof TextComponent) {
-            if (!(node instanceof window.Text)) {
+            if (!(node instanceof Text)) {
                 throw new Error('Text not found');
             }
             componentChild.domNode(node);
             currentIndex++;
         }
         else if (componentChild instanceof CommentComponent) {
-            if (!(node instanceof window.Comment)) {
+            if (!(node instanceof Comment)) {
                 throw new Error('Comment not found');
             }
             componentChild.domNode(node);
