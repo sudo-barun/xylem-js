@@ -1,4 +1,4 @@
-import createProxyStream from "../core/createProxyStream.js";
+import createStream from "../core/createStream.js";
 import ProxyStream from "../types/ProxyStream.js";
 
 export default
@@ -7,10 +7,10 @@ function createStreamOfDomEvent(
 	eventName: string
 ): ProxyStream<Event>
 {
-	return createProxyStream<Event>((sourceStream) => {
-		eventTarget.addEventListener(eventName, sourceStream);
+	return createStream<Event>((emitter) => {
+		eventTarget.addEventListener(eventName, emitter);
 		return () => {
-			eventTarget.removeEventListener(eventName, sourceStream);
+			eventTarget.removeEventListener(eventName, emitter);
 		};
 	});
 }

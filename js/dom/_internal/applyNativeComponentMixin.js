@@ -1,18 +1,18 @@
 const NativeComponentMixin = {
-    getDomNode() {
+    domNodes() {
+        return [this.domNode()];
+    },
+    firstNode() {
+        return this.domNode();
+    },
+    lastNode() {
+        return this.domNode();
+    },
+    domNode(domNode) {
+        if (arguments.length !== 0) {
+            this._domNode = domNode;
+        }
         return this._domNode;
-    },
-    getDomNodes() {
-        return [this.getDomNode()];
-    },
-    getFirstNode() {
-        return this.getDomNode();
-    },
-    getLastNode() {
-        return this.getDomNode();
-    },
-    setDomNode(domNode) {
-        this._domNode = domNode;
     },
     detachFromDom() {
         this._domNode.parentNode.removeChild(this._domNode);

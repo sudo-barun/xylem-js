@@ -2,29 +2,27 @@ import NativeComponent from "../../types/_internal/NativeComponent.js";
 
 const NativeComponentMixin = {
 
-	getDomNode(this: NativeComponent): ChildNode
+	domNodes(this: NativeComponent): ChildNode[]
 	{
+		return [ this.domNode() ];
+	},
+
+	firstNode(this: NativeComponent): ChildNode
+	{
+		return this.domNode();
+	},
+
+	lastNode(this: NativeComponent): ChildNode
+	{
+		return this.domNode();
+	},
+
+	domNode(this: NativeComponent, domNode: ChildNode): ChildNode
+	{
+		if (arguments.length !== 0) {
+			this._domNode = domNode;
+		}
 		return this._domNode;
-	},
-
-	getDomNodes(this: NativeComponent): ChildNode[]
-	{
-		return [ this.getDomNode() ];
-	},
-
-	getFirstNode(this: NativeComponent): ChildNode
-	{
-		return this.getDomNode();
-	},
-
-	getLastNode(this: NativeComponent): ChildNode
-	{
-		return this.getDomNode();
-	},
-
-	setDomNode(this: NativeComponent, domNode: ChildNode): void
-	{
-		this._domNode = domNode;
 	},
 
 	detachFromDom(this: NativeComponent): void

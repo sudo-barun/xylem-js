@@ -1,6 +1,13 @@
-import Getter from "./Getter";
-import Stream from "./Stream";
+import DataNode from "./DataNode";
+import Setter from "./Setter";
 
-type Store<T> = Getter<T> & Stream<T>;
+type Store<T> =
+(
+	DataNode<T>
+	&
+	Setter<T>
+	&
+	{ readonly: DataNode<T> }
+);
 
 export default Store;

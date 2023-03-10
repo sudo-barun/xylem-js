@@ -1,4 +1,5 @@
 import ArrayMutate from "./ArrayMutate";
+import DataNode from "./DataNode";
 import Store from "./Store";
 
 type ArrayStore<T> = (
@@ -6,8 +7,8 @@ type ArrayStore<T> = (
 	&
 	{
 		mutate: ArrayMutate<T>,
-		index$Array: Array<Store<number>>,
-		length$: Store<number>,
+		index$Array: Array<DataNode<number>>,
+		length$: DataNode<number>,
 	}
 );
 

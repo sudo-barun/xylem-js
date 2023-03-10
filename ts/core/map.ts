@@ -1,18 +1,18 @@
-import Store from "../types/Store.js";
-import createProxyStore from "./createProxyStore.js";
-import createStream from "./createStream.js";
+import createDataNode from "./createDataNode.js";
+import createEmittableStream from "./createEmittableStream.js";
+import DataNode from "../types/DataNode.js";
 
 export default
-function map<T>(store: Store<T>, callback: (value: T) => T): Store<T>
+function map<T>(store: DataNode<T>, callback: (value: T) => T): DataNode<T>
 
 export default
-function map<I,O>(store: Store<I>, callback: (value: I) => O): Store<O>
+function map<I,O>(store: DataNode<I>, callback: (value: I) => O): DataNode<O>
 
 export default
-function map<I,O>(store: Store<I>, callback: (value: I) => O): Store<O>
+function map<I,O>(store: DataNode<I>, callback: (value: I) => O): DataNode<O>
 {
 	const getter = () => callback(store());
-	const stream = createStream<O>();
+	const stream = createEmittableStream<O>();
 	store.subscribe((value) => stream(callback(value)))
-	return createProxyStore(getter, stream);
+	return createDataNode(getter, stream);
 }

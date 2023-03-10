@@ -1,10 +1,10 @@
-import ArrayStore from "../types/ArrayStore.js";
-import ForEachBlockBuilder from "./ForEachBlockBuilder.js";
-import ForEachItemBuilder from "../types/ForEachItemBuilder.js";
-import Store from "../types/Store.js";
+import ArrayDataNode from "../types/ArrayDataNode.js";
+import ForEachBlockBuilder from "./_internal/ForEachBlockBuilder.js";
+import ForEachItemBuilder from "../types/_internal/ForEachItemBuilder.js";
+import DataNode from "../types/DataNode.js";
 
 export default
-function forEach<T>(array: T[]|Store<T[]>|ArrayStore<T>, build: ForEachItemBuilder<T>)
+function forEach<T>(array: T[]|DataNode<T[]>|ArrayDataNode<T>, build: ForEachItemBuilder<T>)
 {
 	return new ForEachBlockBuilder(array, build);
 }

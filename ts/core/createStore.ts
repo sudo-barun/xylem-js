@@ -1,4 +1,4 @@
-import SourceStore from "../types/SourceStore.js";
+import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
 
 type State<T> = {
@@ -7,7 +7,7 @@ type State<T> = {
 }
 
 export default
-function createStore<T> (value: T): SourceStore<T>
+function createStore<T> (value: T): Store<T>
 {
 	return _createStore({
 		value,
@@ -15,7 +15,7 @@ function createStore<T> (value: T): SourceStore<T>
 	});
 }
 
-function _createStore<T> (state: State<T>): SourceStore<T>
+function _createStore<T> (state: State<T>): Store<T>
 {
 	const subscribers = state.subscribers;
 

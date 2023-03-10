@@ -1,12 +1,12 @@
-import ComponentItem from "../types/ComponentItem.js";
+import ComponentChildren from "../types/ComponentChildren.js";
 import ComponentModifier from "../types/ComponentModifier.js";
-import createProxy from "../core/createProxy.js";
-import createProxyStore from "../core/createProxyStore.js";
-import createStream from "../core/createStream.js";
-import Element from "./Element.js";
-import SourceStream from "../types/SourceStream.js";
-import Store from "../types/Store.js";
+import createEmittableStream from "../core/createEmittableStream.js";
+import createDataNode from "../core/createDataNode.js";
+import DataNode from "../types/DataNode.js";
+import ElementComponent from "./_internal/ElementComponent.js";
+import EmittableStream from "../types/EmittableStream.js";
 import Stream from "../types/Stream.js";
+import Subscriber from "../types/Subscriber.js";
 
 export default
 abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}>
@@ -16,9 +16,9 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	declare _attributes: EarlyAttributes & LateAttributes;
 	declare _modifier?: ComponentModifier;
-	declare _virtualDom: Array<ComponentItem>;
-	declare _notifyAfterAttachToDom: SourceStream<void>;
-	declare _notifyBeforeDetachFromDom: SourceStream<void>;
+	declare _children: ComponentChildren;
+	declare _notifyAfterAttachToDom: EmittableStream<void>;
+	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
 	declare _eventUnsubscribers: Array<()=>void>;
 
 	declare _firstNode: Comment;
@@ -27,18 +27,18 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	constructor(attributes: EarlyAttributes = {} as EarlyAttributes)
 	{
 		this._attributes = attributes as typeof this._attributes;
-		this._notifyAfterAttachToDom = createStream<void>();
+		this._notifyAfterAttachToDom = createEmittableStream<void>();
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
-		this._notifyBeforeDetachFromDom = createStream<void>();
+		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
 		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
 		this._eventUnsubscribers = [];
 		this._modifier = undefined;
-		this._virtualDom = undefined!;
+		this._children = undefined!;
 		this._firstNode = undefined!;
 		this._lastNode = undefined!;
 	}
 
-	abstract build(attributes: EarlyAttributes & LateAttributes): Array<ComponentItem>;
+	abstract build(attributes: EarlyAttributes & LateAttributes): ComponentChildren;
 
 	injectAttributes(attributes: LateAttributes)
 	{
@@ -63,32 +63,32 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 		const virtualDom = this.build(this._attributes);
 		virtualDom.forEach(_vDom => {
-			if ((_vDom instanceof Component) || (_vDom instanceof Element)) {
+			if ((_vDom instanceof Component) || (_vDom instanceof ElementComponent)) {
 				_vDom.setup(modifier);
 			}
 		});
 
-		this._virtualDom = virtualDom;
+		this._children = virtualDom;
 	}
 
 	reload(): void
 	{
 		this.notifyBeforeDetachFromDom();
-		this._virtualDom.forEach(vDomItem => {
+		this._children.forEach(vDomItem => {
 			vDomItem.detachFromDom();
 		});
 
-		this._notifyAfterAttachToDom = createStream<void>();
+		this._notifyAfterAttachToDom = createEmittableStream<void>();
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
-		this._notifyBeforeDetachFromDom = createStream<void>();
+		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
 		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
 
 		this.setup(this._modifier);
-		this._virtualDom.forEach(vDom => {
+		this._children.forEach(vDom => {
 			vDom.setupDom();
 		});
 
-		this.getChildNodes().forEach((node) => {
+		this.childNodes().forEach((node) => {
 			this._lastNode.parentNode!.insertBefore(node, this._lastNode);
 		});
 
@@ -106,72 +106,54 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._firstNode = this._firstNode || document.createComment(`${this.getComponentName()}`);
 		this._lastNode = this._lastNode || document.createComment(`/${this.getComponentName()}`);
 
-		this._virtualDom.forEach(vDom => {
+		this._children.forEach(vDom => {
 			vDom.setupDom();
 		});
 	}
 
-	getDomNodes(): Array<ChildNode>
+	domNodes(): Array<ChildNode>
 	{
-		const nodes = this.getChildNodes();
+		const nodes = this.childNodes();
 		nodes.unshift(this._firstNode);
 		nodes.push(this._lastNode);
 		return nodes;
 	}
 
-	getChildNodes(): ChildNode[]
+	childNodes(): ChildNode[]
 	{
-		return this._virtualDom.map(vDom => vDom.getDomNodes())
+		return this._children.map(vDom => vDom.domNodes())
 		.reduce((acc, item) => {
 			acc.push(...item);
 			return acc;
 		}, [] as ChildNode[]);
 	}
 
-	getVirtualDom(): Array<ComponentItem>
+	children(): ComponentChildren
 	{
-		return this._virtualDom;
+		return this._children;
 	}
 
-	createProxyStore<T>(store: Store<T>): Store<T>
+	firstNode(node?: Comment): Comment
 	{
-		const proxy = createProxyStore(store, store);
-		this.beforeDetachFromDom.subscribe(() => {
-			proxy.unsubscribeFromSource();
-		});
-		return proxy;
-	}
-
-	deriveStore<T>(immutSubFuncVar: Store<T>): Store<T>
-	{
-		return createProxy(immutSubFuncVar, this.beforeDetachFromDom.subscribe);
-	}
-
-	getFirstNode(): Comment
-	{
+		if (arguments.length !== 0) {
+			this._firstNode = node!;
+		}
 		return this._firstNode;
 	}
 
-	setFirstNode(node: Comment): void
+	lastNode(node?: Comment): Comment
 	{
-		this._firstNode = node;
-	}
-
-	getLastNode(): Comment
-	{
+		if (arguments.length !== 0) {
+			this._lastNode = node!;
+		}
 		return this._lastNode;
-	}
-
-	setLastNode(node: Comment): void
-	{
-		this._lastNode = node;
 	}
 
 	notifyAfterAttachToDom()
 	{
 		this._notifyAfterAttachToDom();
-		this._virtualDom.forEach((vDomItem) => {
-			if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
+		this._children.forEach((vDomItem) => {
+			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyAfterAttachToDom();
 			}
 		});
@@ -180,8 +162,8 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	notifyBeforeDetachFromDom()
 	{
 		this._notifyBeforeDetachFromDom();
-		this._virtualDom.forEach((vDomItem) => {
-			if ((vDomItem instanceof Component) || (vDomItem instanceof Element)) {
+		this._children.forEach((vDomItem) => {
+			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyBeforeDetachFromDom();
 			}
 		});
@@ -189,10 +171,45 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	detachFromDom()
 	{
-		this._virtualDom.forEach((vDomItem) => {
+		this._children.forEach((vDomItem) => {
 			vDomItem.detachFromDom();
 			this._firstNode.parentNode!.removeChild(this._firstNode);
 			this._lastNode.parentNode!.removeChild(this._lastNode);
 		});
+	}
+
+	bindDataNode<T, DataNodeType extends DataNode<T>>(dataNode: DataNodeType): DataNodeType
+	{
+		const subscribers: Subscriber<T>[] = [];
+		const boundedDataNode = function () {
+			return dataNode.apply(null, arguments as any);
+		};
+
+		this.beforeDetachFromDom.subscribe(dataNode.subscribe((value)=>{
+			subscribers.forEach(subscriber => subscriber(value));
+		}));
+
+		const removeSubscriber = function (subscriber: Subscriber<T>)
+		{
+			const index = subscribers.indexOf(subscriber);
+			if (index === -1) {
+				throw new Error('Subscriber already removed from the list of subscribers');
+			}
+			subscribers.splice(index, 1);
+		};
+
+		const subscribe = function (subscriber: Subscriber<T>)
+		{
+			subscribers.push(subscriber);
+			return function () {
+				removeSubscriber(subscriber);
+			};
+		};
+		boundedDataNode.subscribe = subscribe;
+		Object.defineProperty(boundedDataNode, 'subscribe', { value: subscribe });
+
+		Object.defineProperty(boundedDataNode, '_source', { value: dataNode });
+
+		return boundedDataNode as unknown as DataNodeType;
 	}
 }

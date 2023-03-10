@@ -1,58 +1,58 @@
-import Comment from './Comment.js';
+import CommentComponent from './_internal/CommentComponent.js';
 import Component from './Component.js';
-import Element from './Element.js';
-import Text from './Text.js';
+import ElementComponent from './_internal/ElementComponent.js';
+import TextComponent from './_internal/TextComponent.js';
 export default function hydrate(component, domNodes, currentIndex = 0) {
     const componentFirstNode = domNodes[currentIndex];
     if (!(componentFirstNode instanceof window.Comment)) {
         throw new Error('The first node of component was not found');
     }
-    component.setFirstNode(componentFirstNode);
+    component.firstNode(componentFirstNode);
     currentIndex++;
-    currentIndex = hydrateComponentItems(component.getVirtualDom(), domNodes, currentIndex);
+    currentIndex = hydrateComponentChildren(component.children(), domNodes, currentIndex);
     const componentLastNode = domNodes[currentIndex];
     if (!(componentLastNode instanceof window.Comment)) {
         throw new Error('The last node of component was not found');
     }
-    component.setLastNode(componentLastNode);
+    component.lastNode(componentLastNode);
     currentIndex++;
     return currentIndex;
 }
-export function hydrateComponentItems(componentItems, domNodes, currentIndex = 0) {
-    componentItems.forEach((componentItem) => {
+export function hydrateComponentChildren(componentChildren, domNodes, currentIndex = 0) {
+    componentChildren.forEach((componentChild) => {
         const node = domNodes[currentIndex];
-        if (componentItem instanceof Text) {
+        if (componentChild instanceof TextComponent) {
             if (!(node instanceof window.Text)) {
                 throw new Error('Text not found');
             }
-            componentItem.setDomNode(node);
+            componentChild.domNode(node);
             currentIndex++;
         }
-        else if (componentItem instanceof Comment) {
+        else if (componentChild instanceof CommentComponent) {
             if (!(node instanceof window.Comment)) {
                 throw new Error('Comment not found');
             }
-            componentItem.setDomNode(node);
+            componentChild.domNode(node);
             currentIndex++;
         }
-        else if (componentItem instanceof Element) {
+        else if (componentChild instanceof ElementComponent) {
             if (!(node instanceof HTMLElement)) {
                 throw new Error('HTMLElement not found');
             }
-            Object.keys(componentItem.attributes).forEach((attributeName) => {
-                if (componentItem.attributes[attributeName] !== node.getAttribute(attributeName)) {
+            Object.keys(componentChild.attributes()).forEach((attributeName) => {
+                if (componentChild.attributes()[attributeName] !== node.getAttribute(attributeName)) {
                     throw new Error(`Value of attribute "${attributeName}" of HTMLElement does not match.`);
                 }
             });
-            componentItem.setDomNode(node);
-            hydrateComponentItems(componentItem.children, node.childNodes);
+            componentChild.domNode(node);
+            hydrateComponentChildren(componentChild.children(), node.childNodes);
             currentIndex++;
         }
-        else if (componentItem instanceof Component) {
-            currentIndex = hydrate(componentItem, domNodes, currentIndex);
+        else if (componentChild instanceof Component) {
+            currentIndex = hydrate(componentChild, domNodes, currentIndex);
         }
         else {
-            console.error('Unsupported data found', componentItem);
+            console.error('Unsupported data found', componentChild);
             throw new Error('Unsupported data found');
         }
     });

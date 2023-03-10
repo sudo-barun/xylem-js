@@ -1,15 +1,9 @@
-export default function createStream() {
+export default function createStream(callback) {
     const subscribers = [];
-    const stream = function (value) {
-        subscribers.forEach(subscriber => {
-            if (arguments.length) {
-                subscriber(value);
-            }
-            else {
-                subscriber();
-            }
-        });
+    const emitter = (value) => {
+        subscribers.forEach(subscriber => subscriber(value));
     };
+    const unsubscribeFromSource = callback(emitter);
     const removeSubscriber = function (subscriber) {
         const index = subscribers.indexOf(subscriber);
         if (index !== -1) {
@@ -22,12 +16,11 @@ export default function createStream() {
             removeSubscriber(subscriber);
         };
     };
-    stream.subscribe = subscribe;
-    Object.defineProperty(stream, 'subscribers', { value: subscribers });
-    const subscribeOnly = {
+    const stream = {
         subscribe,
+        unsubscribe: unsubscribeFromSource,
     };
-    stream.subscribeOnly = subscribeOnly;
-    Object.defineProperty(stream, 'subscribeOnly', { value: subscribeOnly });
+    Object.defineProperty(stream, 'subscribe', { value: stream.subscribe });
+    Object.defineProperty(stream, 'unsubscribe', { value: stream.unsubscribe });
     return stream;
 }

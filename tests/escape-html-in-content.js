@@ -1,12 +1,12 @@
-import arrayToVirtualDom from "../js/dom/arrayToVirtualDom.js";
 import Component from "../js/dom/Component.js";
-import mount from "../js/dom/mount.js";
+import mountComponent from "../js/dom/mountComponent.js";
+import parseHTML from "../js/dom/parseHTML.js";
 
 class EscapedContent extends Component
 {
 	build()
 	{
-		return arrayToVirtualDom([
+		return parseHTML([
 			'<div>',
 			[
 				'This is a text without any special character.',
@@ -20,4 +20,4 @@ class EscapedContent extends Component
 	}
 }
 
-mount(new EscapedContent(), document.getElementById('root'));
+mountComponent(new EscapedContent(), document.getElementById('root'));

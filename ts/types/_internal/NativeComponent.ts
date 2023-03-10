@@ -4,17 +4,15 @@ type NativeComponent = {
 
 	setupDom(): void;
 
-	getDomNode(): ChildNode;
+	domNode(domNode?: ChildNode): ChildNode;
 
-	getDomNodes(): ChildNode[];
+	domNodes(): ChildNode[];
 
-	getFirstNode(): ChildNode;
+	firstNode(): ChildNode;
 
-	getLastNode(): ChildNode;
+	lastNode(): ChildNode;
 
 	detachFromDom(): void;
-
-	setDomNode(domNode: ChildNode): void
 
 };
 

@@ -1,8 +1,8 @@
-import createProxyStore from "./createProxyStore.js";
-import createStream from "./createStream.js";
+import createDataNode from "./createDataNode.js";
+import createEmittableStream from "./createEmittableStream.js";
 export default function map(store, callback) {
     const getter = () => callback(store());
-    const stream = createStream();
+    const stream = createEmittableStream();
     store.subscribe((value) => stream(callback(value)));
-    return createProxyStore(getter, stream);
+    return createDataNode(getter, stream);
 }

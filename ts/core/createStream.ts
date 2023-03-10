@@ -1,22 +1,19 @@
-import SourceStream from "../types/SourceStream.js";
-import Stream from "../types/Stream.js";
+import Emitter from "../types/Emitter.js";
+import ProxyStream from "../types/ProxyStream.js";
 import Subscriber from "../types/Subscriber.js";
 import Unsubscriber from "../types/Unsubscriber.js";
 
 export default
-function createStream<T>(): SourceStream<T>
+function createStream<T>(
+	callback: (emitter: Emitter<T>) => Unsubscriber
+): ProxyStream<T>
 {
 	const subscribers: Subscriber<T>[] = [];
 
-	const stream = function (value: T): void {
-		subscribers.forEach(subscriber => {
-			if (arguments.length) {
-				subscriber(value as T);
-			} else {
-				(subscriber as Subscriber<void>)();
-			}
-		});
-	};
+	const emitter = (value: T) => {
+		subscribers.forEach(subscriber => subscriber(value));
+	}
+	const unsubscribeFromSource = callback(emitter);
 
 	const removeSubscriber = function (subscriber: Subscriber<T>)
 	{
@@ -26,7 +23,7 @@ function createStream<T>(): SourceStream<T>
 		}
 	};
 
-	const subscribe = function (subscriber: Subscriber<T>): Unsubscriber
+	const subscribe = function (subscriber: Subscriber<T>)
 	{
 		subscribers.push(subscriber);
 		return function () {
@@ -34,16 +31,13 @@ function createStream<T>(): SourceStream<T>
 		};
 	};
 
-	stream.subscribe = subscribe;
-
-	Object.defineProperty(stream, 'subscribers', { value: subscribers });
-
-	const subscribeOnly: Stream<T> = {
+	const stream = {
 		subscribe,
+		unsubscribe: unsubscribeFromSource,
 	};
 
-	stream.subscribeOnly = subscribeOnly;
-	Object.defineProperty(stream, 'subscribeOnly', { value: subscribeOnly });
+	Object.defineProperty(stream, 'subscribe', { value: stream.subscribe });
+	Object.defineProperty(stream, 'unsubscribe', { value: stream.unsubscribe });
 
 	return stream;
 }
