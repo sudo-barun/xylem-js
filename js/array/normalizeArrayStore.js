@@ -1,32 +1,36 @@
 import arrayStoreMutation from "./arrayStoreMutation.js";
 import createDataNode from "../core/createDataNode.js";
 import createEmittableStream from "../core/createEmittableStream.js";
+class NormalizedData {
+    _() {
+        return this._itemStores.map((store) => store._());
+    }
+}
 export default function normalizeArrayStore(arrayStore, createStoreForItem) {
-    const getter = () => itemStores.map((store) => store());
+    const normalizedData = new NormalizedData();
     const stream = createEmittableStream();
-    let itemStores;
     const initItemStores = (value) => {
-        itemStores = value.map(createStoreForItem);
-        itemStores.forEach((store) => {
+        normalizedData._itemStores = value.map(createStoreForItem);
+        normalizedData._itemStores.forEach((store) => {
             store.subscribe((value) => {
                 // TODO: use emitted value
-                stream(getter());
+                stream._(normalizedData._());
             });
         });
     };
-    initItemStores(arrayStore());
+    initItemStores(arrayStore._());
     arrayStore.subscribe((value) => {
         initItemStores(value);
-        stream(getter());
+        stream._(normalizedData._());
     });
-    arrayStore.mutate.subscribe(([value, action, ...mutationArgs]) => {
+    arrayStore.mutation.subscribe(([value, action, ...mutationArgs]) => {
         const handler = arrayStoreMutation.getHandler(action);
         if (handler === null) {
             console.error('Array was mutated with action but no handler found for the action.', action);
             throw new Error('Array was mutated with action but no handler found for the action.');
         }
-        handler(createStoreForItem, stream, itemStores, ...mutationArgs);
-        stream(getter());
+        handler(createStoreForItem, stream, normalizedData._itemStores, ...mutationArgs);
+        stream._(normalizedData._());
     });
-    return createDataNode(getter, stream);
+    return createDataNode(normalizedData, stream);
 }

@@ -4,10 +4,10 @@ import Component from "../Component.js";
 import ComponentChildren from "../../types/ComponentChildren.js";
 import ComponentModifier from "../../types/ComponentModifier.js";
 import DataNode from "../../types/DataNode.js";
+import isDataNode from "../../utilities/isDataNode.js";
 import map from "../../core/map.js";
 import NativeComponent from "../../types/_internal/NativeComponent.js";
 import Subscriber from "../../types/Subscriber.js";
-import Unsubscriber from "../../types/Unsubscriber.js";
 
 export default
 class ElementComponent
@@ -94,13 +94,17 @@ class ElementComponent
 		const nodeExists = !!this._domNode;
 		const element = this._domNode = this._domNode || this.createDomNode();
 		if (this._elementSubscriber) {
-			this._elementSubscriber(element);
+			if (typeof this._elementSubscriber === 'function') {
+				this._elementSubscriber(element);
+			} else {
+				this._elementSubscriber._(element);
+			}
 		}
 
 		Object.keys(this._attributes).forEach((attr) => {
 			if (attr === '()') {
 				this._attributes[attr](element, attr);
-			} else if (typeof this._attributes[attr] === 'function') {
+			} else if (isDataNode(this._attributes[attr])) {
 				createAttributeFunction(this._attributes[attr])(element, attr);
 			} else if (attr === 'class' && typeof this._attributes[attr] === 'object') {
 				createAttributeFunction(attrClass(this._attributes[attr]))(element, attr);
@@ -208,20 +212,16 @@ function attrClass(classDefinitions: ClassDefinitions|[string, ClassDefinitions]
 
 type Attribute = string|boolean|null|undefined;
 
-function createAttributeFunction(fn: DataNode<Attribute>)
+function createAttributeFunction(dataNode: DataNode<Attribute>)
 {
 	return function (
 		element: HTMLElement,
 		attributeName: string,
-	): Unsubscriber|void {
-		setAttribute(element, attributeName, fn());
-		const unsubscribe = fn.subscribe(function (value: Attribute) {
+	): void {
+		setAttribute(element, attributeName, dataNode._());
+		dataNode.subscribe(function (value: Attribute) {
 			setAttribute(element, attributeName, value);
 		});
-
-		return function () {
-			unsubscribe();
-		};
 	};
 }
 

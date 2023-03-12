@@ -9,11 +9,11 @@ function handleUnshift<T,U>(
 	item: T
 ): void
 {
-	const getter = () => itemStores.map((store) => store());
+	const getter = () => itemStores.map((store) => store._());
 	const store = createStoreForItem(item);
 	store.subscribe((value) => {
 		// TODO: use emitted value
-		emit(getter());
+		emit._(getter());
 	});
 	itemStores.unshift(store);
 }

@@ -1,6 +1,7 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import combineNamedDataNodes from "../../core/combineNamedDataNodes.js";
 import Component from "../Component.js";
+import isDataNode from "../../utilities/isDataNode.js";
 import map from "../../core/map.js";
 export default class ElementComponent {
     constructor(tagName, attributes = {}, children = []) {
@@ -53,13 +54,18 @@ export default class ElementComponent {
         const nodeExists = !!this._domNode;
         const element = this._domNode = this._domNode || this.createDomNode();
         if (this._elementSubscriber) {
-            this._elementSubscriber(element);
+            if (typeof this._elementSubscriber === 'function') {
+                this._elementSubscriber(element);
+            }
+            else {
+                this._elementSubscriber._(element);
+            }
         }
         Object.keys(this._attributes).forEach((attr) => {
             if (attr === '()') {
                 this._attributes[attr](element, attr);
             }
-            else if (typeof this._attributes[attr] === 'function') {
+            else if (isDataNode(this._attributes[attr])) {
                 createAttributeFunction(this._attributes[attr])(element, attr);
             }
             else if (attr === 'class' && typeof this._attributes[attr] === 'object') {
@@ -147,15 +153,12 @@ function attrClass(classDefinitions) {
         });
     }
 }
-function createAttributeFunction(fn) {
+function createAttributeFunction(dataNode) {
     return function (element, attributeName) {
-        setAttribute(element, attributeName, fn());
-        const unsubscribe = fn.subscribe(function (value) {
+        setAttribute(element, attributeName, dataNode._());
+        dataNode.subscribe(function (value) {
             setAttribute(element, attributeName, value);
         });
-        return function () {
-            unsubscribe();
-        };
     };
 }
 function setAttribute(element, name, value) {

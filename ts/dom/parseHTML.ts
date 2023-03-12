@@ -4,6 +4,7 @@ import ComponentChildren from '../types/ComponentChildren.js';
 import ElementComponent from './_internal/ElementComponent.js';
 import ForEachBuilder from './_internal/ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
+import isDataNode from '../utilities/isDataNode.js';
 import DataNode from '../types/DataNode.js';
 import TextComponent from './_internal/TextComponent.js';
 
@@ -119,9 +120,6 @@ function parseHTML(arr: any[]): ComponentChildren
 				}
 				children.push(new TextComponent(item));
 			}
-		} else if (typeof item === 'function') {
-			const text = new TextComponent(item);
-			children.push(text);
 		} else if (Array.isArray(item)) {
 			if (unclosedElements.length === 0) {
 				console.error('No unclosed element found.', item, arr);
@@ -144,35 +142,40 @@ function parseHTML(arr: any[]): ComponentChildren
 		} else if (item instanceof Component) {
 			children.push(item);
 		} else if (typeof item === 'object') {
-			Object.keys(item).forEach(function (key) {
-				const listenerRegex = /^@([a-zA-Z]+)$/;
+			if (isDataNode<string>(item)) {
+				const text = new TextComponent(item);
+				children.push(text);
+			} else {
+				Object.keys(item).forEach(function (key) {
+					const listenerRegex = /^@([a-zA-Z]+)$/;
 
-				const getElementOfAttributes = (): ElementComponent => {
-					if (previousElementWasSelfClosed) {
-						const child = children[children.length - 1];
-						if (! (child instanceof ElementComponent)) {
-							console.error('Last item is not Element', child);
-							throw Error('Last item is not Element');
+					const getElementOfAttributes = (): ElementComponent => {
+						if (previousElementWasSelfClosed) {
+							const child = children[children.length - 1];
+							if (! (child instanceof ElementComponent)) {
+								console.error('Last item is not Element', child);
+								throw Error('Last item is not Element');
+							}
+							return child;
 						}
-						return child;
-					}
-					return unclosedElements[unclosedElements.length-1];
-				};
+						return unclosedElements[unclosedElements.length-1];
+					};
 
-				if (listenerRegex.test(key)) {
-					const [ , eventName ] = listenerRegex.exec(key)!;
-					if (typeof item[key] !== 'function') {
-						throw new Error('listener must be function');
+					if (listenerRegex.test(key)) {
+						const [ , eventName ] = listenerRegex.exec(key)!;
+						if (typeof item[key] !== 'function') {
+							throw new Error('listener must be function');
+						}
+						getElementOfAttributes().addListener(eventName, item[key]);
+					} else if (key === '<>') {
+						getElementOfAttributes().elementSubscriber(item[key]);
+					} else if (key === '=') {
+						item[key](getElementOfAttributes());
+					} else {
+						getElementOfAttributes().attributes()[key] = item[key];
 					}
-					getElementOfAttributes().addListener(eventName, item[key]);
-				} else if (key === '<>') {
-					getElementOfAttributes().elementSubscriber(item[key]);
-				} else if (key === '=') {
-					item[key](getElementOfAttributes());
-				} else {
-					getElementOfAttributes().attributes()[key] = item[key];
-				}
-			});
+				});
+			}
 		} else {
 			children.push(new TextComponent(item));
 		}

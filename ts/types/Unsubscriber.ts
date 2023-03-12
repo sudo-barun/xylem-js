@@ -1,3 +1,5 @@
-type Unsubscriber = () => void;
+type Unsubscriber = {
+	_(): void,
+};
 
 export default Unsubscriber;

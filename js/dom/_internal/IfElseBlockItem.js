@@ -5,7 +5,7 @@ export default class IfElseBlockItem extends Component {
         isActive$.subscribe(() => {
             this.reload();
         });
-        if (isActive$()) {
+        if (isActive$._()) {
             return attributes.build.apply(this);
         }
         return [];

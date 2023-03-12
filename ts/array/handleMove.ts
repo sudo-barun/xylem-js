@@ -1,5 +1,6 @@
 import Emitter from "../types/Emitter.js";
 import DataNode from "../types/DataNode.js";
+import getValue from "../utilities/getValue.js";
 
 export default
 function handleMove<T,U>(
@@ -10,8 +11,8 @@ function handleMove<T,U>(
 	toIndex: number|DataNode<number>
 ): void
 {
-	const fromIndex_ = typeof fromIndex === 'function' ? fromIndex() : fromIndex;
-	const toIndex_ = typeof toIndex === 'function' ? toIndex() : toIndex;
+	const fromIndex_ = getValue(fromIndex);
+	const toIndex_ = getValue(toIndex);
 
 	const removedItemStore = itemStores.splice(fromIndex_, 1)[0];
 	itemStores.splice(toIndex_, 0, removedItemStore);

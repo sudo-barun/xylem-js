@@ -18,7 +18,7 @@ class IfElseBlockItem extends Component<Attributes>
 			this.reload();
 		});
 
-		if (isActive$()) {
+		if (isActive$._()) {
 			return attributes.build.apply(this);
 		}
 

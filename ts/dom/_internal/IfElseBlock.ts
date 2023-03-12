@@ -3,6 +3,7 @@ import ComponentChildren from "../../types/ComponentChildren.js";
 import createStore from "../../core/createStore.js";
 import getValue from "../../utilities/getValue.js";
 import IfElseBlockItem from "./IfElseBlockItem.js";
+import isDataNode from "../../utilities/isDataNode.js";
 import Store from "../../types/Store.js";
 import DataNode from "../../types/DataNode.js";
 
@@ -44,7 +45,7 @@ class IfElseBlock extends Component<Attributes>
 	setActive(index: number)
 	{
 		this._activeBlockIndex = index;
-		this._isActiveStores.forEach((isActive$, index) => isActive$(index === this._activeBlockIndex));
+		this._isActiveStores.forEach((isActive$, index) => isActive$._(index === this._activeBlockIndex));
 	}
 
 	build(attributes: Attributes): ComponentChildren
@@ -54,7 +55,7 @@ class IfElseBlock extends Component<Attributes>
 		));
 
 		attributes.itemAttributesArray.forEach((itemAttributes, index) => {
-			if (! (typeof itemAttributes.condition === 'function' && 'subscribe' in itemAttributes.condition)) {
+			if (! (isDataNode(itemAttributes.condition))) {
 				return;
 			}
 

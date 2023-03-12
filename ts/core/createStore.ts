@@ -1,73 +1,68 @@
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
+import DataNode from "../types/DataNode.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
-
-type State<T> = {
-	value: T,
-	subscribers: Subscriber<T>[],
-}
+import Unsubscriber from "../types/Unsubscriber.js";
+import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 function createStore<T> (value: T): Store<T>
 {
-	return _createStore({
-		value,
-		subscribers: [],
-	});
+	return new StoreImpl(value);
 }
 
-function _createStore<T> (state: State<T>): Store<T>
+class StoreImpl<T> implements Store<T>
 {
-	const subscribers = state.subscribers;
+	declare _value: T;
+	declare _subscribers: Subscriber<T>[];
+	declare readonly: ReadonlyDataNode<T>
 
-	const store = function (newValue?: T): T
+	constructor(value: T)
 	{
-		if (arguments.length === 0) {
-			return state.value;
-		} else {
-			const isDifferent = state.value !== newValue
-			state.value = newValue!;
+		this._value = value;
+		this._subscribers = [];
+		this.readonly = new ReadonlyDataNode(this);
+	}
+
+	_(value?: T): T
+	{
+		if (arguments.length !== 0) {
+			const isDifferent = this._value !== value
+			this._value = value!;
 			if (isDifferent) {
-				subscribers.forEach(subscriber => subscriber(state.value));
+				const callSubscribers = new CallSubscribers(this);
+				callSubscribers._.apply(callSubscribers, arguments as any);
 			}
-			return state.value;
 		}
-	};
+		return this._value;
+	}
 
-	const removeSubscriber = function (subscriber: Subscriber<T>)
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
 	{
-		const index = subscribers.indexOf(subscriber);
-		if (index !== -1) {
-			subscribers.splice(index, 1);
-		} else {
-			throw new Error('Failed to remove subscriber as it is not in the list of subscribers.');
-		}
-	};
+		this._subscribers.push(subscriber);
+		return new _Unsubscriber(this, subscriber);
+	}
+}
 
-	const subscribe = function (subscriber: Subscriber<T>)
+class ReadonlyDataNode<T> implements DataNode<T>
+{
+	declare _store: StoreImpl<T>;
+
+	constructor(store: StoreImpl<T>)
 	{
-		subscribers.push(subscriber);
-		return function () {
-			removeSubscriber(subscriber);
-		};
-	};
+		this._store = store;
+	}
 
-	const readonlyStore = function ()
+	_(): T
 	{
 		if (arguments.length > 0) {
 			throw new Error('Setting value is not allowed');
 		}
-		return store();
-	};
+		return this._store._();
+	}
 
-	Object.defineProperty(readonlyStore, '_state', { value: state });
-	readonlyStore.subscribe = subscribe;
-	Object.defineProperty(readonlyStore, 'subscribe', { value: subscribe });
-
-	Object.defineProperty(store, '_state', { value: state });
-	store.subscribe = subscribe;
-	Object.defineProperty(store, 'subscribe', { value: subscribe });
-	store.readonly = readonlyStore;
-	Object.defineProperty(store, 'readonly', { value: readonlyStore });
-
-	return store;
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	{
+		return this._store.subscribe(subscriber);
+	}
 }

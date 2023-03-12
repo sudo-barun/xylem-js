@@ -1,3 +1,5 @@
-type Setter<T> = (value: T) => T;
+type Setter<T> = {
+	_(value: T): T,
+};
 
 export default Setter;

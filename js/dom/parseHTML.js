@@ -3,6 +3,7 @@ import Component from './Component.js';
 import ElementComponent from './_internal/ElementComponent.js';
 import ForEachBuilder from './_internal/ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
+import isDataNode from '../utilities/isDataNode.js';
 import TextComponent from './_internal/TextComponent.js';
 function findIndex(predicate) {
     for (let i = 0; i < this.length; i++) {
@@ -123,10 +124,6 @@ export default function parseHTML(arr) {
                 children.push(new TextComponent(item));
             }
         }
-        else if (typeof item === 'function') {
-            const text = new TextComponent(item);
-            children.push(text);
-        }
         else if (Array.isArray(item)) {
             if (unclosedElements.length === 0) {
                 console.error('No unclosed element found.', item, arr);
@@ -149,36 +146,42 @@ export default function parseHTML(arr) {
             children.push(item);
         }
         else if (typeof item === 'object') {
-            Object.keys(item).forEach(function (key) {
-                const listenerRegex = /^@([a-zA-Z]+)$/;
-                const getElementOfAttributes = () => {
-                    if (previousElementWasSelfClosed) {
-                        const child = children[children.length - 1];
-                        if (!(child instanceof ElementComponent)) {
-                            console.error('Last item is not Element', child);
-                            throw Error('Last item is not Element');
+            if (isDataNode(item)) {
+                const text = new TextComponent(item);
+                children.push(text);
+            }
+            else {
+                Object.keys(item).forEach(function (key) {
+                    const listenerRegex = /^@([a-zA-Z]+)$/;
+                    const getElementOfAttributes = () => {
+                        if (previousElementWasSelfClosed) {
+                            const child = children[children.length - 1];
+                            if (!(child instanceof ElementComponent)) {
+                                console.error('Last item is not Element', child);
+                                throw Error('Last item is not Element');
+                            }
+                            return child;
                         }
-                        return child;
+                        return unclosedElements[unclosedElements.length - 1];
+                    };
+                    if (listenerRegex.test(key)) {
+                        const [, eventName] = listenerRegex.exec(key);
+                        if (typeof item[key] !== 'function') {
+                            throw new Error('listener must be function');
+                        }
+                        getElementOfAttributes().addListener(eventName, item[key]);
                     }
-                    return unclosedElements[unclosedElements.length - 1];
-                };
-                if (listenerRegex.test(key)) {
-                    const [, eventName] = listenerRegex.exec(key);
-                    if (typeof item[key] !== 'function') {
-                        throw new Error('listener must be function');
+                    else if (key === '<>') {
+                        getElementOfAttributes().elementSubscriber(item[key]);
                     }
-                    getElementOfAttributes().addListener(eventName, item[key]);
-                }
-                else if (key === '<>') {
-                    getElementOfAttributes().elementSubscriber(item[key]);
-                }
-                else if (key === '=') {
-                    item[key](getElementOfAttributes());
-                }
-                else {
-                    getElementOfAttributes().attributes()[key] = item[key];
-                }
-            });
+                    else if (key === '=') {
+                        item[key](getElementOfAttributes());
+                    }
+                    else {
+                        getElementOfAttributes().attributes()[key] = item[key];
+                    }
+                });
+            }
         }
         else {
             children.push(new TextComponent(item));

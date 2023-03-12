@@ -1,6 +1,8 @@
 import Emitter from "../types/Emitter.js";
 import Stream from "../types/Stream.js";
 import Subscriber from "../types/Subscriber.js";
+import SubscriberFunction from "../types/SubscriberFunction.js";
+import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
 
 export
@@ -26,19 +28,35 @@ function createMappedSourceStream<I,O>(
 	const emit = function (value: I|O): void {
 		subscribers.forEach(subscriber => {
 			if (arguments.length) {
-				subscriber(value as O);
+				if (typeof subscriber === 'function') {
+					subscriber(value as O);
+				} else {
+					subscriber._(value as O);
+				}
 			} else {
-				(subscriber as Subscriber<void>)();
+				if (typeof subscriber === 'function') {
+					(subscriber as SubscriberFunction<void>)();
+				} else {
+					(subscriber as SubscriberObject<void>)._();
+				}
 			}
 		});
 	};
 
-	const stream = function (value: I) {
-		if (callback) {
-			callback(emit, value);
-		} else {
-			emit(value);
-		}
+	const stream: {
+		_: (value: I) => void,
+		subscribe: (subscriber: Subscriber<O>) => Unsubscriber,
+		subscribeOnly: Stream<O>,
+	} = {
+		_: function (value: I) {
+			if (callback) {
+				callback(emit, value);
+			} else {
+				emit(value);
+			}
+		},
+		subscribe: undefined!,
+		subscribeOnly: undefined!,
 	};
 
 	const removeSubscriber = function (subscriber: Subscriber<O>)
@@ -52,8 +70,10 @@ function createMappedSourceStream<I,O>(
 	const subscribe = function (subscriber: Subscriber<O>): Unsubscriber
 	{
 		subscribers.push(subscriber);
-		return function () {
-			removeSubscriber(subscriber);
+		return {
+			_: function () {
+				removeSubscriber(subscriber);
+			},
 		};
 	};
 

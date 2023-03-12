@@ -1,3 +1,5 @@
-type Getter<T> = () => T;
+type Getter<T> = {
+	_(): T,
+};
 
 export default Getter;

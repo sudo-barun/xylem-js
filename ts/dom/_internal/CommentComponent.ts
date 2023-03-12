@@ -1,6 +1,8 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import DataNode from "../../types/DataNode.js";
+import isDataNode from "../../utilities/isDataNode.js";
 import NativeComponent from "../../types/_internal/NativeComponent.js";
+import SubscriberObject from "../../types/SubscriberObject.js";
 
 export default
 class CommentComponent
@@ -28,11 +30,13 @@ class CommentComponent
 			throw new Error('You cannot call setupDom twice subsequently.');
 		}
 		let textContent: string;
-		if (typeof this._textContent === 'function') {
-			textContent = this._textContent();
+		if (isDataNode(this._textContent)) {
+			textContent = this._textContent._();
+			this._textContent.subscribe(new TextContentSubscriber(this));
 		} else {
 			textContent = this._textContent;
 		}
+
 		this._domNode = document.createComment(textContent);
 	}
 }
@@ -41,3 +45,18 @@ export default
 interface CommentComponent extends NativeComponent {}
 
 applyNativeComponentMixin(CommentComponent);
+
+class TextContentSubscriber implements SubscriberObject<string>
+{
+	declare _textComponent: CommentComponent;
+
+	constructor(textComponent: CommentComponent)
+	{
+		this._textComponent = textComponent;
+	}
+
+	_(value: string): void
+	{
+		this._textComponent._domNode.textContent = value;
+	}
+}

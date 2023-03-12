@@ -1,12 +1,15 @@
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import ComponentChildren from "../types/ComponentChildren.js";
 import ComponentModifier from "../types/ComponentModifier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
-import createDataNode from "../core/createDataNode.js";
 import DataNode from "../types/DataNode.js";
 import ElementComponent from "./_internal/ElementComponent.js";
 import EmittableStream from "../types/EmittableStream.js";
 import Stream from "../types/Stream.js";
 import Subscriber from "../types/Subscriber.js";
+import SubscriberObject from "../types/SubscriberObject.js";
+import Unsubscriber from "../types/Unsubscriber.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}>
@@ -151,7 +154,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	notifyAfterAttachToDom()
 	{
-		this._notifyAfterAttachToDom();
+		this._notifyAfterAttachToDom._();
 		this._children.forEach((vDomItem) => {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyAfterAttachToDom();
@@ -161,7 +164,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	notifyBeforeDetachFromDom()
 	{
-		this._notifyBeforeDetachFromDom();
+		this._notifyBeforeDetachFromDom._();
 		this._children.forEach((vDomItem) => {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyBeforeDetachFromDom();
@@ -178,38 +181,56 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		});
 	}
 
-	bindDataNode<T, DataNodeType extends DataNode<T>>(dataNode: DataNodeType): DataNodeType
+	bindDataNode<R extends DataNode<unknown>>(dataNode: R): R
 	{
-		const subscribers: Subscriber<T>[] = [];
-		const boundedDataNode = function () {
-			return dataNode.apply(null, arguments as any);
-		};
+		return new ComponentBoundedDataNode(this, dataNode) as unknown as R;
+	}
+}
 
-		this.beforeDetachFromDom.subscribe(dataNode.subscribe((value)=>{
-			subscribers.forEach(subscriber => subscriber(value));
-		}));
+class ComponentBoundedDataNode<T> implements DataNode<T>
+{
+	declare _component: Component;
+	declare _dataNode: DataNode<T>;
+	declare _subscribers: Subscriber<T>[];
 
-		const removeSubscriber = function (subscriber: Subscriber<T>)
-		{
-			const index = subscribers.indexOf(subscriber);
-			if (index === -1) {
-				throw new Error('Subscriber already removed from the list of subscribers');
-			}
-			subscribers.splice(index, 1);
-		};
+	constructor(component: Component, dataNode: DataNode<T>)
+	{
+		this._component = component;
+		this._dataNode = dataNode;
+		this._subscribers = [];
 
-		const subscribe = function (subscriber: Subscriber<T>)
-		{
-			subscribers.push(subscriber);
-			return function () {
-				removeSubscriber(subscriber);
-			};
-		};
-		boundedDataNode.subscribe = subscribe;
-		Object.defineProperty(boundedDataNode, 'subscribe', { value: subscribe });
+		component.beforeDetachFromDom.subscribe(dataNode.subscribe(new SubscriberImpl(this)));
+	}
 
-		Object.defineProperty(boundedDataNode, '_source', { value: dataNode });
+	_(): T
+	{
+		return this._dataNode._.apply(this._dataNode, arguments as any);
+	}
 
-		return boundedDataNode as unknown as DataNodeType;
+	_emit(value: T)
+	{
+		const callSubscribers = new CallSubscribers(this);
+		callSubscribers._.apply(callSubscribers, arguments as any);
+	}
+
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	{
+		this._subscribers.push(subscriber);
+		return new UnsubscriberImpl(this, subscriber);
+	}
+}
+
+class SubscriberImpl<T> implements SubscriberObject<T>
+{
+	declare _componentBoundedDataNode: ComponentBoundedDataNode<T>;
+
+	constructor(componentBoundedDataNode: ComponentBoundedDataNode<T>)
+	{
+		this._componentBoundedDataNode = componentBoundedDataNode;
+	}
+
+	_(value: T): void
+	{
+		this._componentBoundedDataNode._emit(value);
 	}
 }

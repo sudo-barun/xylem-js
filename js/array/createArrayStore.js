@@ -1,89 +1,88 @@
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import createEmittableStream from "../core/createEmittableStream.js";
-import createDataNode from "../core/createDataNode.js";
 import createStore from "../core/createStore.js";
+import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 export default function createArrayStore(value) {
-    if (!(value instanceof Array)) {
-        throw new Error('Value must be an array.');
+    return new ArrayStoreImpl(value);
+}
+class ArrayStoreImpl {
+    constructor(value) {
+        if (!(value instanceof Array)) {
+            throw new Error('Value of ArrayStore must be an array.');
+        }
+        this._value = value;
+        this._subscribers = [];
+        this.index$Array = value.map((_, index) => createStore(index));
+        this.length$ = new ArrayLengthStore(this);
+        this.mutation = createEmittableStream();
+        this.mutation.subscribe(() => {
+            this.length$._emit(this.length$._());
+        });
+        this.readonly = new ReadonlyDataNode(this);
     }
-    const subscribers = [];
-    const mutationSubscribers = [];
-    const state = {
-        value,
-        subscribers,
-        mutationSubscribers,
-    };
-    const arrayStore = function (newValue) {
-        if (arguments.length === 0) {
-            return state.value;
-        }
-        else {
-            if (!(value instanceof Array)) {
-                throw new Error('Value must be an array.');
+    _(newValue) {
+        if (arguments.length !== 0) {
+            if (!(newValue instanceof Array)) {
+                throw new Error('Value of ArrayStore must be an array.');
             }
-            state.value = newValue;
-            subscribers.forEach(subscriber => subscriber(state.value));
-            return state.value;
+            const isDifferent = this._value !== newValue;
+            console.log('isDifferent', isDifferent);
+            this._value = newValue;
+            if (isDifferent) {
+                this.index$Array = newValue.map((_, index) => createStore(index));
+                this.length$._emit(newValue.length);
+                const callSubscribers = new CallSubscribers(this);
+                callSubscribers._.apply(callSubscribers, arguments);
+            }
         }
-    };
-    const removeSubscriber = function (subscriber) {
-        const index = subscribers.indexOf(subscriber);
-        if (index !== -1) {
-            subscribers.splice(index, 1);
-        }
-    };
-    const subscribe = function (subscriber) {
-        subscribers.push(subscriber);
-        return function () {
-            removeSubscriber(subscriber);
-        };
-    };
-    arrayStore.subscribe = subscribe;
-    Object.defineProperty(arrayStore, 'subscribe', { value: subscribe });
-    const readonly = function () {
-        if (arguments.length > 0) {
-            throw new Error(`Setting value is not allowed`);
-        }
-        return arrayStore();
-    };
-    readonly.subscribe = subscribe;
-    arrayStore.readonly = readonly;
-    Object.defineProperty(arrayStore, 'readonly', { value: readonly });
-    const mutate = function (action, ...otherArgs) {
+        return this._value;
+    }
+    subscribe(subscriber) {
+        this._subscribers.push(subscriber);
+        return new _Unsubscriber(this, subscriber);
+    }
+    mutate(action, ...mutationArgs) {
         // The mutation argument can change, for example index$ value can change.
         // So, initial value of arguments is returned from action and used.
-        const otherArgs_ = action(state.value, arrayStore.index$Array, ...otherArgs);
-        state.mutationSubscribers.forEach(subscriber => subscriber([
-            state.value,
-            action,
-            ...otherArgs_
-        ]));
-    };
-    const unsubscribeMutation = function (subscriber) {
-        const index = mutationSubscribers.indexOf(subscriber);
-        if (index === -1) {
-            throw new Error('Subscriber already removed from the list of subscribers');
+        const otherArgs_ = action(this._value, this.index$Array, ...mutationArgs);
+        this.mutation._([this._value, action, ...otherArgs_]);
+    }
+}
+class ReadonlyDataNode {
+    constructor(store) {
+        this._store = store;
+    }
+    _() {
+        if (arguments.length > 0) {
+            throw new Error('Setting value is not allowed');
         }
-        mutationSubscribers.splice(index, 1);
-    };
-    const subscribeMutation = (subscriber) => {
-        state.mutationSubscribers.push(subscriber);
-        return function () {
-            unsubscribeMutation(subscriber);
-        };
-    };
-    mutate.subscribe = subscribeMutation;
-    Object.defineProperty(mutate, 'subscribe', { value: mutate.subscribe });
-    arrayStore.mutate = mutate;
-    Object.defineProperty(arrayStore, 'mutate', { value: arrayStore.mutate });
-    Object.defineProperty(arrayStore, '_state', { value: state });
-    Object.defineProperty(readonly, '_state', { value: state });
-    const lengthGetter = () => state.value.length;
-    const lengthStream = createEmittableStream();
-    subscribe((value) => arrayStore.index$Array = value.map((_, index) => createStore(index)));
-    subscribe((value) => lengthStream(value.length));
-    mutate.subscribe(([value]) => lengthStream(value.length));
-    const length$ = createDataNode(lengthGetter, lengthStream);
-    arrayStore.length$ = length$;
-    arrayStore.index$Array = value.map((_, index) => createStore(index));
-    return arrayStore;
+        return this._store._();
+    }
+    subscribe(subscriber) {
+        this._store._subscribers.push(subscriber);
+        return new _Unsubscriber(this._store, subscriber);
+    }
+}
+class ArrayLengthStore {
+    constructor(arrayStore) {
+        this._arrayStore = arrayStore;
+        this._subscribers = [];
+    }
+    _() {
+        return this._arrayStore._().length;
+    }
+    subscribe(subscriber) {
+        this._subscribers.push(subscriber);
+        return new _Unsubscriber(this, subscriber);
+    }
+    _emit(value) {
+        this._subscribers.forEach((subscriber) => {
+            if (subscriber instanceof Function) {
+                subscriber(value);
+            }
+            else {
+                subscriber._(value);
+            }
+        });
+    }
 }

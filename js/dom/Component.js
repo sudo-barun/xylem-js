@@ -1,5 +1,7 @@
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import ElementComponent from "./_internal/ElementComponent.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default class Component {
     constructor(attributes = {}) {
         this._attributes = attributes;
@@ -95,7 +97,7 @@ export default class Component {
         return this._lastNode;
     }
     notifyAfterAttachToDom() {
-        this._notifyAfterAttachToDom();
+        this._notifyAfterAttachToDom._();
         this._children.forEach((vDomItem) => {
             if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
                 vDomItem.notifyAfterAttachToDom();
@@ -103,7 +105,7 @@ export default class Component {
         });
     }
     notifyBeforeDetachFromDom() {
-        this._notifyBeforeDetachFromDom();
+        this._notifyBeforeDetachFromDom._();
         this._children.forEach((vDomItem) => {
             if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
                 vDomItem.notifyBeforeDetachFromDom();
@@ -118,29 +120,33 @@ export default class Component {
         });
     }
     bindDataNode(dataNode) {
-        const subscribers = [];
-        const boundedDataNode = function () {
-            return dataNode.apply(null, arguments);
-        };
-        this.beforeDetachFromDom.subscribe(dataNode.subscribe((value) => {
-            subscribers.forEach(subscriber => subscriber(value));
-        }));
-        const removeSubscriber = function (subscriber) {
-            const index = subscribers.indexOf(subscriber);
-            if (index === -1) {
-                throw new Error('Subscriber already removed from the list of subscribers');
-            }
-            subscribers.splice(index, 1);
-        };
-        const subscribe = function (subscriber) {
-            subscribers.push(subscriber);
-            return function () {
-                removeSubscriber(subscriber);
-            };
-        };
-        boundedDataNode.subscribe = subscribe;
-        Object.defineProperty(boundedDataNode, 'subscribe', { value: subscribe });
-        Object.defineProperty(boundedDataNode, '_source', { value: dataNode });
-        return boundedDataNode;
+        return new ComponentBoundedDataNode(this, dataNode);
+    }
+}
+class ComponentBoundedDataNode {
+    constructor(component, dataNode) {
+        this._component = component;
+        this._dataNode = dataNode;
+        this._subscribers = [];
+        component.beforeDetachFromDom.subscribe(dataNode.subscribe(new SubscriberImpl(this)));
+    }
+    _() {
+        return this._dataNode._.apply(this._dataNode, arguments);
+    }
+    _emit(value) {
+        const callSubscribers = new CallSubscribers(this);
+        callSubscribers._.apply(callSubscribers, arguments);
+    }
+    subscribe(subscriber) {
+        this._subscribers.push(subscriber);
+        return new UnsubscriberImpl(this, subscriber);
+    }
+}
+class SubscriberImpl {
+    constructor(componentBoundedDataNode) {
+        this._componentBoundedDataNode = componentBoundedDataNode;
+    }
+    _(value) {
+        this._componentBoundedDataNode._emit(value);
     }
 }

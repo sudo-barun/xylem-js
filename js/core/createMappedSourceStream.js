@@ -3,20 +3,34 @@ export default function createMappedSourceStream(callback) {
     const emit = function (value) {
         subscribers.forEach(subscriber => {
             if (arguments.length) {
-                subscriber(value);
+                if (typeof subscriber === 'function') {
+                    subscriber(value);
+                }
+                else {
+                    subscriber._(value);
+                }
             }
             else {
-                subscriber();
+                if (typeof subscriber === 'function') {
+                    subscriber();
+                }
+                else {
+                    subscriber._();
+                }
             }
         });
     };
-    const stream = function (value) {
-        if (callback) {
-            callback(emit, value);
-        }
-        else {
-            emit(value);
-        }
+    const stream = {
+        _: function (value) {
+            if (callback) {
+                callback(emit, value);
+            }
+            else {
+                emit(value);
+            }
+        },
+        subscribe: undefined,
+        subscribeOnly: undefined,
     };
     const removeSubscriber = function (subscriber) {
         const index = subscribers.indexOf(subscriber);
@@ -26,8 +40,10 @@ export default function createMappedSourceStream(callback) {
     };
     const subscribe = function (subscriber) {
         subscribers.push(subscriber);
-        return function () {
-            removeSubscriber(subscriber);
+        return {
+            _: function () {
+                removeSubscriber(subscriber);
+            },
         };
     };
     stream.subscribe = subscribe;

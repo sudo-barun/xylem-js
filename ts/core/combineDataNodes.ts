@@ -1,41 +1,74 @@
 import DataNode from "../types/DataNode.js";
 import Subscriber from "../types/Subscriber.js";
+import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
-function combineDataNodes<T extends Array<any>>(stores: Array<DataNode<any>>): DataNode<T>
+function combineDataNodes<T extends Array<any>>(dataNodes: Array<DataNode<any>>): DataNode<T>
 {
-	const subscribers: Subscriber<T>[] = [];
-	const store = function (): T {
-		return stores.map(store => store()) as T;
-	};
+	return new CombinedDataNode(dataNodes);
+}
 
-	const removeSubscriber = function (subscriber: Subscriber<T>)
+class CombinedDataNode<T extends Array<any>> implements DataNode<T>
+{
+	declare _dataNodes: DataNode<any>[];
+	declare _subscribers: Subscriber<T>[];
+
+	constructor(stores: DataNode<any>[])
 	{
-		const index = subscribers.indexOf(subscriber);
-		if (index !== -1) {
-			subscribers.splice(index, 1);
-		}
-	};
+		this._dataNodes = stores;
+		this._subscribers = [];
 
-	const subscribe = function(fn: Subscriber<T>): Unsubscriber {
-		subscribers.push(fn);
-		return () => removeSubscriber(fn);
-	};
-	store.subscribe = subscribe;
-	Object.defineProperty(store, 'subscribe', { value: subscribe });
+		stores.forEach(
+			(_, index) => new StoreSubscriber(this, index)
+		);
+	}
 
-	stores.forEach((store, index) => {
-		store.subscribe((value) => {
-			const valueToEmit = stores.map((store, index2) => index === index2 ? value : store());
-			subscribers.forEach((subscriber) => {
-				subscriber(valueToEmit as T);
-			})
+	_(): T
+	{
+		return this._dataNodes.map((store) => store._()) as T;
+	}
+
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	{
+		this._subscribers.push(subscriber);
+		return new UnsubscriberImpl(this, subscriber);
+	}
+
+	_emit(value: T)
+	{
+		this._subscribers.forEach((subscriber) => {
+			if (subscriber instanceof Function) {
+				subscriber(value);
+			} else {
+				subscriber._(value);
+			}
 		});
-	});
+	}
+}
 
-	store._members = stores;
-	Object.defineProperty(store, '_members', { value: store._members });
+class StoreSubscriber<T extends Array<any>> implements SubscriberObject<any>
+{
+	declare _combinedStore: CombinedDataNode<T>;
+	declare _index: number;
 
-	return store;
+	constructor(combinedStore: CombinedDataNode<T>, index: number)
+	{
+		this._combinedStore = combinedStore;
+		this._index = index;
+		this._combinedStore._dataNodes[index].subscribe(this);
+	}
+
+	_(value: any)
+	{
+		const mappedValue = this._combinedStore._dataNodes.map((store, index) => {
+			if (index === this._index) {
+				return value;
+			} else {
+				return store._();
+			}
+		});
+		this._combinedStore._emit(mappedValue as T);
+	}
 }

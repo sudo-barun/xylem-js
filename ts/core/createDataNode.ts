@@ -2,6 +2,9 @@ import DataNode from "../types/DataNode.js";
 import Getter from "../types/Getter.js";
 import Stream from "../types/Stream.js";
 import Subscriber from "../types/Subscriber.js";
+import SubscriberObject from "../types/SubscriberObject.js";
+import Unsubscriber from "../types/Unsubscriber.js";
+import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 function createDataNode<T>(
@@ -9,36 +12,58 @@ function createDataNode<T>(
 	stream: Stream<T>
 ): DataNode<T>
 {
-	const subscribers: Subscriber<T>[] = [];
-	const dataNode = () => getter();
+	return new DataNodeImpl(getter, stream);
+}
 
-	const unsubscribeFromSource = stream.subscribe((value) => {
-		subscribers.forEach(subscriber => subscriber(value));
-	});
+class DataNodeImpl<T> implements DataNode<T>
+{
+	declare _getter: Getter<T>;
+	declare _stream: Stream<T>;
+	declare _subscribers: Subscriber<T>[];
 
-	const removeSubscriber = function (subscriber: Subscriber<T>)
+	constructor(getter: Getter<T>, stream: Stream<T>)
 	{
-		const index = subscribers.indexOf(subscriber);
-		if (index !== -1) {
-			subscribers.splice(index, 1);
-		}
-	};
+		this._getter = getter;
+		this._stream = stream;
+		this._subscribers = [];
 
-	const subscribe = function (subscriber: Subscriber<T>)
+		stream.subscribe(new StreamSubscriber(this));
+	}
+
+	_(): T
 	{
-		subscribers.push(subscriber);
-		return function () {
-			removeSubscriber(subscriber);
-		};
-	};
+		return this._getter._();
+	}
 
-	dataNode.subscribe = subscribe;
-	Object.defineProperty(dataNode, 'subscribe', { value: subscribe });
+	_emit(value: T)
+	{
+		this._subscribers.forEach((subscriber) => {
+			if (subscriber instanceof Function) {
+				subscriber(value);
+			} else {
+				subscriber._(value);
+			}
+		});
+	}
 
-	Object.defineProperty(dataNode, 'source', { value: { getter, stream } });
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	{
+		this._subscribers.push(subscriber);
+		return new _Unsubscriber(this, subscriber);
+	}
+}
 
-	dataNode.unsubscribeFromSource = unsubscribeFromSource;
-	Object.defineProperty(dataNode, 'unsubscribeFromSource', { value: unsubscribeFromSource });
+class StreamSubscriber<T> implements SubscriberObject<T>
+{
+	declare _dataNode: DataNodeImpl<T>
 
-	return dataNode;
+	constructor(dataNode: DataNodeImpl<T>)
+	{
+		this._dataNode = dataNode;
+	}
+
+	_(value: T): void
+	{
+		this._dataNode._emit(value);
+	}
 }

@@ -1,29 +1,46 @@
-export default function combineDataNodes(stores) {
-    const subscribers = [];
-    const store = function () {
-        return stores.map(store => store());
-    };
-    const removeSubscriber = function (subscriber) {
-        const index = subscribers.indexOf(subscriber);
-        if (index !== -1) {
-            subscribers.splice(index, 1);
-        }
-    };
-    const subscribe = function (fn) {
-        subscribers.push(fn);
-        return () => removeSubscriber(fn);
-    };
-    store.subscribe = subscribe;
-    Object.defineProperty(store, 'subscribe', { value: subscribe });
-    stores.forEach((store, index) => {
-        store.subscribe((value) => {
-            const valueToEmit = stores.map((store, index2) => index === index2 ? value : store());
-            subscribers.forEach((subscriber) => {
-                subscriber(valueToEmit);
-            });
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
+export default function combineDataNodes(dataNodes) {
+    return new CombinedDataNode(dataNodes);
+}
+class CombinedDataNode {
+    constructor(stores) {
+        this._dataNodes = stores;
+        this._subscribers = [];
+        stores.forEach((_, index) => new StoreSubscriber(this, index));
+    }
+    _() {
+        return this._dataNodes.map((store) => store._());
+    }
+    subscribe(subscriber) {
+        this._subscribers.push(subscriber);
+        return new UnsubscriberImpl(this, subscriber);
+    }
+    _emit(value) {
+        this._subscribers.forEach((subscriber) => {
+            if (subscriber instanceof Function) {
+                subscriber(value);
+            }
+            else {
+                subscriber._(value);
+            }
         });
-    });
-    store._members = stores;
-    Object.defineProperty(store, '_members', { value: store._members });
-    return store;
+    }
+}
+class StoreSubscriber {
+    constructor(combinedStore, index) {
+        this._combinedStore = combinedStore;
+        this._index = index;
+        this._combinedStore._dataNodes[index].subscribe(this);
+    }
+    _(value) {
+        const mappedValue = this._combinedStore._dataNodes.map((store, index) => {
+            if (index === this._index) {
+                return value;
+            }
+            else {
+                return store._();
+            }
+        });
+        this._combinedStore._emit(mappedValue);
+    }
 }

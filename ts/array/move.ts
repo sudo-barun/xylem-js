@@ -2,6 +2,7 @@ import ArrayMutateAction from "../types/ArrayMutateAction.js";
 import cumulate from "../core/cumulate.js";
 import Store from "../types/Store.js";
 import DataNode from "../types/DataNode.js";
+import getValue from "../utilities/getValue.js";
 
 function isInteger(value: any): boolean
 {
@@ -15,8 +16,8 @@ const move: ArrayMutateAction<[number|DataNode<number>, number|DataNode<number>]
 	toIndex: number|DataNode<number>
 ): [number,number]
 {
-	const fromIndex_ = typeof fromIndex === 'function' ? fromIndex() : fromIndex;
-	const toIndex_ = typeof toIndex === 'function' ? toIndex() : toIndex;
+	const fromIndex_ = getValue(fromIndex);
+	const toIndex_ = getValue(toIndex);
 
 	if (! isInteger(fromIndex_)) {
 		throw new Error('"fromIndex" must be integer.');
@@ -43,7 +44,7 @@ const move: ArrayMutateAction<[number|DataNode<number>, number|DataNode<number>]
 			cumulate(index$, (v) => v + 1);
 		});
 	}
-	fromIndex$(toIndex_);
+	fromIndex$._(toIndex_);
 	const removedIndex = index$Array.splice(fromIndex_, 1)[0];
 	index$Array.splice(toIndex_, 0, removedIndex);
 

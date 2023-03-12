@@ -1,10 +1,11 @@
-import Getter from "../types/Getter";
+import DataNode from "../types/DataNode.js";
+import isDataNode from "./isDataNode.js";
 
 export default
-function getValue<T>(value: T|Getter<T>)
+function getValue<T>(value: T|DataNode<T>): T
 {
-	if (value instanceof Function) {
-		return value();
+	if (isDataNode<T>(value)) {
+		return value._();
 	}
 	return value;
 }

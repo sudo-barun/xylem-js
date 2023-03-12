@@ -1,4 +1,5 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
+import isDataNode from "../../utilities/isDataNode.js";
 import getValue from "../../utilities/getValue.js";
 export default class TextComponent {
     constructor(textContent) {
@@ -15,8 +16,8 @@ export default class TextComponent {
         return this._textContent;
     }
     setupSubscribers() {
-        if ((typeof this._textContent === 'function') && ('subscribe' in this._textContent)) {
-            this._textContent.subscribe((text) => this._domNode.textContent = text);
+        if (isDataNode(this._textContent)) {
+            this._textContent.subscribe(new TextContentSubscriber(this));
         }
     }
     setupDom() {
@@ -35,3 +36,11 @@ export default class TextComponent {
     }
 }
 applyNativeComponentMixin(TextComponent);
+class TextContentSubscriber {
+    constructor(textComponent) {
+        this._textComponent = textComponent;
+    }
+    _(value) {
+        this._textComponent._domNode.textContent = value;
+    }
+}

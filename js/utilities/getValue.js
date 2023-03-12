@@ -1,6 +1,7 @@
+import isDataNode from "./isDataNode.js";
 export default function getValue(value) {
-    if (value instanceof Function) {
-        return value();
+    if (isDataNode(value)) {
+        return value._();
     }
     return value;
 }

@@ -14,7 +14,7 @@ type Attributes<T> = {
 
 function getArray<T>(array: T[]|DataNode<T[]>|ArrayDataNode<T>): T[]
 {
-	return array instanceof Array ? array : array();
+	return array instanceof Array ? array : array._();
 }
 
 export default
@@ -30,7 +30,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			this.beforeDetachFromDom.subscribe(unsubscribe);
 
 			if ('mutate' in this._attributes.array) {
-				const unsubscribeMutation = this._attributes.array.mutate.subscribe(
+				const unsubscribeMutation = this._attributes.array.mutation.subscribe(
 					(arrayMutation: ArrayMutation<T>) => {
 						const [_, action, ...mutationArgs] = arrayMutation;
 						const handler = forEachBlockMutation.getHandler(action);
@@ -80,7 +80,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 		if (this._attributes.array instanceof Array) {
 			return this._attributes.array.length;
 		} else {
-			return this._attributes.array().length;
+			return this._attributes.array._().length;
 		}
 	}
 }

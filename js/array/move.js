@@ -1,10 +1,11 @@
 import cumulate from "../core/cumulate.js";
+import getValue from "../utilities/getValue.js";
 function isInteger(value) {
     return (value ^ 0) === value;
 }
 const move = function (array, index$Array, fromIndex, toIndex) {
-    const fromIndex_ = typeof fromIndex === 'function' ? fromIndex() : fromIndex;
-    const toIndex_ = typeof toIndex === 'function' ? toIndex() : toIndex;
+    const fromIndex_ = getValue(fromIndex);
+    const toIndex_ = getValue(toIndex);
     if (!isInteger(fromIndex_)) {
         throw new Error('"fromIndex" must be integer.');
     }
@@ -28,7 +29,7 @@ const move = function (array, index$Array, fromIndex, toIndex) {
             cumulate(index$, (v) => v + 1);
         });
     }
-    fromIndex$(toIndex_);
+    fromIndex$._(toIndex_);
     const removedIndex = index$Array.splice(fromIndex_, 1)[0];
     index$Array.splice(toIndex_, 0, removedIndex);
     const removedItem = array.splice(fromIndex_, 1)[0];

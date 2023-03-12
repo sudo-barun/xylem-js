@@ -2,48 +2,50 @@ import EmittableStream from "../types/EmittableStream.js";
 import Stream from "../types/Stream.js";
 import Subscriber from "../types/Subscriber.js";
 import Unsubscriber from "../types/Unsubscriber.js";
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 function createEmittableStream<T>(): EmittableStream<T>
 {
-	const subscribers: Subscriber<T>[] = [];
+	return new EmittableStreamImpl();
+}
 
-	const stream = function (value: T): void {
-		subscribers.forEach(subscriber => {
-			if (arguments.length) {
-				subscriber(value as T);
-			} else {
-				(subscriber as Subscriber<void>)();
-			}
-		});
-	};
+class EmittableStreamImpl<T> implements EmittableStream<T>
+{
+	declare _subscribers: Subscriber<T>[];
+	declare subscribeOnly: Stream<T>;
 
-	const removeSubscriber = function (subscriber: Subscriber<T>)
+	constructor()
 	{
-		const index = subscribers.indexOf(subscriber);
-		if (index !== -1) {
-			subscribers.splice(index, 1);
-		}
-	};
+		this._subscribers = [];
+		this.subscribeOnly = new SubscribeOnlyStream(this);
+	}
 
-	const subscribe = function (subscriber: Subscriber<T>): Unsubscriber
+	_(value: T): void
 	{
-		subscribers.push(subscriber);
-		return function () {
-			removeSubscriber(subscriber);
-		};
-	};
+		const callSubscribers = new CallSubscribers(this);
+		callSubscribers._.apply(callSubscribers, arguments as any);
+	}
 
-	stream.subscribe = subscribe;
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	{
+		this._subscribers.push(subscriber);
+		return new UnsubscriberImpl(this, subscriber);
+	}
+}
 
-	Object.defineProperty(stream, 'subscribers', { value: subscribers });
+class SubscribeOnlyStream<T> implements Stream<T>
+{
+	declare _source: EmittableStreamImpl<T>;
 
-	const subscribeOnly: Stream<T> = {
-		subscribe,
-	};
+	constructor(source: EmittableStreamImpl<T>)
+	{
+		this._source = source;
+	}
 
-	stream.subscribeOnly = subscribeOnly;
-	Object.defineProperty(stream, 'subscribeOnly', { value: subscribeOnly });
-
-	return stream;
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	{
+		return this._source.subscribe(subscriber);
+	}
 }

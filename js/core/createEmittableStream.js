@@ -1,33 +1,27 @@
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default function createEmittableStream() {
-    const subscribers = [];
-    const stream = function (value) {
-        subscribers.forEach(subscriber => {
-            if (arguments.length) {
-                subscriber(value);
-            }
-            else {
-                subscriber();
-            }
-        });
-    };
-    const removeSubscriber = function (subscriber) {
-        const index = subscribers.indexOf(subscriber);
-        if (index !== -1) {
-            subscribers.splice(index, 1);
-        }
-    };
-    const subscribe = function (subscriber) {
-        subscribers.push(subscriber);
-        return function () {
-            removeSubscriber(subscriber);
-        };
-    };
-    stream.subscribe = subscribe;
-    Object.defineProperty(stream, 'subscribers', { value: subscribers });
-    const subscribeOnly = {
-        subscribe,
-    };
-    stream.subscribeOnly = subscribeOnly;
-    Object.defineProperty(stream, 'subscribeOnly', { value: subscribeOnly });
-    return stream;
+    return new EmittableStreamImpl();
+}
+class EmittableStreamImpl {
+    constructor() {
+        this._subscribers = [];
+        this.subscribeOnly = new SubscribeOnlyStream(this);
+    }
+    _(value) {
+        const callSubscribers = new CallSubscribers(this);
+        callSubscribers._.apply(callSubscribers, arguments);
+    }
+    subscribe(subscriber) {
+        this._subscribers.push(subscriber);
+        return new UnsubscriberImpl(this, subscriber);
+    }
+}
+class SubscribeOnlyStream {
+    constructor(source) {
+        this._source = source;
+    }
+    subscribe(subscriber) {
+        return this._source.subscribe(subscriber);
+    }
 }

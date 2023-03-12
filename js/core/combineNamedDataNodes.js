@@ -1,37 +1,54 @@
-export default function combineNamedDataNodes(stores) {
-    const subscribers = [];
-    const store = function () {
-        return Object.keys(stores).reduce(function (acc, key) {
-            acc[key] = stores[key]();
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
+export default function combineNamedDataNodes(nodes) {
+    return new CombinedStore(nodes);
+}
+class CombinedStore {
+    _stores;
+    _subscribers;
+    constructor(stores) {
+        this._stores = stores;
+        this._subscribers = [];
+        Object.keys(stores).forEach((key) => new StoreSubscriber(this, key));
+    }
+    _() {
+        return Object.keys(this._stores).reduce((acc, key) => {
+            acc[key] = this._stores[key]._();
             return acc;
         }, {});
-    };
-    const removeSubscriber = function (subscriber) {
-        const index = subscribers.indexOf(subscriber);
-        if (index !== -1) {
-            subscribers.splice(index, 1);
-        }
-    };
-    const subscribe = function (fn) {
-        subscribers.push(fn);
-        return function () {
-            removeSubscriber(fn);
-        };
-    };
-    store.subscribe = subscribe;
-    Object.defineProperty(store, 'subscribe', { value: subscribe });
-    Object.keys(stores).forEach((index) => {
-        stores[index].subscribe((value) => {
-            const valueToEmit = Object.keys(stores).reduce(function (acc, index2) {
-                acc[index2] = index === index2 ? value : stores[index2]();
-                return acc;
-            }, {});
-            subscribers.forEach((subscriber) => {
-                subscriber(valueToEmit);
-            });
+    }
+    subscribe(subscriber) {
+        this._subscribers.push(subscriber);
+        return new UnsubscriberImpl(this, subscriber);
+    }
+    _emit(value) {
+        this._subscribers.forEach((subscriber) => {
+            if (subscriber instanceof Function) {
+                subscriber(value);
+            }
+            else {
+                subscriber._(value);
+            }
         });
-    });
-    store._members = stores;
-    Object.defineProperty(store, '_members', { value: store._members });
-    return store;
+    }
+}
+class StoreSubscriber {
+    _combinedStore;
+    _key;
+    constructor(combinedStore, key) {
+        this._combinedStore = combinedStore;
+        this._key = key;
+        this._combinedStore._stores[key].subscribe(this);
+    }
+    _(value) {
+        const mappedValue = Object.keys(this._combinedStore._stores).reduce((acc, key) => {
+            if (key === this._key) {
+                acc[key] = value;
+            }
+            else {
+                acc[key] = this._combinedStore._stores[key]._();
+            }
+            return acc;
+        }, {});
+        this._combinedStore._emit(mappedValue);
+    }
 }

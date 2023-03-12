@@ -3,7 +3,7 @@ import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
 import forEachBlockMutation from "./forEachBlockMutation.js";
 function getArray(array) {
-    return array instanceof Array ? array : array();
+    return array instanceof Array ? array : array._();
 }
 export default class ForEachBlock extends Component {
     build(attributes) {
@@ -13,7 +13,7 @@ export default class ForEachBlock extends Component {
             });
             this.beforeDetachFromDom.subscribe(unsubscribe);
             if ('mutate' in this._attributes.array) {
-                const unsubscribeMutation = this._attributes.array.mutate.subscribe((arrayMutation) => {
+                const unsubscribeMutation = this._attributes.array.mutation.subscribe((arrayMutation) => {
                     const [_, action, ...mutationArgs] = arrayMutation;
                     const handler = forEachBlockMutation.getHandler(action);
                     if (handler === null) {
@@ -58,7 +58,7 @@ export default class ForEachBlock extends Component {
             return this._attributes.array.length;
         }
         else {
-            return this._attributes.array().length;
+            return this._attributes.array._().length;
         }
     }
 }

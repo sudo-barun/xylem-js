@@ -28,5 +28,5 @@ function cumulate<I,O>(
 	newValue: I
 ): O
 {
-	return sourceStore(callback(sourceStore(), newValue));
+	return sourceStore._(callback(sourceStore._(), newValue));
 };

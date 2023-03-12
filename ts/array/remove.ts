@@ -1,6 +1,7 @@
 import ArrayMutateAction from "../types/ArrayMutateAction.js";
-import Store from "../types/Store.js";
 import DataNode from "../types/DataNode.js";
+import getValue from "../utilities/getValue.js";
+import Store from "../types/Store.js";
 
 function isInteger(value: any): boolean
 {
@@ -13,7 +14,7 @@ const remove: ArrayMutateAction<[number|DataNode<number>]> = function <T>(
 	index: number|DataNode<number>,
 )
 {
-	const index_ = typeof index === 'function' ? index() : index;
+	const index_ = getValue(index);
 
 	if (! isInteger(index_)) {
 		throw new Error('"index" must be integer.');
@@ -24,7 +25,7 @@ const remove: ArrayMutateAction<[number|DataNode<number>]> = function <T>(
 	}
 
 	for (let i = index_+1; i < index$Array.length; i++) {
-		index$Array[i](index$Array[i]()-1);
+		index$Array[i]._(index$Array[i]._()-1);
 	}
 	index$Array.splice(index_, 1);
 

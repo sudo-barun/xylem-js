@@ -1,9 +1,9 @@
 export default function handleUnshift(createStoreForItem = ((item) => item), emit, itemStores, item) {
-    const getter = () => itemStores.map((store) => store());
+    const getter = () => itemStores.map((store) => store._());
     const store = createStoreForItem(item);
     store.subscribe((value) => {
         // TODO: use emitted value
-        emit(getter());
+        emit._(getter());
     });
     itemStores.unshift(store);
 }

@@ -1,49 +1,79 @@
 import DataNode from "../types/DataNode.js";
 import Subscriber from "../types/Subscriber.js";
+import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
-function combineNamedDataNodes<T extends {[prop: string]: any}>(stores: {[prop: string]: DataNode<any>}): DataNode<T>
+function combineNamedDataNodes<T extends {[prop: string]: any}>(nodes: {[prop: string]: DataNode<any>}): DataNode<T>
 {
-	const subscribers: Subscriber<T>[] = [];
-	const store = function (): T {
-		return Object.keys(stores).reduce(function (acc, key) {
-			acc[key] = stores[key]();
+	return new CombinedStore<T>(nodes);
+}
+
+class CombinedStore<T extends object> implements DataNode<T>
+{
+	_stores: {[prop: string]: DataNode<any>}
+	_subscribers: Subscriber<T>[];
+
+	constructor(stores: {[prop: string]: DataNode<any>})
+	{
+		this._stores = stores;
+		this._subscribers = [];
+
+		Object.keys(stores).forEach(
+			(key) => new StoreSubscriber(this, key)
+		);
+	}
+
+	_(): T
+	{
+		return Object.keys(this._stores).reduce((acc, key) => {
+			acc[key] = this._stores[key]._();
 			return acc;
 		}, {} as {[prop: string]:any}) as T;
-	};
+	}
 
-	const removeSubscriber = function (subscriber: Subscriber<T>)
+	subscribe(subscriber: Subscriber<T>): Unsubscriber
 	{
-		const index = subscribers.indexOf(subscriber);
-		if (index !== -1) {
-			subscribers.splice(index, 1);
-		}
-	};
+		this._subscribers.push(subscriber);
+		return new UnsubscriberImpl(this, subscriber);
+	}
 
-	const subscribe = function(fn: Subscriber<T>): Unsubscriber {
-		subscribers.push(fn);
-		return function () {
-			removeSubscriber(fn);
-		};
-	};
-	store.subscribe = subscribe;
-	Object.defineProperty(store, 'subscribe', { value: subscribe });
-
-	Object.keys(stores).forEach((index) => {
-		stores[index].subscribe((value) => {
-			const valueToEmit = Object.keys(stores).reduce(function (acc, index2) {
-				acc[index2] = index === index2 ? value : stores[index2]();
-				return acc;
-			}, {} as {[prop: string]:any});
-			subscribers.forEach((subscriber) => {
-				subscriber(valueToEmit as T);
-			})
+	_emit(value: T)
+	{
+		this._subscribers.forEach((subscriber) => {
+			if (subscriber instanceof Function) {
+				subscriber(value);
+			} else {
+				subscriber._(value);
+			}
 		});
-	});
+	}
+}
 
-	store._members = stores;
-	Object.defineProperty(store, '_members', { value: store._members });
+class StoreSubscriber<T extends object> implements SubscriberObject<any>
+{
+	_combinedStore: CombinedStore<T>;
+	_key: string;
 
-	return store;
+	constructor(combinedStore: CombinedStore<T>, key: string)
+	{
+		this._combinedStore = combinedStore;
+		this._key = key;
+		this._combinedStore._stores[key].subscribe(this);
+	}
+
+	_(value: any)
+	{
+		const mappedValue = Object.keys(this._combinedStore._stores).reduce((acc, key) => {
+			if (key === this._key) {
+				acc[key] = value;
+			} else {
+				acc[key] = this._combinedStore._stores[key]._();
+			}
+			return acc;
+		}, {} as {[key: string]: any});
+
+		this._combinedStore._emit(mappedValue as T);
+	}
 }

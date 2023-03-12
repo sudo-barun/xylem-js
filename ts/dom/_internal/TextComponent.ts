@@ -1,7 +1,9 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import DataNode from "../../types/DataNode.js";
+import isDataNode from "../../utilities/isDataNode.js";
 import getValue from "../../utilities/getValue.js";
 import NativeComponent from "../../types/_internal/NativeComponent.js";
+import SubscriberObject from "../../types/SubscriberObject.js";
 
 export default
 class TextComponent
@@ -30,8 +32,8 @@ class TextComponent
 
 	setupSubscribers()
 	{
-		if ((typeof this._textContent === 'function') && ('subscribe' in this._textContent)) {
-			this._textContent.subscribe((text) => this._domNode.textContent = text);
+		if (isDataNode(this._textContent)) {
+			this._textContent.subscribe(new TextContentSubscriber(this));
 		}
 	}
 
@@ -58,3 +60,18 @@ export default
 interface TextComponent extends NativeComponent {}
 
 applyNativeComponentMixin(TextComponent);
+
+class TextContentSubscriber implements SubscriberObject<string>
+{
+	declare _textComponent: TextComponent;
+
+	constructor(textComponent: TextComponent)
+	{
+		this._textComponent = textComponent;
+	}
+
+	_(value: string): void
+	{
+		this._textComponent._domNode.textContent = value;
+	}
+}

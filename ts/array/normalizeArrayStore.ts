@@ -4,6 +4,17 @@ import DataNode from "../types/DataNode.js";
 import arrayStoreMutation from "./arrayStoreMutation.js";
 import createDataNode from "../core/createDataNode.js";
 import createEmittableStream from "../core/createEmittableStream.js";
+import Getter from "../types/Getter.js";
+
+class NormalizedData<T> implements Getter<T[]>
+{
+	declare _itemStores: DataNode<T>[];
+
+	_(): T[]
+	{
+		return this._itemStores.map((store) => store._());
+	}
+}
 
 export default
 function normalizeArrayStore<T,U>(
@@ -11,29 +22,27 @@ function normalizeArrayStore<T,U>(
 	createStoreForItem: (item: T) => DataNode<U>
 ): DataNode<U[]>
 {
-	const getter = () => itemStores.map((store) => store());
+	const normalizedData = new NormalizedData<U>();
 	const stream = createEmittableStream<U[]>();
 
-	let itemStores: DataNode<U>[];
-
 	const initItemStores = (value: T[]) => {
-		itemStores = value.map(createStoreForItem);
-		itemStores.forEach((store) => {
+		normalizedData._itemStores = value.map(createStoreForItem);
+		normalizedData._itemStores.forEach((store) => {
 			store.subscribe((value) => {
 				// TODO: use emitted value
-				stream(getter());
+				stream._(normalizedData._());
 			});
 		});
 	};
 
-	initItemStores(arrayStore());
+	initItemStores(arrayStore._());
 
 	arrayStore.subscribe((value) => {
 		initItemStores(value);
-		stream(getter());
+		stream._(normalizedData._());
 	});
 
-	arrayStore.mutate.subscribe(([ value, action, ...mutationArgs ]: ArrayMutation<T>) => {
+	arrayStore.mutation.subscribe(([ value, action, ...mutationArgs ]: ArrayMutation<T>) => {
 		const handler = arrayStoreMutation.getHandler(action);
 		if (handler === null) {
 			console.error('Array was mutated with action but no handler found for the action.', action);
@@ -42,12 +51,12 @@ function normalizeArrayStore<T,U>(
 		handler(
 			createStoreForItem,
 			stream,
-			itemStores,
+			normalizedData._itemStores,
 			...mutationArgs
 		);
 
-		stream(getter());
+		stream._(normalizedData._());
 	});
 
-	return createDataNode(getter, stream);
+	return createDataNode(normalizedData, stream);
 }

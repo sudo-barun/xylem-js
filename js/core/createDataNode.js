@@ -1,25 +1,37 @@
+import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 export default function createDataNode(getter, stream) {
-    const subscribers = [];
-    const dataNode = () => getter();
-    const unsubscribeFromSource = stream.subscribe((value) => {
-        subscribers.forEach(subscriber => subscriber(value));
-    });
-    const removeSubscriber = function (subscriber) {
-        const index = subscribers.indexOf(subscriber);
-        if (index !== -1) {
-            subscribers.splice(index, 1);
-        }
-    };
-    const subscribe = function (subscriber) {
-        subscribers.push(subscriber);
-        return function () {
-            removeSubscriber(subscriber);
-        };
-    };
-    dataNode.subscribe = subscribe;
-    Object.defineProperty(dataNode, 'subscribe', { value: subscribe });
-    Object.defineProperty(dataNode, 'source', { value: { getter, stream } });
-    dataNode.unsubscribeFromSource = unsubscribeFromSource;
-    Object.defineProperty(dataNode, 'unsubscribeFromSource', { value: unsubscribeFromSource });
-    return dataNode;
+    return new DataNodeImpl(getter, stream);
+}
+class DataNodeImpl {
+    constructor(getter, stream) {
+        this._getter = getter;
+        this._stream = stream;
+        this._subscribers = [];
+        stream.subscribe(new StreamSubscriber(this));
+    }
+    _() {
+        return this._getter._();
+    }
+    _emit(value) {
+        this._subscribers.forEach((subscriber) => {
+            if (subscriber instanceof Function) {
+                subscriber(value);
+            }
+            else {
+                subscriber._(value);
+            }
+        });
+    }
+    subscribe(subscriber) {
+        this._subscribers.push(subscriber);
+        return new _Unsubscriber(this, subscriber);
+    }
+}
+class StreamSubscriber {
+    constructor(dataNode) {
+        this._dataNode = dataNode;
+    }
+    _(value) {
+        this._dataNode._emit(value);
+    }
 }

@@ -1,3 +1,5 @@
-type Emitter<T> = (value: T) => void;
+type Emitter<T> = {
+	_(value: T): void,
+};
 
 export default Emitter;
