@@ -111,54 +111,75 @@ export default class ElementComponent {
     }
 }
 applyNativeComponentMixin(ElementComponent);
+class CombineStyleStringAndArray {
+    constructor(classDefinition) {
+        this._classDefinition = classDefinition;
+    }
+    _(v) {
+        if (v) {
+            return [this._classDefinition, v].join(' ');
+        }
+        else {
+            return this._classDefinition;
+        }
+    }
+}
+function stringObjectToStringMapper(v) {
+    return Object.keys(v).reduce((acc, cssProperty) => {
+        acc.push(`${cssProperty}: ${v[cssProperty]}`);
+        return acc;
+    }, []).join('; ');
+}
 function attrStyle(styleDefinitions) {
     if (styleDefinitions instanceof Array) {
-        return map(attrStyle(styleDefinitions[1]), (v) => {
-            if (v) {
-                return [styleDefinitions[0], v].join(' ');
-            }
-            else {
-                return styleDefinitions[0];
-            }
-        });
+        return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
     }
     else {
-        return map(combineNamedDataNodes(styleDefinitions), (v) => {
-            return Object.keys(v).reduce((acc, cssProperty) => {
-                acc.push(`${cssProperty}:${styleDefinitions[cssProperty]}`);
-                return acc;
-            }, []).join('; ');
-        });
+        return map(combineNamedDataNodes(styleDefinitions), stringObjectToStringMapper);
+    }
+}
+function classObjectToStringMapper(v) {
+    return Object.keys(v).reduce((acc, className) => {
+        if (v[className]) {
+            acc.push(className);
+        }
+        return acc;
+    }, []).join(' ');
+}
+class CombineClassStringAndArray {
+    constructor(classDefinition) {
+        this._classDefinition = classDefinition;
+    }
+    _(v) {
+        if (v) {
+            return [this._classDefinition, v].join(' ');
+        }
+        else {
+            return this._classDefinition;
+        }
     }
 }
 function attrClass(classDefinitions) {
     if (classDefinitions instanceof Array) {
-        return map(attrClass(classDefinitions[1]), (v) => {
-            if (v) {
-                return [classDefinitions[0], v].join(' ');
-            }
-            else {
-                return classDefinitions[0];
-            }
-        });
+        return map(attrClass(classDefinitions[1]), new CombineClassStringAndArray(classDefinitions[0]));
     }
     else {
-        return map(combineNamedDataNodes(classDefinitions), (v) => {
-            return Object.keys(v).reduce((acc, className) => {
-                if (v[className]) {
-                    acc.push(className);
-                }
-                return acc;
-            }, []).join(' ');
-        });
+        return map(combineNamedDataNodes(classDefinitions), classObjectToStringMapper);
+    }
+}
+class AttributeSubscriber {
+    constructor(element, attributeName) {
+        this._element = element;
+        this._attributeName = attributeName;
+    }
+    _(value) {
+        setAttribute(this._element, this._attributeName, value);
     }
 }
 function createAttributeFunction(dataNode) {
     return function (element, attributeName) {
         setAttribute(element, attributeName, dataNode._());
-        dataNode.subscribe(function (value) {
-            setAttribute(element, attributeName, value);
-        });
+        dataNode.subscribe(new AttributeSubscriber(element, attributeName));
     };
 }
 function setAttribute(element, name, value) {

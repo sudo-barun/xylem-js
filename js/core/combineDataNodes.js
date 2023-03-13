@@ -1,12 +1,13 @@
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default function combineDataNodes(dataNodes) {
     return new CombinedDataNode(dataNodes);
 }
 class CombinedDataNode {
-    constructor(stores) {
-        this._dataNodes = stores;
+    constructor(dataNodes) {
+        this._dataNodes = dataNodes;
         this._subscribers = [];
-        stores.forEach((_, index) => new StoreSubscriber(this, index));
+        dataNodes.forEach((dataNode, index) => dataNode.subscribe(new StoreSubscriber(this, index)));
     }
     _() {
         return this._dataNodes.map((store) => store._());
@@ -16,21 +17,14 @@ class CombinedDataNode {
         return new UnsubscriberImpl(this, subscriber);
     }
     _emit(value) {
-        this._subscribers.forEach((subscriber) => {
-            if (subscriber instanceof Function) {
-                subscriber(value);
-            }
-            else {
-                subscriber._(value);
-            }
-        });
+        const callSubscribers = new CallSubscribers(this);
+        callSubscribers._.apply(callSubscribers, arguments);
     }
 }
 class StoreSubscriber {
     constructor(combinedStore, index) {
         this._combinedStore = combinedStore;
         this._index = index;
-        this._combinedStore._dataNodes[index].subscribe(this);
     }
     _(value) {
         const mappedValue = this._combinedStore._dataNodes.map((store, index) => {

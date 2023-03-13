@@ -15,9 +15,7 @@ class ArrayStoreImpl {
         this.index$Array = value.map((_, index) => createStore(index));
         this.length$ = new ArrayLengthStore(this);
         this.mutation = createEmittableStream();
-        this.mutation.subscribe(() => {
-            this.length$._emit(this.length$._());
-        });
+        this.mutation.subscribe(new MutationLengthSubscriber(this));
         this.readonly = new ReadonlyDataNode(this);
     }
     _(newValue) {
@@ -63,6 +61,14 @@ class ReadonlyDataNode {
         return new _Unsubscriber(this._store, subscriber);
     }
 }
+class MutationLengthSubscriber {
+    constructor(arrayStore) {
+        this._arrayStore = arrayStore;
+    }
+    _() {
+        this._arrayStore.length$._emit(this._arrayStore.length$._());
+    }
+}
 class ArrayLengthStore {
     constructor(arrayStore) {
         this._arrayStore = arrayStore;
@@ -76,13 +82,7 @@ class ArrayLengthStore {
         return new _Unsubscriber(this, subscriber);
     }
     _emit(value) {
-        this._subscribers.forEach((subscriber) => {
-            if (subscriber instanceof Function) {
-                subscriber(value);
-            }
-            else {
-                subscriber._(value);
-            }
-        });
+        const callSubscribers = new CallSubscribers(this);
+        callSubscribers._.apply(callSubscribers, arguments);
     }
 }

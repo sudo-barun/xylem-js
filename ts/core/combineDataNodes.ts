@@ -2,6 +2,7 @@ import DataNode from "../types/DataNode.js";
 import Subscriber from "../types/Subscriber.js";
 import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
@@ -15,13 +16,13 @@ class CombinedDataNode<T extends Array<any>> implements DataNode<T>
 	declare _dataNodes: DataNode<any>[];
 	declare _subscribers: Subscriber<T>[];
 
-	constructor(stores: DataNode<any>[])
+	constructor(dataNodes: DataNode<any>[])
 	{
-		this._dataNodes = stores;
+		this._dataNodes = dataNodes;
 		this._subscribers = [];
 
-		stores.forEach(
-			(_, index) => new StoreSubscriber(this, index)
+		dataNodes.forEach(
+			(dataNode, index) => dataNode.subscribe(new StoreSubscriber(this, index))
 		);
 	}
 
@@ -38,13 +39,8 @@ class CombinedDataNode<T extends Array<any>> implements DataNode<T>
 
 	_emit(value: T)
 	{
-		this._subscribers.forEach((subscriber) => {
-			if (subscriber instanceof Function) {
-				subscriber(value);
-			} else {
-				subscriber._(value);
-			}
-		});
+		const callSubscribers = new CallSubscribers(this);
+		callSubscribers._.apply(callSubscribers, arguments as any);
 	}
 }
 
@@ -57,7 +53,6 @@ class StoreSubscriber<T extends Array<any>> implements SubscriberObject<any>
 	{
 		this._combinedStore = combinedStore;
 		this._index = index;
-		this._combinedStore._dataNodes[index].subscribe(this);
 	}
 
 	_(value: any)

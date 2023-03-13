@@ -5,6 +5,9 @@ import arrayStoreMutation from "./arrayStoreMutation.js";
 import createDataNode from "../core/createDataNode.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import Getter from "../types/Getter.js";
+import Subscriber from "../types/Subscriber.js";
+import SubscriberObject from "../types/SubscriberObject.js";
+import EmittableStream from "../types/EmittableStream.js";
 
 class NormalizedData<T> implements Getter<T[]>
 {
@@ -13,6 +16,24 @@ class NormalizedData<T> implements Getter<T[]>
 	_(): T[]
 	{
 		return this._itemStores.map((store) => store._());
+	}
+}
+
+class ItemStoreSubscriber<T> implements SubscriberObject<T>
+{
+	declare _normalizedData: NormalizedData<T>;
+	declare _stream: EmittableStream<T[]>;
+
+	constructor(normalizedData: NormalizedData<T>, stream: EmittableStream<T[]>)
+	{
+		this._normalizedData = normalizedData;
+		this._stream = stream;
+	}
+
+	_(value: T): void
+	{
+		// TODO: use emitted value
+		this._stream._(this._normalizedData._());
 	}
 }
 
@@ -28,10 +49,7 @@ function normalizeArrayStore<T,U>(
 	const initItemStores = (value: T[]) => {
 		normalizedData._itemStores = value.map(createStoreForItem);
 		normalizedData._itemStores.forEach((store) => {
-			store.subscribe((value) => {
-				// TODO: use emitted value
-				stream._(normalizedData._());
-			});
+			store.subscribe(new ItemStoreSubscriber(normalizedData, stream));
 		});
 	};
 

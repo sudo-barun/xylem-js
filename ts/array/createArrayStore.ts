@@ -6,8 +6,9 @@ import createEmittableStream from "../core/createEmittableStream.js";
 import createStore from "../core/createStore.js";
 import DataNode from "../types/DataNode.js";
 import EmittableStream from "../types/EmittableStream.js";
-import Subscriber from "../types/Subscriber.js";
 import Store from "../types/Store.js";
+import Subscriber from "../types/Subscriber.js";
+import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
 import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 
@@ -39,9 +40,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 		this.index$Array = value.map((_, index) => createStore(index));
 		this.length$ = new ArrayLengthStore(this);
 		this.mutation = createEmittableStream();
-		this.mutation.subscribe(() => {
-			this.length$._emit(this.length$._());
-		});
+		this.mutation.subscribe(new MutationLengthSubscriber(this));
 		this.readonly = new ReadonlyDataNode(this);
 	}
 
@@ -106,6 +105,21 @@ class ReadonlyDataNode<T> implements DataNode<T[]>
 	}
 }
 
+class MutationLengthSubscriber implements SubscriberObject<number>
+{
+	declare _arrayStore: ArrayStoreImpl<any>;
+
+	constructor(arrayStore: ArrayStoreImpl<any>)
+	{
+		this._arrayStore = arrayStore;
+	}
+
+	_(): void
+	{
+		this._arrayStore.length$._emit(this._arrayStore.length$._());
+	}
+}
+
 class ArrayLengthStore implements DataNode<number>
 {
 	declare _arrayStore: DataNode<any[]>;
@@ -130,12 +144,7 @@ class ArrayLengthStore implements DataNode<number>
 
 	_emit(value: number)
 	{
-		this._subscribers.forEach((subscriber) => {
-			if (subscriber instanceof Function) {
-				subscriber(value);
-			} else {
-				subscriber._(value);
-			}
-		});
+		const callSubscribers = new CallSubscribers(this);
+		callSubscribers._.apply(callSubscribers, arguments as any);
 	}
 }

@@ -1,7 +1,7 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
-export default function map(dataNode, callback) {
-    return new MappedDataNode(dataNode, callback);
+export default function map(dataNode, mapper) {
+    return new MappedDataNode(dataNode, mapper);
 }
 class MappedDataNode {
     constructor(store, mapper) {
@@ -11,7 +11,12 @@ class MappedDataNode {
         store.subscribe(new StoreSubscriber(this, mapper));
     }
     _() {
-        return this._mapper(this._store._());
+        if (typeof this._mapper === 'function') {
+            return this._mapper(this._store._());
+        }
+        else {
+            return this._mapper._(this._store._());
+        }
     }
     _emit(value) {
         const callSubscribers = new CallSubscribers(this);
@@ -28,6 +33,11 @@ class StoreSubscriber {
         this._mapper = mapper;
     }
     _(value) {
-        this._mappedStore._emit(this._mapper(value));
+        if (typeof this._mapper === 'function') {
+            this._mappedStore._emit(this._mapper(value));
+        }
+        else {
+            this._mappedStore._emit(this._mapper._(value));
+        }
     }
 }

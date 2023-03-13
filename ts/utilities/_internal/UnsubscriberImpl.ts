@@ -5,8 +5,8 @@ import Unsubscriber from "../../types/Unsubscriber";
 export default
 class UnsubscriberImpl<T> implements Unsubscriber
 {
-	_stream: StreamWithSubscribers<T>;
-	_subscriber: Subscriber<T>;
+	declare _stream: StreamWithSubscribers<T>;
+	declare _subscriber: Subscriber<T>;
 
 	constructor(stream: StreamWithSubscribers<T>, subscriber: Subscriber<T>)
 	{

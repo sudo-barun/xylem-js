@@ -4,6 +4,7 @@ import Stream from "../types/Stream.js";
 import Subscriber from "../types/Subscriber.js";
 import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
@@ -37,13 +38,8 @@ class DataNodeImpl<T> implements DataNode<T>
 
 	_emit(value: T)
 	{
-		this._subscribers.forEach((subscriber) => {
-			if (subscriber instanceof Function) {
-				subscriber(value);
-			} else {
-				subscriber._(value);
-			}
-		});
+		const callSubscribers = new CallSubscribers(this);
+		callSubscribers._.apply(callSubscribers, arguments as any);
 	}
 
 	subscribe(subscriber: Subscriber<T>): Unsubscriber

@@ -1,3 +1,4 @@
+import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 export default function createDataNode(getter, stream) {
     return new DataNodeImpl(getter, stream);
@@ -13,14 +14,8 @@ class DataNodeImpl {
         return this._getter._();
     }
     _emit(value) {
-        this._subscribers.forEach((subscriber) => {
-            if (subscriber instanceof Function) {
-                subscriber(value);
-            }
-            else {
-                subscriber._(value);
-            }
-        });
+        const callSubscribers = new CallSubscribers(this);
+        callSubscribers._.apply(callSubscribers, arguments);
     }
     subscribe(subscriber) {
         this._subscribers.push(subscriber);

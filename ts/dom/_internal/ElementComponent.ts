@@ -8,6 +8,7 @@ import isDataNode from "../../utilities/isDataNode.js";
 import map from "../../core/map.js";
 import NativeComponent from "../../types/_internal/NativeComponent.js";
 import Subscriber from "../../types/Subscriber.js";
+import SubscriberObject from "../../types/SubscriberObject.js";
 
 export default
 class ElementComponent
@@ -164,23 +165,39 @@ type StyleDefinitions = {
 	[cssProperty: string]: DataNode<string>,
 };
 
+class CombineStyleStringAndArray
+{
+	declare _classDefinition: string;
+
+	constructor(classDefinition: string)
+	{
+		this._classDefinition = classDefinition;
+	}
+
+	_(v: string): string
+	{
+		if (v) {
+			return [this._classDefinition, v].join(' ');
+		} else {
+			return this._classDefinition;
+		}
+	}
+}
+
+function stringObjectToStringMapper(v: { [prop: string]: any })
+{
+	return Object.keys(v).reduce((acc, cssProperty) => {
+		acc.push(`${cssProperty}: ${v[cssProperty]}`);
+		return acc;
+	}, [] as string[]).join('; ');
+}
+
 function attrStyle(styleDefinitions: StyleDefinitions|[string, StyleDefinitions]): DataNode<string>
 {
 	if (styleDefinitions instanceof Array) {
-		return map(attrStyle(styleDefinitions[1]), (v) => {
-			if (v) {
-				return [styleDefinitions[0], v].join(' ');
-			} else {
-				return styleDefinitions[0];
-			}
-		});
+		return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
 	} else {
-		return map(combineNamedDataNodes(styleDefinitions), (v) => {
-			return Object.keys(v).reduce((acc, cssProperty) => {
-				acc.push(`${cssProperty}:${styleDefinitions[cssProperty]}`);
-				return acc;
-			}, [] as string[]).join('; ');
-		});
+		return map(combineNamedDataNodes(styleDefinitions), stringObjectToStringMapper);
 	}
 }
 
@@ -188,29 +205,62 @@ type ClassDefinitions = {
 	[className: string]: DataNode<boolean>,
 };
 
+function classObjectToStringMapper(v: { [prop: string]: any }): string
+{
+	return Object.keys(v).reduce((acc, className) => {
+		if (v[className]) {
+			acc.push(className);
+		}
+		return acc;
+	}, [] as string[]).join(' ');
+}
+
+class CombineClassStringAndArray
+{
+	declare _classDefinition: string;
+
+	constructor(classDefinition: string)
+	{
+		this._classDefinition = classDefinition;
+	}
+
+	_(v: string): string
+	{
+		if (v) {
+			return [this._classDefinition, v].join(' ');
+		} else {
+			return this._classDefinition;
+		}
+	}
+}
+
 function attrClass(classDefinitions: ClassDefinitions|[string, ClassDefinitions]): DataNode<string>
 {
 	if (classDefinitions instanceof Array) {
-		return map(attrClass(classDefinitions[1]), (v) => {
-			if (v) {
-				return [classDefinitions[0], v].join(' ');
-			} else {
-				return classDefinitions[0];
-			}
-		});
+		return map(attrClass(classDefinitions[1]), new CombineClassStringAndArray(classDefinitions[0]));
 	} else {
-		return map(combineNamedDataNodes(classDefinitions), (v) => {
-			return Object.keys(v).reduce((acc, className) => {
-				if (v[className]) {
-					acc.push(className);
-				}
-				return acc;
-			}, [] as string[]).join(' ');
-		});
+		return map(combineNamedDataNodes(classDefinitions), classObjectToStringMapper);
 	}
 }
 
 type Attribute = string|boolean|null|undefined;
+
+class AttributeSubscriber implements SubscriberObject<Attribute>
+{
+	declare _element: HTMLElement;
+	declare _attributeName: string;
+
+	constructor(element: HTMLElement, attributeName: string)
+	{
+		this._element = element;
+		this._attributeName = attributeName;
+	}
+
+	_(value: Attribute): void
+	{
+		setAttribute(this._element, this._attributeName, value);
+	}
+}
 
 function createAttributeFunction(dataNode: DataNode<Attribute>)
 {
@@ -219,9 +269,7 @@ function createAttributeFunction(dataNode: DataNode<Attribute>)
 		attributeName: string,
 	): void {
 		setAttribute(element, attributeName, dataNode._());
-		dataNode.subscribe(function (value: Attribute) {
-			setAttribute(element, attributeName, value);
-		});
+		dataNode.subscribe(new AttributeSubscriber(element, attributeName));
 	};
 }
 

@@ -1,6 +1,4 @@
 export default class UnsubscriberImpl {
-    _stream;
-    _subscriber;
     constructor(stream, subscriber) {
         this._stream = stream;
         this._subscriber = subscriber;
