@@ -166,8 +166,16 @@ export default function parseHTML(arr) {
                     };
                     if (listenerRegex.test(key)) {
                         const [, eventName] = listenerRegex.exec(key);
-                        if (typeof item[key] !== 'function') {
-                            throw new Error('listener must be function');
+                        const type = typeof item[key];
+                        if ((['function', 'object'].indexOf(type) === -1)
+                            ||
+                                ((type === 'object')
+                                    &&
+                                        (typeof item[key]['handleEvent'] !== 'function'))) {
+                            console.error('Listener must be function or object with "handleEvent" method.');
+                            console.error('Listener:', item[key], ' at key: ', key);
+                            console.error(`Check following array at index ${i}.`, arr);
+                            throw new Error('Listener must be function or object with "handleEvent" method.');
                         }
                         getElementOfAttributes().addListener(eventName, item[key]);
                     }
