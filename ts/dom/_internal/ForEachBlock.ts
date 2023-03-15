@@ -6,10 +6,11 @@ import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
 import forEachBlockMutation from "./forEachBlockMutation.js";
 import DataNode from "../../types/DataNode.js";
+import ForEachBuild from "../../types/_internal/ForEachBuild.js";
 
 type Attributes<T> = {
 	array: T[]|DataNode<T[]>|ArrayDataNode<T>;
-	build: (item: T, index: DataNode<number>, component: ForEachBlockItem<T>) => ComponentChildren;
+	build: ForEachBuild<T>;
 };
 
 function getArray<T>(array: T[]|DataNode<T[]>|ArrayDataNode<T>): T[]

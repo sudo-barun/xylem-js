@@ -1,9 +1,10 @@
 import Component from "../Component.js";
 import ComponentChildren from "../../types/ComponentChildren.js";
 import DataNode from "../../types/DataNode.js";
+import IfElseBuild from "../../types/_internal/IfElseBuild.js";
 
 type Attributes = {
-	build: (component: IfElseBlockItem) => ComponentChildren,
+	build: IfElseBuild,
 	isActive$: DataNode<boolean>,
 }
 
@@ -20,7 +21,11 @@ class IfElseBlockItem extends Component<Attributes>
 
 		if (isActive$._()) {
 			const build = attributes.build;
-			return build(this);
+			if (typeof build === 'function') {
+				return build(this);
+			} else {
+				return build._(this);
+			}
 		}
 
 		return [];

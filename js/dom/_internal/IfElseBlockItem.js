@@ -7,7 +7,12 @@ export default class IfElseBlockItem extends Component {
         });
         if (isActive$._()) {
             const build = attributes.build;
-            return build(this);
+            if (typeof build === 'function') {
+                return build(this);
+            }
+            else {
+                return build._(this);
+            }
         }
         return [];
     }

@@ -1,15 +1,15 @@
 import ArrayDataNode from "../../types/ArrayDataNode.js";
 import ForEachBlock from "./ForEachBlock.js";
-import ForEachItemBuilder from "../../types/_internal/ForEachItemBuilder.js";
+import ForEachBuild from "../../types/_internal/ForEachBuild.js";
 import DataNode from "../../types/DataNode.js";
 
 export default
 class ForEachBlockBuilder<T>
 {
 	declare _array: T[]|DataNode<T[]>|ArrayDataNode<T>;
-	declare _build: ForEachItemBuilder<T>;
+	declare _build: ForEachBuild<T>;
 
-	constructor(array: T[]|DataNode<T[]>|ArrayDataNode<T>, build: ForEachItemBuilder<T>)
+	constructor(array: T[]|DataNode<T[]>|ArrayDataNode<T>, build: ForEachBuild<T>)
 	{
 		this._array = array;
 		this._build = build;
