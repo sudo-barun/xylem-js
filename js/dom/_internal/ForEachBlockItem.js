@@ -1,6 +1,7 @@
 import Component from "../Component.js";
 export default class ForEachBlockItem extends Component {
     build(attributes) {
-        return attributes.build.apply(this, attributes.buildArgs);
+        const build = attributes.build;
+        return build(...attributes.buildArgs, this);
     }
 }

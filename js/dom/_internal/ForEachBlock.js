@@ -39,7 +39,7 @@ export default class ForEachBlock extends Component {
             }
             return new ForEachBlockItem({
                 build: attributes.build,
-                buildArgs: [value, index$, array],
+                buildArgs: [value, index$],
             });
         });
     }
@@ -49,7 +49,6 @@ export default class ForEachBlock extends Component {
             buildArgs: [
                 item,
                 this._attributes.array.index$Array[index],
-                this._attributes.array,
             ],
         });
     }

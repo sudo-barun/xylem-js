@@ -9,7 +9,7 @@ import DataNode from "../../types/DataNode.js";
 
 type Attributes<T> = {
 	array: T[]|DataNode<T[]>|ArrayDataNode<T>;
-	build: (item: T, index: DataNode<number>, array: T[]|DataNode<T[]>|ArrayDataNode<T>) => ComponentChildren;
+	build: (item: T, index: DataNode<number>, component: ForEachBlockItem<T>) => ComponentChildren;
 };
 
 function getArray<T>(array: T[]|DataNode<T[]>|ArrayDataNode<T>): T[]
@@ -58,7 +58,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			}
 			return new ForEachBlockItem<T>({
 				build: attributes.build,
-				buildArgs: [value, index$, array],
+				buildArgs: [value, index$],
 			});
 		});
 	}
@@ -70,7 +70,6 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			buildArgs: [
 				item,
 				(this._attributes.array as ArrayDataNode<T>).index$Array[index],
-				this._attributes.array,
 			],
 		});
 	}
