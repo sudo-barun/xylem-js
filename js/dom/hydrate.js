@@ -2,6 +2,7 @@ import CommentComponent from './_internal/CommentComponent.js';
 import Component from './Component.js';
 import ElementComponent from './_internal/ElementComponent.js';
 import TextComponent from './_internal/TextComponent.js';
+import getValue from '../utilities/getValue.js';
 export default function hydrate(component, domNodes, currentIndex = 0) {
     const componentFirstNode = domNodes[currentIndex];
     if (!(componentFirstNode instanceof Comment)) {
@@ -23,21 +24,30 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
         const node = domNodes[currentIndex];
         if (componentChild instanceof TextComponent) {
             if (!(node instanceof Text)) {
-                throw new Error('Text not found');
+                console.error('Text node not found.');
+                console.error('Expected: Text node with text content:', getValue(componentChild.textContent()));
+                console.error('Found:', node);
+                throw new Error('Text node not found.');
             }
             componentChild.domNode(node);
             currentIndex++;
         }
         else if (componentChild instanceof CommentComponent) {
             if (!(node instanceof Comment)) {
-                throw new Error('Comment not found');
+                console.error('Comment node not found.');
+                console.error('Expected: Comment node with text content:', getValue(componentChild.textContent()));
+                console.error('Found:', node);
+                throw new Error('Comment node not found.');
             }
             componentChild.domNode(node);
             currentIndex++;
         }
         else if (componentChild instanceof ElementComponent) {
             if (!(node instanceof HTMLElement)) {
-                throw new Error('HTMLElement not found');
+                console.error('HTMLElement node not found.');
+                console.error('Expected: HTMLElement node with tagName:', componentChild.tagName());
+                console.error('Found:', node);
+                throw new Error('HTMLElement node not found.');
             }
             Object.keys(componentChild.attributes()).forEach((attributeName) => {
                 if (componentChild.attributes()[attributeName] !== node.getAttribute(attributeName)) {

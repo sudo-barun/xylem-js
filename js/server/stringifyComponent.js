@@ -19,7 +19,7 @@ function stringifyComponentChildren(componentChildren) {
             return escapeHTML(getValue(componentChild.textContent()));
         }
         else if (componentChild instanceof CommentComponent) {
-            return `<!--${escapeHTML(getValue(componentChild.textContent()))}-->`;
+            return `<!--${getValue(componentChild.textContent())}-->`;
         }
         else if (componentChild instanceof ElementComponent) {
             const attributesString = Object.keys(componentChild.attributes()).reduce((acc, attributeName) => {

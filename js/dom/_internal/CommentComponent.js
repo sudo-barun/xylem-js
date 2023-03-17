@@ -1,4 +1,5 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
+import getValue from "../../utilities/getValue.js";
 import isDataNode from "../../utilities/isDataNode.js";
 export default class CommentComponent {
     constructor(textContent) {
@@ -12,18 +13,20 @@ export default class CommentComponent {
         return this._textContent;
     }
     setupDom() {
-        if (this._domNode !== undefined) {
-            throw new Error('You cannot call setupDom twice subsequently.');
+        const nodeExists = !!this._domNode;
+        const textContent = getValue(this.textContent());
+        if (nodeExists) {
+            if (textContent !== this._domNode.textContent) {
+                console.error('Content of Comment object is different from content of Comment node.');
+                console.error('Content of Comment node:', this._domNode.textContent);
+                console.error('Content of Comment object:', textContent);
+                throw new Error('Content of Comment object is different from content of Comment node.');
+            }
         }
-        let textContent;
         if (isDataNode(this._textContent)) {
-            textContent = this._textContent._();
             this._textContent.subscribe(new TextContentSubscriber(this));
         }
-        else {
-            textContent = this._textContent;
-        }
-        this._domNode = document.createComment(textContent);
+        this._domNode = this._domNode || document.createComment(textContent);
     }
 }
 applyNativeComponentMixin(CommentComponent);

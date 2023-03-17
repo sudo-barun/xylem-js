@@ -215,5 +215,13 @@ function parseHTML(arr: any[]): ComponentChildren
 		throw new Error(errorMessage);
 	}
 
+	for (let i = 1; i < children.length; i++) {
+		const child = children[i];
+		if (child instanceof TextComponent && (children[i-1] instanceof TextComponent)) {
+			children.splice(i, 0, new CommentComponent(''));
+			i++;
+		}
+	}
+
 	return children;
 };
