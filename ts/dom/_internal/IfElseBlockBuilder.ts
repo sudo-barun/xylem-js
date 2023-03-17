@@ -1,11 +1,11 @@
-import ComponentChildren from "../../types/ComponentChildren.js";
 import IfElseBlock from "./IfElseBlock.js";
+import IfElseBuild from "../../types/_internal/IfElseBuild.js";
 import map from "../../core/map.js";
 import DataNode from "../../types/DataNode.js";
 
 type IfElseBlockItemData = {
 	condition: boolean|DataNode<boolean>,
-	build: () => ComponentChildren,
+	build: IfElseBuild,
 };
 
 export default
@@ -14,7 +14,7 @@ class IfElseBlockBuilder
 	declare _ifConditions: Array<IfElseBlockItemData>;
 	declare _hasElse: boolean;
 
-	constructor(condition: DataNode<any>, build: () => ComponentChildren)
+	constructor(condition: DataNode<any>, build: IfElseBuild)
 	{
 		this._ifConditions = [{
 			condition: map<any,boolean>(condition, Boolean),
@@ -23,7 +23,7 @@ class IfElseBlockBuilder
 		this._hasElse = false;
 	}
 
-	elseIf(condition: DataNode<any>, build: () => ComponentChildren): this
+	elseIf(condition: DataNode<any>, build: IfElseBuild): this
 	{
 		if (this._hasElse) {
 			throw new Error('Else block has already been set');
@@ -37,7 +37,7 @@ class IfElseBlockBuilder
 		return this;
 	}
 
-	else(build: () => ComponentChildren): this
+	else(build: IfElseBuild): this
 	{
 		if (this._hasElse) {
 			throw new Error('Else block has already been set');

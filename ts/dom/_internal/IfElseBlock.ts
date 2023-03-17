@@ -3,13 +3,14 @@ import ComponentChildren from "../../types/ComponentChildren.js";
 import createStore from "../../core/createStore.js";
 import getValue from "../../utilities/getValue.js";
 import IfElseBlockItem from "./IfElseBlockItem.js";
+import IfElseBuild from "../../types/_internal/IfElseBuild.js";
 import isDataNode from "../../utilities/isDataNode.js";
 import Store from "../../types/Store.js";
 import DataNode from "../../types/DataNode.js";
 
 type IfElseBlockItemData = {
 	condition: boolean|DataNode<boolean>,
-	build: () => ComponentChildren,
+	build: IfElseBuild,
 };
 
 type Attributes = {
