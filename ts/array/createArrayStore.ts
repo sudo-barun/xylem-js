@@ -4,7 +4,7 @@ import ArrayStore from "../types/ArrayStore.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import createStore from "../core/createStore.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import EmittableStream from "../types/EmittableStream.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
@@ -26,7 +26,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 	declare index$Array: Store<number>[];
 	declare length$: ArrayLengthStore;
 	declare mutation: EmittableStream<ArrayMutation<T>>;
-	declare readonly: ReadonlyDataNode<T>;
+	declare readonly: ReadonlySupplier<T>;
 
 	constructor(value: Array<T>)
 	{
@@ -41,7 +41,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 		this.length$ = new ArrayLengthStore(this);
 		this.mutation = createEmittableStream();
 		this.mutation.subscribe(new MutationLengthSubscriber(this));
-		this.readonly = new ReadonlyDataNode(this);
+		this.readonly = new ReadonlySupplier(this);
 	}
 
 	_(newValue?: Array<T>): Array<T>
@@ -81,7 +81,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 	}
 }
 
-class ReadonlyDataNode<T> implements DataNode<T[]>
+class ReadonlySupplier<T> implements Supplier<T[]>
 {
 	declare _store: ArrayStoreImpl<T>;
 
@@ -120,12 +120,12 @@ class MutationLengthSubscriber implements SubscriberObject<number>
 	}
 }
 
-class ArrayLengthStore implements DataNode<number>
+class ArrayLengthStore implements Supplier<number>
 {
-	declare _arrayStore: DataNode<any[]>;
+	declare _arrayStore: Supplier<any[]>;
 	declare _subscribers: Subscriber<number>[];
 
-	constructor(arrayStore: DataNode<any[]>)
+	constructor(arrayStore: Supplier<any[]>)
 	{
 		this._arrayStore = arrayStore;
 		this._subscribers = [];

@@ -1,4 +1,4 @@
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import Getter from "../types/Getter.js";
 import Stream from "../types/Stream.js";
 import Subscriber from "../types/Subscriber.js";
@@ -8,15 +8,15 @@ import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
-function createDataNode<T>(
+function createSupplier<T>(
 	getter: Getter<T>,
 	stream: Stream<T>
-): DataNode<T>
+): Supplier<T>
 {
-	return new DataNodeImpl(getter, stream);
+	return new SupplierImpl(getter, stream);
 }
 
-class DataNodeImpl<T> implements DataNode<T>
+class SupplierImpl<T> implements Supplier<T>
 {
 	declare _getter: Getter<T>;
 	declare _stream: Stream<T>;
@@ -51,15 +51,15 @@ class DataNodeImpl<T> implements DataNode<T>
 
 class StreamSubscriber<T> implements SubscriberObject<T>
 {
-	declare _dataNode: DataNodeImpl<T>
+	declare _supplier: SupplierImpl<T>
 
-	constructor(dataNode: DataNodeImpl<T>)
+	constructor(supplier: SupplierImpl<T>)
 	{
-		this._dataNode = dataNode;
+		this._supplier = supplier;
 	}
 
 	_(value: T): void
 	{
-		this._dataNode._emit(value);
+		this._supplier._emit(value);
 	}
 }

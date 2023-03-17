@@ -1,4 +1,4 @@
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import Subscriber from "../types/Subscriber.js";
 import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
@@ -6,17 +6,17 @@ import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
-function combineNamedDataNodes<T extends {[prop: string]: any}>(nodes: {[prop: string]: DataNode<any>}): DataNode<T>
+function combineNamedSuppliers<T extends {[prop: string]: any}>(suppliers: {[prop: string]: Supplier<any>}): Supplier<T>
 {
-	return new CombinedStore<T>(nodes);
+	return new CombinedSupplier<T>(suppliers);
 }
 
-class CombinedStore<T extends object> implements DataNode<T>
+class CombinedSupplier<T extends object> implements Supplier<T>
 {
-	declare _stores: {[prop: string]: DataNode<any>}
+	declare _stores: {[prop: string]: Supplier<any>}
 	declare _subscribers: Subscriber<T>[];
 
-	constructor(stores: {[prop: string]: DataNode<any>})
+	constructor(stores: {[prop: string]: Supplier<any>})
 	{
 		this._stores = stores;
 		this._subscribers = [];
@@ -49,10 +49,10 @@ class CombinedStore<T extends object> implements DataNode<T>
 
 class StoreSubscriber<T extends object> implements SubscriberObject<any>
 {
-	declare _combinedStore: CombinedStore<T>;
+	declare _combinedStore: CombinedSupplier<T>;
 	declare _key: string;
 
-	constructor(combinedStore: CombinedStore<T>, key: string)
+	constructor(combinedStore: CombinedSupplier<T>, key: string)
 	{
 		this._combinedStore = combinedStore;
 		this._key = key;

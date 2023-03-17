@@ -1,11 +1,11 @@
 import ArrayMutateAction from "../types/ArrayMutateAction.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import Emitter from "../types/Emitter.js";
 
 type Handler = <T,U>(
-	createStoreForItem: (item: T) => DataNode<U>,
+	createStoreForItem: (item: T) => Supplier<U>,
 	emit: Emitter<U[]>,
-	itemStores: DataNode<U>[],
+	itemStores: Supplier<U>[],
 	...mutationArgs: any[]
 ) => void;
 

@@ -1,19 +1,19 @@
 import ArrayMutation from "../../types/ArrayMutation.js";
-import ArrayDataNode from "../../types/ArrayDataNode.js";
+import ArraySupplier from "../../types/ArraySupplier.js";
 import Component from "../Component.js";
 import ComponentChildren from "../../types/ComponentChildren.js";
 import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
 import forEachBlockMutation from "./forEachBlockMutation.js";
-import DataNode from "../../types/DataNode.js";
+import Supplier from "../../types/Supplier.js";
 import ForEachBuild from "../../types/_internal/ForEachBuild.js";
 
 type Attributes<T> = {
-	array: T[]|DataNode<T[]>|ArrayDataNode<T>;
+	array: T[]|Supplier<T[]>|ArraySupplier<T>;
 	build: ForEachBuild<T>;
 };
 
-function getArray<T>(array: T[]|DataNode<T[]>|ArrayDataNode<T>): T[]
+function getArray<T>(array: T[]|Supplier<T[]>|ArraySupplier<T>): T[]
 {
 	return array instanceof Array ? array : array._();
 }
@@ -70,7 +70,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			build: this._attributes.build,
 			buildArgs: [
 				item,
-				(this._attributes.array as ArrayDataNode<T>).index$Array[index],
+				(this._attributes.array as ArraySupplier<T>).index$Array[index],
 			],
 		});
 	}

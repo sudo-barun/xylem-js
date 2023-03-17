@@ -1,7 +1,7 @@
 import ArrayMutateAction from "../types/ArrayMutateAction.js";
 import cumulate from "../core/cumulate.js";
 import Store from "../types/Store.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import getValue from "../utilities/getValue.js";
 
 function isInteger(value: any): boolean
@@ -9,11 +9,11 @@ function isInteger(value: any): boolean
 	return (value ^ 0) === value;
 }
 
-const move: ArrayMutateAction<[number|DataNode<number>, number|DataNode<number>]> = function <T>(
+const move: ArrayMutateAction<[number|Supplier<number>, number|Supplier<number>]> = function <T>(
 	array: T[],
 	index$Array: Store<number>[],
-	fromIndex: number|DataNode<number>,
-	toIndex: number|DataNode<number>
+	fromIndex: number|Supplier<number>,
+	toIndex: number|Supplier<number>
 ): [number,number]
 {
 	const fromIndex_ = getValue(fromIndex);

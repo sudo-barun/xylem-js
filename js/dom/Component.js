@@ -119,19 +119,19 @@ export default class Component {
             this._lastNode.parentNode.removeChild(this._lastNode);
         });
     }
-    bindDataNode(dataNode) {
-        return new ComponentBoundedDataNode(this, dataNode);
+    bindSupplier(supplier) {
+        return new ComponentBoundedSupplier(this, supplier);
     }
 }
-class ComponentBoundedDataNode {
-    constructor(component, dataNode) {
+class ComponentBoundedSupplier {
+    constructor(component, supplier) {
         this._component = component;
-        this._dataNode = dataNode;
+        this._supplier = supplier;
         this._subscribers = [];
-        component.beforeDetachFromDom.subscribe(dataNode.subscribe(new SubscriberImpl(this)));
+        component.beforeDetachFromDom.subscribe(supplier.subscribe(new SubscriberImpl(this)));
     }
     _() {
-        return this._dataNode._.apply(this._dataNode, arguments);
+        return this._supplier._.apply(this._supplier, arguments);
     }
     _emit(value) {
         const callSubscribers = new CallSubscribers(this);
@@ -143,10 +143,10 @@ class ComponentBoundedDataNode {
     }
 }
 class SubscriberImpl {
-    constructor(componentBoundedDataNode) {
-        this._componentBoundedDataNode = componentBoundedDataNode;
+    constructor(componentBoundedSupplier) {
+        this._componentBoundedSupplier = componentBoundedSupplier;
     }
     _(value) {
-        this._componentBoundedDataNode._emit(value);
+        this._componentBoundedSupplier._emit(value);
     }
 }

@@ -1,11 +1,11 @@
 import Emitter from "../types/Emitter.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 
 export default
 function handlePush<T,U>(
-	createStoreForItem: ((item: T) => DataNode<U>) = ((item: T) => item as DataNode<U>),
+	createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
 	emit: Emitter<U[]>,
-	itemStores: DataNode<U>[],
+	itemStores: Supplier<U>[],
 	item : T
 ): void
 {

@@ -1,9 +1,9 @@
 import IfElseBlockBuilder from "./_internal/IfElseBlockBuilder.js";
 import IfElseBuild from "../types/_internal/IfElseBuild.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 
 export default
-function if_(condition: DataNode<any>, build: IfElseBuild)
+function if_(condition: Supplier<any>, build: IfElseBuild)
 {
 	return new IfElseBlockBuilder(condition, build);
 }

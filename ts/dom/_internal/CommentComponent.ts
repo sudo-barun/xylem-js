@@ -1,23 +1,23 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
-import DataNode from "../../types/DataNode.js";
+import Supplier from "../../types/Supplier.js";
 import getValue from "../../utilities/getValue.js";
-import isDataNode from "../../utilities/isDataNode.js";
+import isSupplier from "../../utilities/isSupplier.js";
 import NativeComponent from "../../types/_internal/NativeComponent.js";
 import SubscriberObject from "../../types/SubscriberObject.js";
 
 export default
 class CommentComponent
 {
-	declare _textContent: string|DataNode<string>;
+	declare _textContent: string|Supplier<string>;
 	declare _domNode: Comment;
 
-	constructor(textContent: string|DataNode<string>)
+	constructor(textContent: string|Supplier<string>)
 	{
 		this._textContent = textContent;
 		this._domNode = undefined!;
 	}
 
-	textContent(textContent?: string|DataNode<string>)
+	textContent(textContent?: string|Supplier<string>)
 	{
 		if (arguments.length !== 0) {
 			this._textContent = textContent!;
@@ -39,7 +39,7 @@ class CommentComponent
 			}
 		}
 
-		if (isDataNode(this._textContent)) {
+		if (isSupplier(this._textContent)) {
 			this._textContent.subscribe(new TextContentSubscriber(this));
 		}
 

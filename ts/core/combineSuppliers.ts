@@ -1,4 +1,4 @@
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import Subscriber from "../types/Subscriber.js";
 import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
@@ -6,29 +6,29 @@ import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
-function combineDataNodes<T extends Array<any>>(dataNodes: Array<DataNode<any>>): DataNode<T>
+function combineSuppliers<T extends Array<any>>(suppliers: Array<Supplier<any>>): Supplier<T>
 {
-	return new CombinedDataNode(dataNodes);
+	return new CombinedSupplier(suppliers);
 }
 
-class CombinedDataNode<T extends Array<any>> implements DataNode<T>
+class CombinedSupplier<T extends Array<any>> implements Supplier<T>
 {
-	declare _dataNodes: DataNode<any>[];
+	declare _suppliers: Supplier<any>[];
 	declare _subscribers: Subscriber<T>[];
 
-	constructor(dataNodes: DataNode<any>[])
+	constructor(suppliers: Supplier<any>[])
 	{
-		this._dataNodes = dataNodes;
+		this._suppliers = suppliers;
 		this._subscribers = [];
 
-		dataNodes.forEach(
-			(dataNode, index) => dataNode.subscribe(new StoreSubscriber(this, index))
+		suppliers.forEach(
+			(supplier, index) => supplier.subscribe(new StoreSubscriber(this, index))
 		);
 	}
 
 	_(): T
 	{
-		return this._dataNodes.map((store) => store._()) as T;
+		return this._suppliers.map((store) => store._()) as T;
 	}
 
 	subscribe(subscriber: Subscriber<T>): Unsubscriber
@@ -46,10 +46,10 @@ class CombinedDataNode<T extends Array<any>> implements DataNode<T>
 
 class StoreSubscriber<T extends Array<any>> implements SubscriberObject<any>
 {
-	declare _combinedStore: CombinedDataNode<T>;
+	declare _combinedStore: CombinedSupplier<T>;
 	declare _index: number;
 
-	constructor(combinedStore: CombinedDataNode<T>, index: number)
+	constructor(combinedStore: CombinedSupplier<T>, index: number)
 	{
 		this._combinedStore = combinedStore;
 		this._index = index;
@@ -57,7 +57,7 @@ class StoreSubscriber<T extends Array<any>> implements SubscriberObject<any>
 
 	_(value: any)
 	{
-		const mappedValue = this._combinedStore._dataNodes.map((store, index) => {
+		const mappedValue = this._combinedStore._suppliers.map((store, index) => {
 			if (index === this._index) {
 				return value;
 			} else {

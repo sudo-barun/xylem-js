@@ -1,5 +1,5 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import Subscriber from "../types/Subscriber.js";
 import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
@@ -12,24 +12,24 @@ type MapperObject<I,O> = {
 type Mapper<I,O> = MapperFunction<I,O> | MapperObject<I,O>;
 
 export default
-function map<T>(dataNode: DataNode<T>, mapper: Mapper<T,T>): DataNode<T>
+function map<T>(supplier: Supplier<T>, mapper: Mapper<T,T>): Supplier<T>
 
 export default
-function map<I,O>(dataNode: DataNode<I>, mapper: Mapper<I,O>): DataNode<O>
+function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
 
 export default
-function map<I,O>(dataNode: DataNode<I>, mapper: Mapper<I,O>): DataNode<O>
+function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
 {
-	return new MappedDataNode(dataNode, mapper);
+	return new MappedSupplier(supplier, mapper);
 }
 
-class MappedDataNode<I,O> implements DataNode<O>
+class MappedSupplier<I,O> implements Supplier<O>
 {
-	declare _store: DataNode<I>;
+	declare _store: Supplier<I>;
 	declare _mapper: Mapper<I,O>;
 	declare _subscribers: Subscriber<O>[];
 
-	constructor(store: DataNode<I>, mapper: Mapper<I,O>)
+	constructor(store: Supplier<I>, mapper: Mapper<I,O>)
 	{
 		this._store = store;
 		this._mapper = mapper;
@@ -62,10 +62,10 @@ class MappedDataNode<I,O> implements DataNode<O>
 
 class StoreSubscriber<I,O> implements SubscriberObject<I>
 {
-	declare _mappedStore: MappedDataNode<I,O>;
+	declare _mappedStore: MappedSupplier<I,O>;
 	declare _mapper: Mapper<I,O>;
 
-	constructor(mappedStore: MappedDataNode<I,O>, mapper: Mapper<I,O>)
+	constructor(mappedStore: MappedSupplier<I,O>, mapper: Mapper<I,O>)
 	{
 		this._mappedStore = mappedStore;
 		this._mapper = mapper;

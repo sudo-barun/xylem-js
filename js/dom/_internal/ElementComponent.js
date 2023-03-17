@@ -1,7 +1,7 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
-import combineNamedDataNodes from "../../core/combineNamedDataNodes.js";
+import combineNamedSuppliers from "../../core/combineNamedSuppliers.js";
 import Component from "../Component.js";
-import isDataNode from "../../utilities/isDataNode.js";
+import isSupplier from "../../utilities/isSupplier.js";
 import map from "../../core/map.js";
 export default class ElementComponent {
     constructor(tagName, attributes = {}, children = []) {
@@ -65,7 +65,7 @@ export default class ElementComponent {
             if (attr === '()') {
                 this._attributes[attr](element, attr);
             }
-            else if (isDataNode(this._attributes[attr])) {
+            else if (isSupplier(this._attributes[attr])) {
                 createAttributeFunction(this._attributes[attr])(element, attr);
             }
             else if (attr === 'class' && typeof this._attributes[attr] === 'object') {
@@ -135,7 +135,7 @@ function attrStyle(styleDefinitions) {
         return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
     }
     else {
-        return map(combineNamedDataNodes(styleDefinitions), stringObjectToStringMapper);
+        return map(combineNamedSuppliers(styleDefinitions), stringObjectToStringMapper);
     }
 }
 function classObjectToStringMapper(v) {
@@ -164,7 +164,7 @@ function attrClass(classDefinitions) {
         return map(attrClass(classDefinitions[1]), new CombineClassStringAndArray(classDefinitions[0]));
     }
     else {
-        return map(combineNamedDataNodes(classDefinitions), classObjectToStringMapper);
+        return map(combineNamedSuppliers(classDefinitions), classObjectToStringMapper);
     }
 }
 class AttributeSubscriber {
@@ -176,10 +176,10 @@ class AttributeSubscriber {
         setAttribute(this._element, this._attributeName, value);
     }
 }
-function createAttributeFunction(dataNode) {
+function createAttributeFunction(supplier) {
     return function (element, attributeName) {
-        setAttribute(element, attributeName, dataNode._());
-        dataNode.subscribe(new AttributeSubscriber(element, attributeName));
+        setAttribute(element, attributeName, supplier._());
+        supplier.subscribe(new AttributeSubscriber(element, attributeName));
     };
 }
 function setAttribute(element, name, value) {

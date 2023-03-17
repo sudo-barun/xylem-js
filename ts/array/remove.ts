@@ -1,5 +1,5 @@
 import ArrayMutateAction from "../types/ArrayMutateAction.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import getValue from "../utilities/getValue.js";
 import Store from "../types/Store.js";
 
@@ -8,10 +8,10 @@ function isInteger(value: any): boolean
 	return (value ^ 0) === value;
 }
 
-const remove: ArrayMutateAction<[number|DataNode<number>]> = function <T>(
+const remove: ArrayMutateAction<[number|Supplier<number>]> = function <T>(
 	array: T[],
 	index$Array: Store<number>[],
-	index: number|DataNode<number>,
+	index: number|Supplier<number>,
 )
 {
 	const index_ = getValue(index);

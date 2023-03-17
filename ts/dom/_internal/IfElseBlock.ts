@@ -4,12 +4,12 @@ import createStore from "../../core/createStore.js";
 import getValue from "../../utilities/getValue.js";
 import IfElseBlockItem from "./IfElseBlockItem.js";
 import IfElseBuild from "../../types/_internal/IfElseBuild.js";
-import isDataNode from "../../utilities/isDataNode.js";
+import isSupplier from "../../utilities/isSupplier.js";
 import Store from "../../types/Store.js";
-import DataNode from "../../types/DataNode.js";
+import Supplier from "../../types/Supplier.js";
 
 type IfElseBlockItemData = {
-	condition: boolean|DataNode<boolean>,
+	condition: boolean|Supplier<boolean>,
 	build: IfElseBuild,
 };
 
@@ -17,7 +17,7 @@ type Attributes = {
 	itemAttributesArray: IfElseBlockItemData[],
 };
 
-function getActiveBlockIndex(conditions: Array<boolean|DataNode<boolean>>): number
+function getActiveBlockIndex(conditions: Array<boolean|Supplier<boolean>>): number
 {
 	for (let i = 0; i < conditions.length; i++) {
 		if (getValue(conditions[i])) {
@@ -31,7 +31,7 @@ export default
 class IfElseBlock extends Component<Attributes>
 {
 	declare _activeBlockIndex: number;
-	declare _conditionStores: DataNode<boolean>[];
+	declare _conditionStores: Supplier<boolean>[];
 	declare _isActiveStores: Store<boolean>[];
 
 	constructor(attributes: Attributes)
@@ -56,7 +56,7 @@ class IfElseBlock extends Component<Attributes>
 		));
 
 		attributes.itemAttributesArray.forEach((itemAttributes, index) => {
-			if (! (isDataNode(itemAttributes.condition))) {
+			if (! (isSupplier(itemAttributes.condition))) {
 				return;
 			}
 

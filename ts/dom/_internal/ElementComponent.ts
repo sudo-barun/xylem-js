@@ -1,10 +1,10 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
-import combineNamedDataNodes from "../../core/combineNamedDataNodes.js";
+import combineNamedSuppliers from "../../core/combineNamedSuppliers.js";
 import Component from "../Component.js";
 import ComponentChildren from "../../types/ComponentChildren.js";
 import ComponentModifier from "../../types/ComponentModifier.js";
-import DataNode from "../../types/DataNode.js";
-import isDataNode from "../../utilities/isDataNode.js";
+import Supplier from "../../types/Supplier.js";
+import isSupplier from "../../utilities/isSupplier.js";
 import map from "../../core/map.js";
 import NativeComponent from "../../types/_internal/NativeComponent.js";
 import Subscriber from "../../types/Subscriber.js";
@@ -105,7 +105,7 @@ class ElementComponent
 		Object.keys(this._attributes).forEach((attr) => {
 			if (attr === '()') {
 				this._attributes[attr](element, attr);
-			} else if (isDataNode(this._attributes[attr])) {
+			} else if (isSupplier(this._attributes[attr])) {
 				createAttributeFunction(this._attributes[attr])(element, attr);
 			} else if (attr === 'class' && typeof this._attributes[attr] === 'object') {
 				createAttributeFunction(attrClass(this._attributes[attr]))(element, attr);
@@ -162,7 +162,7 @@ interface ElementComponent extends NativeComponent {}
 applyNativeComponentMixin(ElementComponent);
 
 type StyleDefinitions = {
-	[cssProperty: string]: DataNode<string>,
+	[cssProperty: string]: Supplier<string>,
 };
 
 class CombineStyleStringAndArray
@@ -192,17 +192,17 @@ function stringObjectToStringMapper(v: { [prop: string]: any })
 	}, [] as string[]).join('; ');
 }
 
-function attrStyle(styleDefinitions: StyleDefinitions|[string, StyleDefinitions]): DataNode<string>
+function attrStyle(styleDefinitions: StyleDefinitions|[string, StyleDefinitions]): Supplier<string>
 {
 	if (styleDefinitions instanceof Array) {
 		return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
 	} else {
-		return map(combineNamedDataNodes(styleDefinitions), stringObjectToStringMapper);
+		return map(combineNamedSuppliers(styleDefinitions), stringObjectToStringMapper);
 	}
 }
 
 type ClassDefinitions = {
-	[className: string]: DataNode<boolean>,
+	[className: string]: Supplier<boolean>,
 };
 
 function classObjectToStringMapper(v: { [prop: string]: any }): string
@@ -234,12 +234,12 @@ class CombineClassStringAndArray
 	}
 }
 
-function attrClass(classDefinitions: ClassDefinitions|[string, ClassDefinitions]): DataNode<string>
+function attrClass(classDefinitions: ClassDefinitions|[string, ClassDefinitions]): Supplier<string>
 {
 	if (classDefinitions instanceof Array) {
 		return map(attrClass(classDefinitions[1]), new CombineClassStringAndArray(classDefinitions[0]));
 	} else {
-		return map(combineNamedDataNodes(classDefinitions), classObjectToStringMapper);
+		return map(combineNamedSuppliers(classDefinitions), classObjectToStringMapper);
 	}
 }
 
@@ -262,14 +262,14 @@ class AttributeSubscriber implements SubscriberObject<Attribute>
 	}
 }
 
-function createAttributeFunction(dataNode: DataNode<Attribute>)
+function createAttributeFunction(supplier: Supplier<Attribute>)
 {
 	return function (
 		element: HTMLElement,
 		attributeName: string,
 	): void {
-		setAttribute(element, attributeName, dataNode._());
-		dataNode.subscribe(new AttributeSubscriber(element, attributeName));
+		setAttribute(element, attributeName, supplier._());
+		supplier.subscribe(new AttributeSubscriber(element, attributeName));
 	};
 }
 

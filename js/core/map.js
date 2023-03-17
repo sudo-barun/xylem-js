@@ -1,9 +1,9 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
-export default function map(dataNode, mapper) {
-    return new MappedDataNode(dataNode, mapper);
+export default function map(supplier, mapper) {
+    return new MappedSupplier(supplier, mapper);
 }
-class MappedDataNode {
+class MappedSupplier {
     constructor(store, mapper) {
         this._store = store;
         this._mapper = mapper;

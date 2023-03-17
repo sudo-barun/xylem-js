@@ -1,13 +1,13 @@
-import DataNode from "./DataNode";
+import Supplier from "./Supplier";
 import Setter from "./Setter";
 
 type Store<T> =
 (
-	DataNode<T>
+	Supplier<T>
 	&
 	Setter<T>
 	&
-	{ readonly: DataNode<T> }
+	{ readonly: Supplier<T> }
 );
 
 export default Store;

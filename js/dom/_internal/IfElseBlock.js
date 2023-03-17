@@ -2,7 +2,7 @@ import Component from "../Component.js";
 import createStore from "../../core/createStore.js";
 import getValue from "../../utilities/getValue.js";
 import IfElseBlockItem from "./IfElseBlockItem.js";
-import isDataNode from "../../utilities/isDataNode.js";
+import isSupplier from "../../utilities/isSupplier.js";
 function getActiveBlockIndex(conditions) {
     for (let i = 0; i < conditions.length; i++) {
         if (getValue(conditions[i])) {
@@ -25,7 +25,7 @@ export default class IfElseBlock extends Component {
     build(attributes) {
         this.setActive(getActiveBlockIndex(attributes.itemAttributesArray.map((itemAttributes) => itemAttributes.condition)));
         attributes.itemAttributesArray.forEach((itemAttributes, index) => {
-            if (!(isDataNode(itemAttributes.condition))) {
+            if (!(isSupplier(itemAttributes.condition))) {
                 return;
             }
             const unsubscribe = itemAttributes.condition.subscribe((c) => {

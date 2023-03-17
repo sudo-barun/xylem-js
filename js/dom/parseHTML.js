@@ -3,7 +3,7 @@ import Component from './Component.js';
 import ElementComponent from './_internal/ElementComponent.js';
 import ForEachBuilder from './_internal/ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
-import isDataNode from '../utilities/isDataNode.js';
+import isSupplier from '../utilities/isSupplier.js';
 import TextComponent from './_internal/TextComponent.js';
 function findIndex(predicate) {
     for (let i = 0; i < this.length; i++) {
@@ -146,7 +146,7 @@ export default function parseHTML(arr) {
             children.push(item);
         }
         else if (typeof item === 'object') {
-            if (isDataNode(item)) {
+            if (isSupplier(item)) {
                 const text = new TextComponent(item);
                 children.push(text);
             }

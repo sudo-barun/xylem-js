@@ -1,5 +1,5 @@
 import arrayStoreMutation from "./arrayStoreMutation.js";
-import createDataNode from "../core/createDataNode.js";
+import createSupplier from "../core/createSupplier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 class NormalizedData {
     _() {
@@ -39,5 +39,5 @@ export default function normalizeArrayStore(arrayStore, createStoreForItem) {
         handler(createStoreForItem, stream, normalizedData._itemStores, ...mutationArgs);
         stream._(normalizedData._());
     });
-    return createDataNode(normalizedData, stream);
+    return createSupplier(normalizedData, stream);
 }

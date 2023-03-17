@@ -1,14 +1,14 @@
 import Emitter from "../types/Emitter.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import getValue from "../utilities/getValue.js";
 
 export default
 function handleMove<T,U>(
-	createStoreForItem: ((item: T) => DataNode<U>) = ((item: T) => item as DataNode<U>),
+	createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
 	emit: Emitter<U[]>,
-	itemStores: DataNode<U>[],
-	fromIndex: number|DataNode<number>,
-	toIndex: number|DataNode<number>
+	itemStores: Supplier<U>[],
+	fromIndex: number|Supplier<number>,
+	toIndex: number|Supplier<number>
 ): void
 {
 	const fromIndex_ = getValue(fromIndex);

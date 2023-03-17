@@ -1,5 +1,5 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
-import isDataNode from "../../utilities/isDataNode.js";
+import isSupplier from "../../utilities/isSupplier.js";
 import getValue from "../../utilities/getValue.js";
 export default class TextComponent {
     constructor(textContent) {
@@ -26,7 +26,7 @@ export default class TextComponent {
                 throw new Error('Content of Text object is different from content of Text node.');
             }
         }
-        if (isDataNode(this._textContent)) {
+        if (isSupplier(this._textContent)) {
             this._textContent.subscribe(new TextContentSubscriber(this));
         }
         this._domNode = this._domNode || document.createTextNode(textContent);

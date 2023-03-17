@@ -1,10 +1,10 @@
 import Component from "../Component.js";
 import ComponentChildren from "../../types/ComponentChildren.js";
-import DataNode from "../../types/DataNode.js";
+import Supplier from "../../types/Supplier.js";
 import ForEachBuild from "../../types/_internal/ForEachBuild.js";
 
 type Attributes<T> = {
-	buildArgs: [item: T, index$: DataNode<number>],
+	buildArgs: [item: T, index$: Supplier<number>],
 	build: ForEachBuild<T>,
 }
 

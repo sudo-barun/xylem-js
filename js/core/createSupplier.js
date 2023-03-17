@@ -1,9 +1,9 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
-export default function createDataNode(getter, stream) {
-    return new DataNodeImpl(getter, stream);
+export default function createSupplier(getter, stream) {
+    return new SupplierImpl(getter, stream);
 }
-class DataNodeImpl {
+class SupplierImpl {
     constructor(getter, stream) {
         this._getter = getter;
         this._stream = stream;
@@ -23,10 +23,10 @@ class DataNodeImpl {
     }
 }
 class StreamSubscriber {
-    constructor(dataNode) {
-        this._dataNode = dataNode;
+    constructor(supplier) {
+        this._supplier = supplier;
     }
     _(value) {
-        this._dataNode._emit(value);
+        this._supplier._emit(value);
     }
 }

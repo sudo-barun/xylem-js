@@ -1,17 +1,17 @@
 import ArrayMutate from "./ArrayMutate";
 import ArrayMutation from "./ArrayMutation";
-import DataNode from "./DataNode";
+import Supplier from "./Supplier";
 import EmittableStream from "./EmittableStream";
 
-type ArrayDataNode<T> = (
-	DataNode<Array<T>>
+type ArraySupplier<T> = (
+	Supplier<Array<T>>
 	&
 	{
 		mutate: ArrayMutate<T>,
 		mutation: EmittableStream<ArrayMutation<T>>,
-		index$Array: Array<DataNode<number>>,
-		length$: DataNode<number>,
+		index$Array: Array<Supplier<number>>,
+		length$: Supplier<number>,
 	}
 );
 
-export default ArrayDataNode;
+export default ArraySupplier;

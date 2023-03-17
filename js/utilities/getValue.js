@@ -1,6 +1,6 @@
-import isDataNode from "./isDataNode.js";
+import isSupplier from "./isSupplier.js";
 export default function getValue(value) {
-    if (isDataNode(value)) {
+    if (isSupplier(value)) {
         return value._();
     }
     return value;

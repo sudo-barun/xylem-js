@@ -4,8 +4,8 @@ import ComponentChildren from '../types/ComponentChildren.js';
 import ElementComponent from './_internal/ElementComponent.js';
 import ForEachBuilder from './_internal/ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
-import isDataNode from '../utilities/isDataNode.js';
-import DataNode from '../types/DataNode.js';
+import isSupplier from '../utilities/isSupplier.js';
+import Supplier from '../types/Supplier.js';
 import TextComponent from './_internal/TextComponent.js';
 
 function findIndex<T>(this: Array<T>, predicate: (value: T, index: number, obj: T[]) => unknown): number
@@ -23,9 +23,9 @@ function parseHTML(arr: any[]): ComponentChildren
 {
 	let unclosedElements: ElementComponent[] = [];
 	let unclosedComment: CommentComponent|null = null;
-	let unclosedCommentContent: string|DataNode<string>|null = null;
+	let unclosedCommentContent: string|Supplier<string>|null = null;
 	let unclosedText: TextComponent|null = null;
-	let unclosedTextContent: string|DataNode<string>|null = null;
+	let unclosedTextContent: string|Supplier<string>|null = null;
 	let previousElementWasSelfClosed: boolean;
 	const children: ComponentChildren = [];
 
@@ -142,7 +142,7 @@ function parseHTML(arr: any[]): ComponentChildren
 		} else if (item instanceof Component) {
 			children.push(item);
 		} else if (typeof item === 'object') {
-			if (isDataNode<string>(item)) {
+			if (isSupplier<string>(item)) {
 				const text = new TextComponent(item);
 				children.push(text);
 			} else {

@@ -16,7 +16,7 @@ class ArrayStoreImpl {
         this.length$ = new ArrayLengthStore(this);
         this.mutation = createEmittableStream();
         this.mutation.subscribe(new MutationLengthSubscriber(this));
-        this.readonly = new ReadonlyDataNode(this);
+        this.readonly = new ReadonlySupplier(this);
     }
     _(newValue) {
         if (arguments.length !== 0) {
@@ -46,7 +46,7 @@ class ArrayStoreImpl {
         this.mutation._([this._value, action, ...otherArgs_]);
     }
 }
-class ReadonlyDataNode {
+class ReadonlySupplier {
     constructor(store) {
         this._store = store;
     }

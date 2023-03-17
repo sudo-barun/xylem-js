@@ -1,11 +1,11 @@
 import ComponentChildren from "../ComponentChildren";
-import DataNode from "../DataNode";
+import Supplier from "../Supplier";
 import ForEachBlockItem from "../../dom/_internal/ForEachBlockItem";
 import FunctionOrCallableObject from "../FunctionOrCallableObject";
 
 type ForEachBuild<T> = FunctionOrCallableObject<[
 	item: T,
-	index: DataNode<number>,
+	index: Supplier<number>,
 	component: ForEachBlockItem<T>,
 ], ComponentChildren>;
 

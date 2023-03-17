@@ -2,7 +2,7 @@ import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import ComponentChildren from "../types/ComponentChildren.js";
 import ComponentModifier from "../types/ComponentModifier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import ElementComponent from "./_internal/ElementComponent.js";
 import EmittableStream from "../types/EmittableStream.js";
 import Stream from "../types/Stream.js";
@@ -181,30 +181,30 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		});
 	}
 
-	bindDataNode<R extends DataNode<unknown>>(dataNode: R): R
+	bindSupplier<R extends Supplier<unknown>>(supplier: R): R
 	{
-		return new ComponentBoundedDataNode(this, dataNode) as unknown as R;
+		return new ComponentBoundedSupplier(this, supplier) as unknown as R;
 	}
 }
 
-class ComponentBoundedDataNode<T> implements DataNode<T>
+class ComponentBoundedSupplier<T> implements Supplier<T>
 {
 	declare _component: Component;
-	declare _dataNode: DataNode<T>;
+	declare _supplier: Supplier<T>;
 	declare _subscribers: Subscriber<T>[];
 
-	constructor(component: Component, dataNode: DataNode<T>)
+	constructor(component: Component, supplier: Supplier<T>)
 	{
 		this._component = component;
-		this._dataNode = dataNode;
+		this._supplier = supplier;
 		this._subscribers = [];
 
-		component.beforeDetachFromDom.subscribe(dataNode.subscribe(new SubscriberImpl(this)));
+		component.beforeDetachFromDom.subscribe(supplier.subscribe(new SubscriberImpl(this)));
 	}
 
 	_(): T
 	{
-		return this._dataNode._.apply(this._dataNode, arguments as any);
+		return this._supplier._.apply(this._supplier, arguments as any);
 	}
 
 	_emit(value: T)
@@ -222,15 +222,15 @@ class ComponentBoundedDataNode<T> implements DataNode<T>
 
 class SubscriberImpl<T> implements SubscriberObject<T>
 {
-	declare _componentBoundedDataNode: ComponentBoundedDataNode<T>;
+	declare _componentBoundedSupplier: ComponentBoundedSupplier<T>;
 
-	constructor(componentBoundedDataNode: ComponentBoundedDataNode<T>)
+	constructor(componentBoundedSupplier: ComponentBoundedSupplier<T>)
 	{
-		this._componentBoundedDataNode = componentBoundedDataNode;
+		this._componentBoundedSupplier = componentBoundedSupplier;
 	}
 
 	_(value: T): void
 	{
-		this._componentBoundedDataNode._emit(value);
+		this._componentBoundedSupplier._emit(value);
 	}
 }

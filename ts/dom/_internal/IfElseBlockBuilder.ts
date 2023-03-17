@@ -1,10 +1,10 @@
 import IfElseBlock from "./IfElseBlock.js";
 import IfElseBuild from "../../types/_internal/IfElseBuild.js";
 import map from "../../core/map.js";
-import DataNode from "../../types/DataNode.js";
+import Supplier from "../../types/Supplier.js";
 
 type IfElseBlockItemData = {
-	condition: boolean|DataNode<boolean>,
+	condition: boolean|Supplier<boolean>,
 	build: IfElseBuild,
 };
 
@@ -14,7 +14,7 @@ class IfElseBlockBuilder
 	declare _ifConditions: Array<IfElseBlockItemData>;
 	declare _hasElse: boolean;
 
-	constructor(condition: DataNode<any>, build: IfElseBuild)
+	constructor(condition: Supplier<any>, build: IfElseBuild)
 	{
 		this._ifConditions = [{
 			condition: map<any,boolean>(condition, Boolean),
@@ -23,7 +23,7 @@ class IfElseBlockBuilder
 		this._hasElse = false;
 	}
 
-	elseIf(condition: DataNode<any>, build: IfElseBuild): this
+	elseIf(condition: Supplier<any>, build: IfElseBuild): this
 	{
 		if (this._hasElse) {
 			throw new Error('Else block has already been set');

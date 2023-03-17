@@ -1,5 +1,5 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
-import DataNode from "../types/DataNode.js";
+import Supplier from "../types/Supplier.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
 import Unsubscriber from "../types/Unsubscriber.js";
@@ -15,13 +15,13 @@ class StoreImpl<T> implements Store<T>
 {
 	declare _value: T;
 	declare _subscribers: Subscriber<T>[];
-	declare readonly: ReadonlyDataNode<T>
+	declare readonly: ReadonlySupplier<T>
 
 	constructor(value: T)
 	{
 		this._value = value;
 		this._subscribers = [];
-		this.readonly = new ReadonlyDataNode(this);
+		this.readonly = new ReadonlySupplier(this);
 	}
 
 	_(value?: T): T
@@ -44,7 +44,7 @@ class StoreImpl<T> implements Store<T>
 	}
 }
 
-class ReadonlyDataNode<T> implements DataNode<T>
+class ReadonlySupplier<T> implements Supplier<T>
 {
 	declare _store: StoreImpl<T>;
 

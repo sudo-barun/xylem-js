@@ -7,7 +7,7 @@ class StoreImpl {
     constructor(value) {
         this._value = value;
         this._subscribers = [];
-        this.readonly = new ReadonlyDataNode(this);
+        this.readonly = new ReadonlySupplier(this);
     }
     _(value) {
         if (arguments.length !== 0) {
@@ -25,7 +25,7 @@ class StoreImpl {
         return new _Unsubscriber(this, subscriber);
     }
 }
-class ReadonlyDataNode {
+class ReadonlySupplier {
     constructor(store) {
         this._store = store;
     }

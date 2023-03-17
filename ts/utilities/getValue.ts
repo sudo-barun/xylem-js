@@ -1,10 +1,10 @@
-import DataNode from "../types/DataNode.js";
-import isDataNode from "./isDataNode.js";
+import Supplier from "../types/Supplier.js";
+import isSupplier from "./isSupplier.js";
 
 export default
-function getValue<T>(value: T|DataNode<T>): T
+function getValue<T>(value: T|Supplier<T>): T
 {
-	if (isDataNode<T>(value)) {
+	if (isSupplier<T>(value)) {
 		return value._();
 	}
 	return value;

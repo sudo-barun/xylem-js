@@ -1,8 +1,8 @@
 import ArrayMutation from "../types/ArrayMutation.js";
-import ArrayDataNode from "../types/ArrayDataNode.js";
-import DataNode from "../types/DataNode.js";
+import ArraySupplier from "../types/ArraySupplier.js";
+import Supplier from "../types/Supplier.js";
 import arrayStoreMutation from "./arrayStoreMutation.js";
-import createDataNode from "../core/createDataNode.js";
+import createSupplier from "../core/createSupplier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import Getter from "../types/Getter.js";
 import Subscriber from "../types/Subscriber.js";
@@ -11,7 +11,7 @@ import EmittableStream from "../types/EmittableStream.js";
 
 class NormalizedData<T> implements Getter<T[]>
 {
-	declare _itemStores: DataNode<T>[];
+	declare _itemStores: Supplier<T>[];
 
 	_(): T[]
 	{
@@ -39,9 +39,9 @@ class ItemStoreSubscriber<T> implements SubscriberObject<T>
 
 export default
 function normalizeArrayStore<T,U>(
-	arrayStore: ArrayDataNode<T>,
-	createStoreForItem: (item: T) => DataNode<U>
-): DataNode<U[]>
+	arrayStore: ArraySupplier<T>,
+	createStoreForItem: (item: T) => Supplier<U>
+): Supplier<U[]>
 {
 	const normalizedData = new NormalizedData<U>();
 	const stream = createEmittableStream<U[]>();
@@ -76,5 +76,5 @@ function normalizeArrayStore<T,U>(
 		stream._(normalizedData._());
 	});
 
-	return createDataNode(normalizedData, stream);
+	return createSupplier(normalizedData, stream);
 }

@@ -1,6 +1,6 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import getValue from "../../utilities/getValue.js";
-import isDataNode from "../../utilities/isDataNode.js";
+import isSupplier from "../../utilities/isSupplier.js";
 export default class CommentComponent {
     constructor(textContent) {
         this._textContent = textContent;
@@ -23,7 +23,7 @@ export default class CommentComponent {
                 throw new Error('Content of Comment object is different from content of Comment node.');
             }
         }
-        if (isDataNode(this._textContent)) {
+        if (isSupplier(this._textContent)) {
             this._textContent.subscribe(new TextContentSubscriber(this));
         }
         this._domNode = this._domNode || document.createComment(textContent);
