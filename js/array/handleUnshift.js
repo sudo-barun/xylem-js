@@ -1,9 +1,10 @@
-export default function handleUnshift(createStoreForItem = ((item) => item), emit, itemStores, item) {
-    const getter = () => itemStores.map((store) => store._());
-    const store = createStoreForItem(item);
-    store.subscribe((value) => {
-        // TODO: use emitted value
-        emit._(getter());
-    });
-    itemStores.unshift(store);
-}
+import createStore from "../core/createStore.js";
+const handleUnshift = function (array, index$Array, item) {
+    index$Array.unshift(createStore(0));
+    for (let i = 1; i < index$Array.length; i++) {
+        index$Array[i]._(index$Array[i]._() + 1);
+    }
+    array.unshift(item);
+    return [item];
+};
+export default handleUnshift;

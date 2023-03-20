@@ -1,20 +1,20 @@
-import Emitter from "../types/Emitter.js";
-import Supplier from "../types/Supplier.js";
+import ArrayMutateHandler from "../types/ArrayMutateHandler.js";
+import Store from "../types/Store.js";
+import createStore from "../core/createStore.js";
 
-export default
-function handleUnshift<T,U>(
-	createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
-	emit: Emitter<U[]>,
-	itemStores: Supplier<U>[],
+const handleUnshift: ArrayMutateHandler<[any]> = function <T>(
+	array: T[],
+	index$Array: Store<number>[],
 	item: T
-): void
+): [T]
 {
-	const getter = () => itemStores.map((store) => store._());
-	const store = createStoreForItem(item);
-	store.subscribe((value) => {
-		// TODO: use emitted value
-		emit._(getter());
-	});
-	itemStores.unshift(store);
+	index$Array.unshift(createStore(0));
+	for (let i = 1; i < index$Array.length; i++) {
+		index$Array[i]._(index$Array[i]._()+1);
+	}
+	array.unshift(item);
+
+	return [item];
 }
 
+export default handleUnshift;

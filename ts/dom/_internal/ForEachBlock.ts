@@ -4,7 +4,6 @@ import Component from "../Component.js";
 import ComponentChildren from "../../types/ComponentChildren.js";
 import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
-import forEachBlockMutation from "./forEachBlockMutation.js";
 import Supplier from "../../types/Supplier.js";
 import ForEachBuild from "../../types/_internal/ForEachBuild.js";
 
@@ -34,10 +33,13 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 				const unsubscribeMutation = this._attributes.array.mutation.subscribe(
 					(arrayMutation: ArrayMutation<T>) => {
 						const [_, action, ...mutationArgs] = arrayMutation;
-						const handler = forEachBlockMutation.getHandler(action);
-						if (handler === null) {
+						const handler = action.forEachBlock;
+						if (! ('forEachBlock' in action)) {
 							console.error('Array was mutated with action but no handler found for the action.', action);
 							throw new Error('Array was mutated with action but no handler found for the action.');
+						}
+						if (! isHandler(handler)) {
+							throw new Error('Provided handler is invalid.');
 						}
 						handler.apply(this, mutationArgs);
 					}
@@ -84,3 +86,10 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 		}
 	}
 }
+
+function isHandler(value: any): value is Handler
+{
+	return typeof value === 'function';
+}
+
+type Handler = <T>(...args: any[]) => void;

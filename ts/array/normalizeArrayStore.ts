@@ -1,13 +1,12 @@
 import ArrayMutation from "../types/ArrayMutation.js";
 import ArraySupplier from "../types/ArraySupplier.js";
 import Supplier from "../types/Supplier.js";
-import arrayStoreMutation from "./arrayStoreMutation.js";
 import createSupplier from "../core/createSupplier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import Getter from "../types/Getter.js";
-import Subscriber from "../types/Subscriber.js";
 import SubscriberObject from "../types/SubscriberObject.js";
 import EmittableStream from "../types/EmittableStream.js";
+import Emitter from "../types/Emitter.js";
 
 class NormalizedData<T> implements Getter<T[]>
 {
@@ -61,10 +60,13 @@ function normalizeArrayStore<T,U>(
 	});
 
 	arrayStore.mutation.subscribe(([ value, action, ...mutationArgs ]: ArrayMutation<T>) => {
-		const handler = arrayStoreMutation.getHandler(action);
-		if (handler === null) {
+		const handler = action.normalizeArrayStore;
+		if (! ('normalizeArrayStore' in action)) {
 			console.error('Array was mutated with action but no handler found for the action.', action);
 			throw new Error('Array was mutated with action but no handler found for the action.');
+		}
+		if (! isHandler(handler)) {
+			throw new Error('Provided handler is invalid.');
 		}
 		handler(
 			createStoreForItem,
@@ -78,3 +80,15 @@ function normalizeArrayStore<T,U>(
 
 	return createSupplier(normalizedData, stream);
 }
+
+function isHandler(value: any): value is Handler
+{
+	return typeof value === 'function';
+}
+
+type Handler = <T,U>(
+	createStoreForItem: (item: T) => Supplier<U>,
+	emit: Emitter<U[]>,
+	itemStores: Supplier<U>[],
+	...mutationArgs: any[]
+) => void;

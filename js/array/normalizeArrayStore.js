@@ -1,4 +1,3 @@
-import arrayStoreMutation from "./arrayStoreMutation.js";
 import createSupplier from "../core/createSupplier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 class NormalizedData {
@@ -31,13 +30,19 @@ export default function normalizeArrayStore(arrayStore, createStoreForItem) {
         stream._(normalizedData._());
     });
     arrayStore.mutation.subscribe(([value, action, ...mutationArgs]) => {
-        const handler = arrayStoreMutation.getHandler(action);
-        if (handler === null) {
+        const handler = action.normalizeArrayStore;
+        if (!('normalizeArrayStore' in action)) {
             console.error('Array was mutated with action but no handler found for the action.', action);
             throw new Error('Array was mutated with action but no handler found for the action.');
+        }
+        if (!isHandler(handler)) {
+            throw new Error('Provided handler is invalid.');
         }
         handler(createStoreForItem, stream, normalizedData._itemStores, ...mutationArgs);
         stream._(normalizedData._());
     });
     return createSupplier(normalizedData, stream);
+}
+function isHandler(value) {
+    return typeof value === 'function';
 }

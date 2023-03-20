@@ -42,7 +42,7 @@ class ArrayStoreImpl {
     mutate(action, ...mutationArgs) {
         // The mutation argument can change, for example index$ value can change.
         // So, initial value of arguments is returned from action and used.
-        const otherArgs_ = action(this._value, this.index$Array, ...mutationArgs);
+        const otherArgs_ = action._(this._value, this.index$Array, ...mutationArgs);
         this.mutation._([this._value, action, ...otherArgs_]);
     }
 }

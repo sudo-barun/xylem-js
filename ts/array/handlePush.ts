@@ -1,19 +1,17 @@
-import Emitter from "../types/Emitter.js";
-import Supplier from "../types/Supplier.js";
+import ArrayMutateHandler from "../types/ArrayMutateHandler.js";
+import Store from "../types/Store.js";
+import createStore from "../core/createStore.js";
 
-export default
-function handlePush<T,U>(
-	createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
-	emit: Emitter<U[]>,
-	itemStores: Supplier<U>[],
-	item : T
-): void
+const handlePush: ArrayMutateHandler<[any]> = function <T>(
+	array: T[],
+	index$Array: Store<number>[],
+	item: T
+): [T]
 {
-	const getter = () => itemStores.map((store) => store._());
-	const store = createStoreForItem(item);
-	store.subscribe((value) => {
-		// TODO: use emitted value
-		emit._(getter());
-	});
-	itemStores.push(store);
+	index$Array.push(createStore(array.length));
+	array.push(item);
+
+	return [item];
 }
+
+export default handlePush;

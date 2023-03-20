@@ -1,7 +1,6 @@
 import Component from "../Component.js";
 import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
-import forEachBlockMutation from "./forEachBlockMutation.js";
 function getArray(array) {
     return array instanceof Array ? array : array._();
 }
@@ -15,10 +14,13 @@ export default class ForEachBlock extends Component {
             if ('mutate' in this._attributes.array) {
                 const unsubscribeMutation = this._attributes.array.mutation.subscribe((arrayMutation) => {
                     const [_, action, ...mutationArgs] = arrayMutation;
-                    const handler = forEachBlockMutation.getHandler(action);
-                    if (handler === null) {
+                    const handler = action.forEachBlock;
+                    if (!('forEachBlock' in action)) {
                         console.error('Array was mutated with action but no handler found for the action.', action);
                         throw new Error('Array was mutated with action but no handler found for the action.');
+                    }
+                    if (!isHandler(handler)) {
+                        throw new Error('Provided handler is invalid.');
                     }
                     handler.apply(this, mutationArgs);
                 });
@@ -60,4 +62,7 @@ export default class ForEachBlock extends Component {
             return this._attributes.array._().length;
         }
     }
+}
+function isHandler(value) {
+    return typeof value === 'function';
 }

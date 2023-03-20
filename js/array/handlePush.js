@@ -1,9 +1,7 @@
-export default function handlePush(createStoreForItem = ((item) => item), emit, itemStores, item) {
-    const getter = () => itemStores.map((store) => store._());
-    const store = createStoreForItem(item);
-    store.subscribe((value) => {
-        // TODO: use emitted value
-        emit._(getter());
-    });
-    itemStores.push(store);
-}
+import createStore from "../core/createStore.js";
+const handlePush = function (array, index$Array, item) {
+    index$Array.push(createStore(array.length));
+    array.push(item);
+    return [item];
+};
+export default handlePush;
