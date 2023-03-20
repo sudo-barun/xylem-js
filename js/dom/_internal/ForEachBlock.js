@@ -34,7 +34,7 @@ export default class ForEachBlock extends Component {
                 index$ = createStore(index);
             }
             else if ('index$Array' in attributes.array) {
-                index$ = attributes.array.index$Array[index];
+                index$ = this.bindSupplier(attributes.array.index$Array[index]);
             }
             else {
                 index$ = createStore(index);
@@ -50,7 +50,7 @@ export default class ForEachBlock extends Component {
             build: this._attributes.build,
             buildArgs: [
                 item,
-                this._attributes.array.index$Array[index],
+                this.bindSupplier(this._attributes.array.index$Array[index]),
             ],
         });
     }

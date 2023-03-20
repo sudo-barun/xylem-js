@@ -55,7 +55,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			if (attributes.array instanceof Array) {
 				index$ = createStore(index);
 			} else if ('index$Array' in attributes.array) {
-				index$ = attributes.array.index$Array[index];
+				index$ = this.bindSupplier(attributes.array.index$Array[index]);
 			} else {
 				index$ = createStore(index);
 			}
@@ -72,7 +72,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			build: this._attributes.build,
 			buildArgs: [
 				item,
-				(this._attributes.array as ArraySupplier<T>).index$Array[index],
+				this.bindSupplier((this._attributes.array as ArraySupplier<T>).index$Array[index]),
 			],
 		});
 	}
