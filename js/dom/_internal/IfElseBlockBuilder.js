@@ -1,9 +1,8 @@
 import IfElseBlock from "./IfElseBlock.js";
-import map from "../../core/map.js";
 export default class IfElseBlockBuilder {
     constructor(condition, build) {
         this._ifConditions = [{
-                condition: map(condition, Boolean),
+                condition,
                 build,
             }];
         this._hasElse = false;
@@ -13,7 +12,7 @@ export default class IfElseBlockBuilder {
             throw new Error('Else block has already been set');
         }
         this._ifConditions.push({
-            condition: map(condition, Boolean),
+            condition,
             build,
         });
         return this;
