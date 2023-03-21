@@ -34,13 +34,8 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 		} else if (componentChild instanceof ElementComponent) {
 
 			const attributesString = Object.keys(componentChild.attributes()).reduce((acc, attributeName) => {
-				let attributeValue = '';
-				if (componentChild.attributes()[attributeName] instanceof Function) {
-					attributeValue = componentChild.attributes()[attributeName]();
-				} else {
-					attributeValue = componentChild.attributes()[attributeName];
-				}
-				acc.push(`${attributeName}="${attributeValue}"`);
+				let attributeValue = getValue(componentChild.attributes()[attributeName]);
+				acc.push(`${attributeName}="${escapeHTML(attributeValue)}"`);
 				return acc;
 			}, [] as string[]).join(' ');
 

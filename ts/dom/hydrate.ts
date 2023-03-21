@@ -64,7 +64,7 @@ function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes
 				throw new Error('HTMLElement node not found.');
 			}
 			Object.keys(componentChild.attributes()).forEach((attributeName) => {
-				if (componentChild.attributes()[attributeName] !== node.getAttribute(attributeName)) {
+				if (getValue(componentChild.attributes()[attributeName]) !== node.getAttribute(attributeName)) {
 					throw new Error(`Value of attribute "${attributeName}" of HTMLElement does not match.`);
 				}
 			});
