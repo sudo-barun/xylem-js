@@ -24,7 +24,6 @@ class ArrayStoreImpl {
                 throw new Error('Value of ArrayStore must be an array.');
             }
             const isDifferent = this._value !== newValue;
-            console.log('isDifferent', isDifferent);
             this._value = newValue;
             if (isDifferent) {
                 this.index$Array = newValue.map((_, index) => createStore(index));
