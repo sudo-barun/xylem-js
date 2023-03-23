@@ -21,12 +21,12 @@ function findIndex<T>(this: Array<T>, predicate: (value: T, index: number, obj: 
 export default
 function parseHTML(arr: any[]): ComponentChildren
 {
-	let unclosedElements: ElementComponent[] = [];
+	let unclosedElement: ElementComponent|null = null;
 	let unclosedComment: CommentComponent|null = null;
 	let unclosedCommentContent: string|Supplier<string>|null = null;
 	let unclosedText: TextComponent|null = null;
 	let unclosedTextContent: string|Supplier<string>|null = null;
-	let previousElementWasSelfClosed: boolean;
+	let previousElementWasSelfClosed: boolean = false;
 	const children: ComponentChildren = [];
 
 	const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
@@ -80,23 +80,28 @@ function parseHTML(arr: any[]): ComponentChildren
 				previousElementWasSelfClosed = true;
 			} else if (elementStartRegex.test(item)) {
 				const [ , tagName ] = elementStartRegex.exec(item)!;
+				if (unclosedElement !== null) {
+					console.error(`New element "<${tagName}>" found but unclosed element "<${unclosedElement.tagName()}>" exists.`);
+					console.error(`Check following array at index ${i}.`, arr);
+					throw new Error(`New element "<${tagName}>" found but unclosed element "<${unclosedElement.tagName()}>" exists.`);
+				}
 				const element = new ElementComponent(tagName);
-				unclosedElements.push(element);
+				unclosedElement = element;
 				children.push(element);
 				previousElementWasSelfClosed = false;
 			} else if (elementEndRegex.test(item)) {
 				const [ , tagName ] = elementEndRegex.exec(item)!;
-				const lastIndex = findIndex.call(unclosedElements.reverse(), e => (e as ElementComponent).tagName() === tagName);
-				if (lastIndex >= 0) {
-					const unclosedElement = unclosedElements[lastIndex];
-					if (unclosedElement.tagName() !== tagName) {
-						throw new Error(`No matching opening tag found for </${tagName}>`);
-					}
-					unclosedElements.splice(lastIndex);
-				} else {
-					console.error(`Closing tag "${tagName}" does not match any unclosed tag. Source:`, arr);
-					throw new Error(`Closing tag "${tagName}" does not match any unclosed tag.`);
+				if (unclosedElement === null) {
+					console.error(`Closing tag "</${tagName}>" found without unclosed element.`);
+					console.error(`Check following array at index ${i}.`, arr);
+					throw new Error(`Closing tag "</${tagName}>" found without unclosed element.`);
 				}
+				if (unclosedElement.tagName() !== tagName) {
+					console.error(`Closing tag "</${tagName}>" does not match unclosed tag "<${unclosedElement.tagName()}>".`);
+					console.error(`Check following array at index ${i}.`, arr);
+					throw new Error(`Closing tag "</${tagName}>" does not match unclosed tag "<${unclosedElement.tagName()}>".`);
+				}
+				unclosedElement = null;
 			} else if (commentStartRegex.test(item)) {
 				const comment = new CommentComponent('');
 				unclosedComment = comment;
@@ -112,16 +117,16 @@ function parseHTML(arr: any[]): ComponentChildren
 			} else {
 				const partiallyResemblingElementStartRegex = /<([a-zA-Z]+)/;
 				if (partiallyResemblingElementStartRegex.test(item)) {
-					console.warn(`Text partially resembling start tag found: ${item} . Consider using text markers.`);
+					console.warn(`Text partially resembling start tag found: ${item} . Consider using text markers: <>${item}</>.`);
 				}
 				const partiallyResemblingElementEndRegex = /<\/([a-zA-Z]+)/;
 				if (partiallyResemblingElementEndRegex.test(item)) {
-					console.warn(`Text partially resembling end tag found: ${item} . Consider using text markers.`);
+					console.warn(`Text partially resembling end tag found: ${item} . Consider using text markers: <>${item}</>.`);
 				}
 				children.push(new TextComponent(item));
 			}
 		} else if (Array.isArray(item)) {
-			if (unclosedElements.length === 0) {
+			if (unclosedElement === null) {
 				console.error('No unclosed element found.', item, arr);
 				throw new Error('No unclosed element found.');
 			}
@@ -130,7 +135,7 @@ function parseHTML(arr: any[]): ComponentChildren
 				console.warn(`Empty array found inside following array at index ${i}.`, arr);
 			}
 
-			unclosedElements[unclosedElements.length-1].children().push(
+			unclosedElement.children().push(
 				...parseHTML(item)
 			);
 		} else if (item instanceof IfElseBlockBuilder) {
@@ -146,21 +151,32 @@ function parseHTML(arr: any[]): ComponentChildren
 				const text = new TextComponent(item);
 				children.push(text);
 			} else {
+
+				if (typeof arr[i-1] === 'object') {
+					console.error(`Attributes already declared.`);
+					console.error(`Check following array at index ${i}.`, arr);
+					throw new Error(`Attributes already declared.`);
+				}
+
+				let elementOfAttributes: ElementComponent;
+
+				if (previousElementWasSelfClosed) {
+					const child = children[children.length - 1];
+					if (! (child instanceof ElementComponent)) {
+						console.error('Last item is not Element', child);
+						throw Error('Last item is not Element');
+					}
+					elementOfAttributes = child;
+				} else if (unclosedElement !== null) {
+					elementOfAttributes = unclosedElement;
+				} else {
+					console.error(`No preceeding element found.`);
+					console.error(`Check following array at index ${i}.`, arr);
+					throw new Error(`No preceeding element found.`);
+				}
+
 				Object.keys(item).forEach(function (key) {
 					const listenerRegex = /^@([a-zA-Z]+)$/;
-
-					const getElementOfAttributes = (): ElementComponent => {
-						if (previousElementWasSelfClosed) {
-							const child = children[children.length - 1];
-							if (! (child instanceof ElementComponent)) {
-								console.error('Last item is not Element', child);
-								throw Error('Last item is not Element');
-							}
-							return child;
-						}
-						return unclosedElements[unclosedElements.length-1];
-					};
-
 					if (listenerRegex.test(key)) {
 						const [ , eventName ] = listenerRegex.exec(key)!;
 						const type = typeof item[key];
@@ -178,13 +194,13 @@ function parseHTML(arr: any[]): ComponentChildren
 							console.error(`Check following array at index ${i}.`, arr);
 							throw new Error('Listener must be function or object with "handleEvent" method.');
 						}
-						getElementOfAttributes().addListener(eventName, item[key]);
+						elementOfAttributes.addListener(eventName, item[key]);
 					} else if (key === '<>') {
-						getElementOfAttributes().elementSubscriber(item[key]);
+						elementOfAttributes.elementSubscriber(item[key]);
 					} else if (key === '=') {
-						item[key](getElementOfAttributes());
+						item[key](elementOfAttributes);
 					} else {
-						getElementOfAttributes().attributes()[key] = item[key];
+						elementOfAttributes.attributes()[key] = item[key];
 					}
 				});
 			}
@@ -203,12 +219,12 @@ function parseHTML(arr: any[]): ComponentChildren
 		throw new Error('Unclosed text found');
 	}
 
-	if (unclosedElements.length) {
+	if (unclosedElement !== null) {
 		const errorMessage = [
-			`Unclosed element found with tagName "${unclosedElements[0].tagName()}".`,
+			`Unclosed element found with tagName "${unclosedElement.tagName()}".`,
 			' ',
-			`Close it with corresponding end tag (</${unclosedElements[0].tagName()}>)`,
-			` or make it self-closing (<${unclosedElements[0].tagName()}/>)`,
+			`Close it with corresponding end tag (</${unclosedElement.tagName()}>)`,
+			` or make it self-closing (<${unclosedElement.tagName()}/>)`,
 			` if it is a void element.`,
 		].join('');
 		console.error(errorMessage, arr);
