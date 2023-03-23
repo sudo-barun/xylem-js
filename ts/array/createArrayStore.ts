@@ -25,7 +25,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 
 	declare index$Array: Store<number>[];
 	declare length$: ArrayLengthStore;
-	declare mutation: EmittableStream<ArrayMutation<T>>;
+	declare mutation: EmittableStream<ArrayMutation<T,any[]>>;
 	declare readonly: ReadonlySupplier<T>;
 
 	constructor(value: Array<T>)
@@ -71,12 +71,12 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 		return new _Unsubscriber(this, subscriber);
 	}
 
-	mutate<MutationArgs extends any[]>(action: ArrayMutateAction<any[]>, ...mutationArgs: MutationArgs): void
+	mutate<MutationArgs extends any[]>(action: ArrayMutateAction<MutationArgs>, ...mutationArgs: MutationArgs): void
 	{
 		// The mutation argument can change, for example index$ value can change.
 		// So, initial value of arguments is returned from action and used.
 		const otherArgs_ = action._<T>(this._value, this.index$Array, ...mutationArgs);
-		this.mutation._([ this._value, action, ...otherArgs_ ]);
+		this.mutation._([ this._value, action as ArrayMutateAction<any[]>, ...otherArgs_ ]);
 	}
 }
 

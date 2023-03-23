@@ -1,6 +1,6 @@
 import ArrayMutateHandler from "./ArrayMutateHandler";
 
-type ArrayMutateAction<MutationArgs extends any[] = any[]> = {
+type ArrayMutateAction<MutationArgs extends any[]> = {
 	_: ArrayMutateHandler<MutationArgs>,
 	[key: string]: any,
 };

@@ -1,6 +1,6 @@
 import Store from "./Store";
 
-type ArrayMutateHandler<MutationArgs extends any[] = any[]> = <T>(
+type ArrayMutateHandler<MutationArgs extends any[]> = <T>(
 	array: T[],
 	index$Array: Store<number>[],
 	...mutationArgs: MutationArgs
