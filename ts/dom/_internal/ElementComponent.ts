@@ -105,7 +105,7 @@ class ElementComponent
 		Object.keys(this._attributes).forEach((attr) => {
 			if (attr === '()') {
 				this._attributes[attr](element, attr);
-			} else if (isSupplier(this._attributes[attr])) {
+			} else if (isSupplier<Attribute>(this._attributes[attr])) {
 				createAttributeFunction(this._attributes[attr])(element, attr);
 			} else if (attr === 'class' && typeof this._attributes[attr] === 'object') {
 				createAttributeFunction(attrClass(this._attributes[attr]))(element, attr);
