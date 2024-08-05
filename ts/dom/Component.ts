@@ -176,9 +176,9 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	{
 		this._children.forEach((vDomItem) => {
 			vDomItem.detachFromDom();
-			this._firstNode.parentNode!.removeChild(this._firstNode);
-			this._lastNode.parentNode!.removeChild(this._lastNode);
 		});
+		this._firstNode.parentNode!.removeChild(this._firstNode);
+		this._lastNode.parentNode!.removeChild(this._lastNode);
 	}
 
 	bindSupplier<R extends Supplier<unknown>>(supplier: R): R

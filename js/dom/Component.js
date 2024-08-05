@@ -115,9 +115,9 @@ export default class Component {
     detachFromDom() {
         this._children.forEach((vDomItem) => {
             vDomItem.detachFromDom();
-            this._firstNode.parentNode.removeChild(this._firstNode);
-            this._lastNode.parentNode.removeChild(this._lastNode);
         });
+        this._firstNode.parentNode.removeChild(this._firstNode);
+        this._lastNode.parentNode.removeChild(this._lastNode);
     }
     bindSupplier(supplier) {
         return new ComponentBoundedSupplier(this, supplier);
