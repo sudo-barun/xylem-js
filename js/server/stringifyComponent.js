@@ -10,13 +10,13 @@ const entities = {
     "'": '&#39;',
     '"': '&quot;'
 };
-function escapeHTML(str) {
+function escapeSpecialChars(str) {
     return str.replace(/[&<>'"]/g, tag => entities[tag]);
 }
 function stringifyComponentChildren(componentChildren) {
     const strings = componentChildren.map((componentChild) => {
         if (componentChild instanceof TextComponent) {
-            return escapeHTML(getValue(componentChild.textContent()));
+            return escapeSpecialChars(getValue(componentChild.textContent()));
         }
         else if (componentChild instanceof CommentComponent) {
             return `<!--${getValue(componentChild.textContent())}-->`;
@@ -24,7 +24,7 @@ function stringifyComponentChildren(componentChildren) {
         else if (componentChild instanceof ElementComponent) {
             const attributesString = Object.keys(componentChild.attributes()).reduce((acc, attributeName) => {
                 let attributeValue = getValue(componentChild.attributes()[attributeName]);
-                acc.push(`${attributeName}="${escapeHTML(attributeValue)}"`);
+                acc.push(`${attributeName}="${escapeSpecialChars(attributeValue)}"`);
                 return acc;
             }, []).join(' ');
             const tagName = componentChild.tagName();
@@ -47,8 +47,8 @@ function stringifyComponentChildren(componentChildren) {
 }
 export default function stringifyComponent(component) {
     return [
-        `<!--${escapeHTML(component.getComponentName())}-->`,
+        `<!--${escapeSpecialChars(component.getComponentName())}-->`,
         stringifyComponentChildren(component.children()),
-        `<!--/${escapeHTML(component.getComponentName())}-->`,
+        `<!--/${escapeSpecialChars(component.getComponentName())}-->`,
     ].join('');
 }

@@ -13,7 +13,7 @@ const entities = {
 	'"': '&quot;'
 };
 
-function escapeHTML(str: string) {
+function escapeSpecialChars(str: string) {
 	return str.replace(
 		/[&<>'"]/g,
 		tag => entities[tag as keyof typeof entities]
@@ -25,7 +25,7 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 	const strings: string[] = componentChildren.map((componentChild) => {
 		if (componentChild instanceof TextComponent) {
 
-			return escapeHTML(getValue(componentChild.textContent()));
+			return escapeSpecialChars(getValue(componentChild.textContent()));
 
 		} else if (componentChild instanceof CommentComponent) {
 
@@ -35,7 +35,7 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 
 			const attributesString = Object.keys(componentChild.attributes()).reduce((acc, attributeName) => {
 				let attributeValue = getValue(componentChild.attributes()[attributeName]);
-				acc.push(`${attributeName}="${escapeHTML(attributeValue)}"`);
+				acc.push(`${attributeName}="${escapeSpecialChars(attributeValue)}"`);
 				return acc;
 			}, [] as string[]).join(' ');
 
@@ -66,8 +66,8 @@ export default
 function stringifyComponent(component: Component): string
 {
 	return [
-		`<!--${escapeHTML(component.getComponentName())}-->`,
+		`<!--${escapeSpecialChars(component.getComponentName())}-->`,
 		stringifyComponentChildren(component.children()),
-		`<!--/${escapeHTML(component.getComponentName())}-->`,
+		`<!--/${escapeSpecialChars(component.getComponentName())}-->`,
 	].join('');
 }
