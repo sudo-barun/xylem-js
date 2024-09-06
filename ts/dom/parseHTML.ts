@@ -8,6 +8,14 @@ import isSupplier from '../utilities/isSupplier.js';
 import Supplier from '../types/Supplier.js';
 import TextComponent from './_internal/TextComponent.js';
 
+const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
+const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
+const selfClosingElementRegex = /^<([0-9a-zA-Z-]+)\/>$/;
+const commentStartRegex = /^<!--$/;
+const commentEndRegex = /^-->$/;
+const textStartRegex = /^<>$/;
+const textEndRegex = /^<\/>$/;
+
 export default
 function parseHTML(arr: any[]): ComponentChildren
 {
@@ -18,14 +26,6 @@ function parseHTML(arr: any[]): ComponentChildren
 	let unclosedTextContent: string|Supplier<string>|null = null;
 	let previousElementWasSelfClosed: boolean = false;
 	const children: ComponentChildren = [];
-
-	const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
-	const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
-	const selfClosingElementRegex = /^<([0-9a-zA-Z-]+)\/>$/;
-	const commentStartRegex = /^<!--$/;
-	const commentEndRegex = /^-->$/;
-	const textStartRegex = /^<>$/;
-	const textEndRegex = /^<\/>$/;
 
 	for (let i = 0; i < arr.length; i++) {
 		const item = arr[i];

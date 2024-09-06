@@ -5,6 +5,13 @@ import ForEachBuilder from './_internal/ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
 import isSupplier from '../utilities/isSupplier.js';
 import TextComponent from './_internal/TextComponent.js';
+const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
+const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
+const selfClosingElementRegex = /^<([0-9a-zA-Z-]+)\/>$/;
+const commentStartRegex = /^<!--$/;
+const commentEndRegex = /^-->$/;
+const textStartRegex = /^<>$/;
+const textEndRegex = /^<\/>$/;
 export default function parseHTML(arr) {
     let unclosedElement = null;
     let unclosedComment = null;
@@ -13,13 +20,6 @@ export default function parseHTML(arr) {
     let unclosedTextContent = null;
     let previousElementWasSelfClosed = false;
     const children = [];
-    const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
-    const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
-    const selfClosingElementRegex = /^<([0-9a-zA-Z-]+)\/>$/;
-    const commentStartRegex = /^<!--$/;
-    const commentEndRegex = /^-->$/;
-    const textStartRegex = /^<>$/;
-    const textEndRegex = /^<\/>$/;
     for (let i = 0; i < arr.length; i++) {
         const item = arr[i];
         if (unclosedComment) {

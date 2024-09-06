@@ -13,9 +13,11 @@ const entities = {
 	'"': '&quot;'
 };
 
+const specialCharsRegex = /[&<>'"]/g;
+
 function escapeSpecialChars(str: string) {
 	return str.replace(
-		/[&<>'"]/g,
+		specialCharsRegex,
 		tag => entities[tag as keyof typeof entities]
 	);
 }

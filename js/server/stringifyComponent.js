@@ -10,8 +10,9 @@ const entities = {
     "'": '&#39;',
     '"': '&quot;'
 };
+const specialCharsRegex = /[&<>'"]/g;
 function escapeSpecialChars(str) {
-    return str.replace(/[&<>'"]/g, tag => entities[tag]);
+    return str.replace(specialCharsRegex, tag => entities[tag]);
 }
 function stringifyComponentChildren(componentChildren) {
     const strings = componentChildren.map((componentChild) => {
