@@ -8,16 +8,6 @@ import isSupplier from '../utilities/isSupplier.js';
 import Supplier from '../types/Supplier.js';
 import TextComponent from './_internal/TextComponent.js';
 
-function findIndex<T>(this: Array<T>, predicate: (value: T, index: number, obj: T[]) => unknown): number
-{
-	for (let i = 0; i < this.length; i++) {
-		if (predicate(this[i], i, this)) {
-			return i;
-		}
-	}
-	return -1;
-}
-
 export default
 function parseHTML(arr: any[]): ComponentChildren
 {

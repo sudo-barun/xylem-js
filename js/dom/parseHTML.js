@@ -5,14 +5,6 @@ import ForEachBuilder from './_internal/ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
 import isSupplier from '../utilities/isSupplier.js';
 import TextComponent from './_internal/TextComponent.js';
-function findIndex(predicate) {
-    for (let i = 0; i < this.length; i++) {
-        if (predicate(this[i], i, this)) {
-            return i;
-        }
-    }
-    return -1;
-}
 export default function parseHTML(arr) {
     let unclosedElement = null;
     let unclosedComment = null;
