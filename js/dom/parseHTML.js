@@ -141,13 +141,13 @@ export default function parseHTML(arr) {
         else if (item instanceof Component) {
             children.push(item);
         }
-        else if (typeof item === 'object') {
+        else if (typeof item === 'object' && item !== null) {
             if (isSupplier(item)) {
                 const text = new TextComponent(item);
                 children.push(text);
             }
             else {
-                if (typeof arr[i - 1] === 'object') {
+                if (typeof arr[i - 1] === 'object' && arr[i - 1] !== null) {
                     console.error(`Attributes already declared.`);
                     console.error(`Check following array at index ${i}.`, arr);
                     throw new Error(`Attributes already declared.`);
@@ -176,7 +176,9 @@ export default function parseHTML(arr) {
                         const type = typeof item[key];
                         if ((['function', 'object'].indexOf(type) === -1)
                             ||
-                                ((type === 'object')
+                                (type === 'object' && item[key] === null)
+                            ||
+                                ((type === 'object' && item[key] !== null)
                                     &&
                                         (typeof item[key]['handleEvent'] !== 'function'))) {
                             console.error('Listener must be function or object with "handleEvent" method.');

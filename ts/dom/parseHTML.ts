@@ -136,13 +136,12 @@ function parseHTML(arr: any[]): ComponentChildren
 			throw new Error('ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach"');
 		} else if (item instanceof Component) {
 			children.push(item);
-		} else if (typeof item === 'object') {
+		} else if (typeof item === 'object' && item !== null) {
 			if (isSupplier<string>(item)) {
 				const text = new TextComponent(item);
 				children.push(text);
 			} else {
-
-				if (typeof arr[i-1] === 'object') {
+				if (typeof arr[i-1] === 'object' && arr[i-1] !== null) {
 					console.error(`Attributes already declared.`);
 					console.error(`Check following array at index ${i}.`, arr);
 					throw new Error(`Attributes already declared.`);
@@ -173,8 +172,10 @@ function parseHTML(arr: any[]): ComponentChildren
 						if (
 							(['function', 'object'].indexOf(type) === -1)
 							||
+							(type === 'object' && item[key] === null)
+							||
 							(
-								(type === 'object')
+								(type === 'object' && item[key] !== null)
 								&&
 								(typeof item[key]['handleEvent'] !== 'function')
 							)

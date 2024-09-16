@@ -107,9 +107,9 @@ class ElementComponent
 				this._attributes[attr](element, attr);
 			} else if (isSupplier<Attribute>(this._attributes[attr])) {
 				createAttributeFunction(this._attributes[attr])(element, attr);
-			} else if (attr === 'class' && typeof this._attributes[attr] === 'object') {
+			} else if (attr === 'class' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
 				createAttributeFunction(attrClass(this._attributes[attr]))(element, attr);
-			} else if (attr === 'style' && typeof this._attributes[attr] === 'object') {
+			} else if (attr === 'style' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
 				createAttributeFunction(attrStyle(this._attributes[attr]))(element, attr);
 			} else {
 				setAttribute(element, attr, this._attributes[attr]);
