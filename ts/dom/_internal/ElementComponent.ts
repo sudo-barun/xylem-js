@@ -78,11 +78,11 @@ class ElementComponent
 
 	setup(modifier?: ComponentModifier): void
 	{
-		this._children.forEach(child => {
+		for (const child of this._children) {
 			if ((child instanceof Component) || (child instanceof ElementComponent)) {
 				child.setup(modifier);
 			}
-		});
+		}
 	}
 
 	createDomNode(): HTMLElement
@@ -102,7 +102,7 @@ class ElementComponent
 			}
 		}
 
-		Object.keys(this._attributes).forEach((attr) => {
+		for (const attr of Object.keys(this._attributes)) {
 			if (attr === '()') {
 				this._attributes[attr](element, attr);
 			} else if (isSupplier<Attribute>(this._attributes[attr])) {
@@ -114,17 +114,19 @@ class ElementComponent
 			} else {
 				setAttribute(element, attr, this._attributes[attr]);
 			}
-		});
+		}
 
-		Object.keys(this._listeners).forEach((event) => {
+		for (const event of Object.keys(this._listeners)) {
 			element.addEventListener(event, this._listeners[event]);
-		});
+		}
 
-		this._children.forEach(node => node.setupDom());
+		for (const node of this._children) {
+			node.setupDom();
+		}
 		if (! nodeExists) {
-			this.getChildNodes().forEach((node) => {
+			for (const node of this.getChildNodes()) {
 				element.appendChild(node);
-			});
+			}
 		}
 	}
 
@@ -139,20 +141,20 @@ class ElementComponent
 
 	notifyAfterAttachToDom(): void
 	{
-		this._children.forEach((vDomItem) => {
+		for (const vDomItem of this._children) {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyAfterAttachToDom();
 			}
-		});
+		}
 	}
 
 	notifyBeforeDetachFromDom(): void
 	{
-		this._children.forEach((vDomItem) => {
+		for (const vDomItem of this._children) {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyBeforeDetachFromDom();
 			}
-		});
+		}
 	}
 }
 

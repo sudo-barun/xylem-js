@@ -46,7 +46,9 @@ class IfElseBlock extends Component<Attributes>
 	setActive(index: number)
 	{
 		this._activeBlockIndex = index;
-		this._isActiveStores.forEach((isActive$, index) => isActive$._(index === this._activeBlockIndex));
+		for (const [index, isActive$] of this._isActiveStores.entries()) {
+			isActive$._(index === this._activeBlockIndex);
+		}
 	}
 
 	build(attributes: Attributes): ComponentChildren
@@ -55,9 +57,9 @@ class IfElseBlock extends Component<Attributes>
 			attributes.itemAttributesArray.map((itemAttributes) => itemAttributes.condition)
 		));
 
-		attributes.itemAttributesArray.forEach((itemAttributes, index) => {
+		for (const [index, itemAttributes] of attributes.itemAttributesArray.entries()) {
 			if (! (isSupplier(itemAttributes.condition))) {
-				return;
+				continue;
 			}
 
 			const unsubscribe = itemAttributes.condition.subscribe((c) => {
@@ -81,7 +83,7 @@ class IfElseBlock extends Component<Attributes>
 				}
 			});
 			this.beforeDetachFromDom.subscribe(unsubscribe);
-		});
+		}
 
 		return attributes.itemAttributesArray.map((itemAttributes, index) => {
 			return new IfElseBlockItem({

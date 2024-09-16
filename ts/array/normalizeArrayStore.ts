@@ -47,9 +47,9 @@ function normalizeArrayStore<T,U>(
 
 	const initItemStores = (value: T[]) => {
 		normalizedData._itemStores = value.map(createStoreForItem);
-		normalizedData._itemStores.forEach((store) => {
+		for (const store of normalizedData._itemStores) {
 			store.subscribe(new ItemStoreSubscriber(normalizedData, stream));
-		});
+		}
 	};
 
 	initItemStores(arrayStore._());

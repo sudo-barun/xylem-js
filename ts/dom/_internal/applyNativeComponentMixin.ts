@@ -37,7 +37,7 @@ type Constructor = new (...args: any[]) => {};
 export default
 function applyNativeComponentMixin(constructor: Constructor)
 {
-	Object.getOwnPropertyNames(NativeComponentMixin).forEach((name) => {
+	for (const name of Object.getOwnPropertyNames(NativeComponentMixin)) {
 		if (constructor.prototype.hasOwnProperty(name)) {
 			return;
 		}
@@ -47,5 +47,5 @@ function applyNativeComponentMixin(constructor: Constructor)
 			Object.getOwnPropertyDescriptor(NativeComponentMixin, name) ||
 				Object.create(null)
 		);
-	});
+	}
 }

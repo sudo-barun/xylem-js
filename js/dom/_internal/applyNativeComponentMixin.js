@@ -19,11 +19,11 @@ const NativeComponentMixin = {
     }
 };
 export default function applyNativeComponentMixin(constructor) {
-    Object.getOwnPropertyNames(NativeComponentMixin).forEach((name) => {
+    for (const name of Object.getOwnPropertyNames(NativeComponentMixin)) {
         if (constructor.prototype.hasOwnProperty(name)) {
             return;
         }
         Object.defineProperty(constructor.prototype, name, Object.getOwnPropertyDescriptor(NativeComponentMixin, name) ||
             Object.create(null));
-    });
+    }
 }

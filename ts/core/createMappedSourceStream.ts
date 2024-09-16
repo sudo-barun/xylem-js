@@ -26,7 +26,7 @@ function createMappedSourceStream<I,O>(
 	const subscribers: Subscriber<O>[] = [];
 
 	const emit = function (value: I|O): void {
-		subscribers.forEach(subscriber => {
+		for (const subscriber of subscribers) {
 			if (arguments.length) {
 				if (typeof subscriber === 'function') {
 					subscriber(value as O);
@@ -40,7 +40,7 @@ function createMappedSourceStream<I,O>(
 					(subscriber as SubscriberObject<void>)._();
 				}
 			}
-		});
+		}
 	};
 
 	const stream: {

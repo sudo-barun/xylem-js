@@ -65,11 +65,11 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		}
 
 		const children = this.build(this._attributes);
-		children.forEach(_vDom => {
+		for (const _vDom of children) {
 			if ((_vDom instanceof Component) || (_vDom instanceof ElementComponent)) {
 				_vDom.setup(modifier);
 			}
-		});
+		}
 
 		this._children = children;
 	}
@@ -77,9 +77,9 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	reload(): void
 	{
 		this.notifyBeforeDetachFromDom();
-		this._children.forEach(vDomItem => {
+		for (const vDomItem of this._children) {
 			vDomItem.detachFromDom();
-		});
+		}
 
 		this._notifyAfterAttachToDom = createEmittableStream<void>();
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
@@ -87,13 +87,13 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
 
 		this.setup(this._modifier);
-		this._children.forEach(vDom => {
+		for (const vDom of this._children) {
 			vDom.setupDom();
-		});
+		}
 
-		this.childNodes().forEach((node) => {
+		for (const node of this.childNodes()) {
 			this._lastNode.parentNode!.insertBefore(node, this._lastNode);
-		});
+		}
 
 		this.notifyAfterAttachToDom();
 	}
@@ -109,9 +109,9 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._firstNode = this._firstNode || document.createComment(`${this.getComponentName()}`);
 		this._lastNode = this._lastNode || document.createComment(`/${this.getComponentName()}`);
 
-		this._children.forEach(vDom => {
+		for (const vDom of this._children) {
 			vDom.setupDom();
-		});
+		}
 	}
 
 	domNodes(): Array<ChildNode>
@@ -155,28 +155,28 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	notifyAfterAttachToDom()
 	{
 		this._notifyAfterAttachToDom._();
-		this._children.forEach((vDomItem) => {
+		for (const vDomItem of this._children) {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyAfterAttachToDom();
 			}
-		});
+		}
 	}
 
 	notifyBeforeDetachFromDom()
 	{
 		this._notifyBeforeDetachFromDom._();
-		this._children.forEach((vDomItem) => {
+		for (const vDomItem of this._children) {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyBeforeDetachFromDom();
 			}
-		});
+		}
 	}
 
 	detachFromDom()
 	{
-		this._children.forEach((vDomItem) => {
+		for (const vDomItem of this._children) {
 			vDomItem.detachFromDom();
-		});
+		}
 		this._firstNode.parentNode!.removeChild(this._firstNode);
 		this._lastNode.parentNode!.removeChild(this._lastNode);
 	}

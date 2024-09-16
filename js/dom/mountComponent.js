@@ -1,9 +1,9 @@
 export default function mountComponent(component, element) {
     component.setup();
     component.setupDom();
-    component.domNodes().forEach(element_ => {
+    for (const element_ of component.domNodes()) {
         element.appendChild(element_);
-    });
+    }
     component.notifyAfterAttachToDom();
     return () => {
         component.notifyBeforeDetachFromDom();

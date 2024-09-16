@@ -7,7 +7,9 @@ class CombinedSupplier {
     constructor(stores) {
         this._stores = stores;
         this._subscribers = [];
-        Object.keys(stores).forEach((key) => stores[key].subscribe(new StoreSubscriber(this, key)));
+        for (const key of Object.keys(stores)) {
+            stores[key].subscribe(new StoreSubscriber(this, key));
+        }
     }
     _() {
         return Object.keys(this._stores).reduce((acc, key) => {

@@ -5,9 +5,9 @@ function mountComponent(component: Component, element: Element)
 {
 	component.setup();
 	component.setupDom();
-	component.domNodes().forEach(element_ => {
+	for (const element_ of component.domNodes()) {
 		element.appendChild(element_);
-	});
+	}
 	component.notifyAfterAttachToDom();
 
 	return () => {

@@ -20,9 +20,9 @@ export default function normalizeArrayStore(arrayStore, createStoreForItem) {
     const stream = createEmittableStream();
     const initItemStores = (value) => {
         normalizedData._itemStores = value.map(createStoreForItem);
-        normalizedData._itemStores.forEach((store) => {
+        for (const store of normalizedData._itemStores) {
             store.subscribe(new ItemStoreSubscriber(normalizedData, stream));
-        });
+        }
     };
     initItemStores(arrayStore._());
     arrayStore.subscribe((value) => {

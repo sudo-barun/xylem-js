@@ -12,12 +12,12 @@ class CallSubscribers<T>
 
 	_(value?: T): void
 	{
-		this._stream._subscribers.forEach(subscriber => {
+		for (const subscriber of this._stream._subscribers) {
 			if (typeof subscriber === 'function') {
 				subscriber.apply(null, arguments as any);
 			} else {
 				subscriber._.apply(subscriber, arguments as any);
 			}
-		});
+		}
 	}
 }

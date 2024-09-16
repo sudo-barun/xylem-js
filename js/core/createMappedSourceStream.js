@@ -1,7 +1,7 @@
 export default function createMappedSourceStream(callback) {
     const subscribers = [];
     const emit = function (value) {
-        subscribers.forEach(subscriber => {
+        for (const subscriber of subscribers) {
             if (arguments.length) {
                 if (typeof subscriber === 'function') {
                     subscriber(value);
@@ -18,7 +18,7 @@ export default function createMappedSourceStream(callback) {
                     subscriber._();
                 }
             }
-        });
+        }
     };
     const stream = {
         _: function (value) {

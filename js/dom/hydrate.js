@@ -20,7 +20,7 @@ export default function hydrate(component, domNodes, currentIndex = 0) {
     return currentIndex;
 }
 export function hydrateComponentChildren(componentChildren, domNodes, currentIndex = 0) {
-    componentChildren.forEach((componentChild) => {
+    for (const componentChild of componentChildren) {
         const node = domNodes[currentIndex];
         if (componentChild instanceof TextComponent) {
             if (!(node instanceof Text)) {
@@ -49,11 +49,11 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
                 console.error('Found:', node);
                 throw new Error('HTMLElement node not found.');
             }
-            Object.keys(componentChild.attributes()).forEach((attributeName) => {
+            for (const attributeName of Object.keys(componentChild.attributes())) {
                 if (getValue(componentChild.attributes()[attributeName]) !== node.getAttribute(attributeName)) {
                     throw new Error(`Value of attribute "${attributeName}" of HTMLElement does not match.`);
                 }
-            });
+            }
             componentChild.domNode(node);
             hydrateComponentChildren(componentChild.children(), node.childNodes);
             currentIndex++;
@@ -65,6 +65,6 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
             console.error('Unsupported data found', componentChild);
             throw new Error('Unsupported data found');
         }
-    });
+    }
     return currentIndex;
 }

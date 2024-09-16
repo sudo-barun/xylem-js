@@ -10,11 +10,10 @@ function handlePushInForEachBlock<T>(this: ForEachBlock<T>, item: T)
 	forEachBlockItem.setup();
 	forEachBlockItem.setupDom();
 
-	forEachBlockItem.domNodes()
-	.forEach((node) => {
+	for (const node of forEachBlockItem.domNodes()) {
 		const lastNode = this.lastNode();
 		lastNode.parentNode!.insertBefore(node, lastNode);
-	});
+	}
 	this._children.push(forEachBlockItem);
 	forEachBlockItem.notifyAfterAttachToDom();
 }

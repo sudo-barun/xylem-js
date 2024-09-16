@@ -16,13 +16,13 @@ function handleMoveInForEachBlock<T>(
 	if (fromIndex < toIndex) {
 		const destinationNode = destination.lastNode();
 		const nextSibling = destinationNode.nextSibling;
-		removedItem.domNodes().forEach((removedNode) => {
+		for (const removedNode of removedItem.domNodes()) {
 			destinationNode.parentNode!.insertBefore(removedNode, nextSibling);
-		});
+		}
 	} else if (fromIndex > toIndex) {
 		const destinationNode = destination.firstNode();
-		removedItem.domNodes().forEach((removedNode) => {
+		for (const removedNode of removedItem.domNodes()) {
 			destinationNode.parentNode!.insertBefore(removedNode, destinationNode);
-		});
+		}
 	}
 }

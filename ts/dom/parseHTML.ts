@@ -165,7 +165,7 @@ function parseHTML(arr: any[]): ComponentChildren
 					throw new Error(`No preceeding element found.`);
 				}
 
-				Object.keys(item).forEach(function (key) {
+				for (const key of Object.keys(item)) {
 					const listenerRegex = /^@([a-zA-Z]+)$/;
 					if (listenerRegex.test(key)) {
 						const [ , eventName ] = listenerRegex.exec(key)!;
@@ -192,7 +192,7 @@ function parseHTML(arr: any[]): ComponentChildren
 					} else {
 						elementOfAttributes.attributes()[key] = item[key];
 					}
-				});
+				}
 			}
 		} else {
 			children.push(new TextComponent(item));

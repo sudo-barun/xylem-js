@@ -169,7 +169,7 @@ export default function parseHTML(arr) {
                     console.error(`Check following array at index ${i}.`, arr);
                     throw new Error(`No preceeding element found.`);
                 }
-                Object.keys(item).forEach(function (key) {
+                for (const key of Object.keys(item)) {
                     const listenerRegex = /^@([a-zA-Z]+)$/;
                     if (listenerRegex.test(key)) {
                         const [, eventName] = listenerRegex.exec(key);
@@ -195,7 +195,7 @@ export default function parseHTML(arr) {
                     else {
                         elementOfAttributes.attributes()[key] = item[key];
                     }
-                });
+                }
             }
         }
         else {

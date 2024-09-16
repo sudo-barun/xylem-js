@@ -7,7 +7,9 @@ class CombinedSupplier {
     constructor(suppliers) {
         this._suppliers = suppliers;
         this._subscribers = [];
-        suppliers.forEach((supplier, index) => supplier.subscribe(new StoreSubscriber(this, index)));
+        for (const [index, supplier] of suppliers.entries()) {
+            supplier.subscribe(new StoreSubscriber(this, index));
+        }
     }
     _() {
         return this._suppliers.map((store) => store._());

@@ -20,14 +20,14 @@ const handleMove = function (array, index$Array, fromIndex, toIndex) {
     }
     const fromIndex$ = index$Array[fromIndex_];
     if (fromIndex_ < toIndex_) {
-        index$Array.slice(fromIndex_ + 1, toIndex_ + 1).forEach((index$) => {
+        for (const index$ of index$Array.slice(fromIndex_ + 1, toIndex_ + 1)) {
             cumulate(index$, (v) => v - 1);
-        });
+        }
     }
     else if (fromIndex_ > toIndex_) {
-        index$Array.slice(toIndex_, fromIndex_).forEach((index$) => {
+        for (const index$ of index$Array.slice(toIndex_, fromIndex_)) {
             cumulate(index$, (v) => v + 1);
-        });
+        }
     }
     fromIndex$._(toIndex_);
     const removedIndex = index$Array.splice(fromIndex_, 1)[0];
