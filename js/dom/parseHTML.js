@@ -138,7 +138,10 @@ export default function parseHTML(arr) {
             console.error(`ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach" inside following array at index ${i} : `, arr);
             throw new Error('ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach"');
         }
-        else if (item instanceof Component) {
+        else if (item instanceof Component
+            || item instanceof ElementComponent
+            || item instanceof TextComponent
+            || item instanceof CommentComponent) {
             children.push(item);
         }
         else if (typeof item === 'object' && item !== null) {
