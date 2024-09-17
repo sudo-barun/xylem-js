@@ -37,7 +37,13 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 
 			const attributesString = Object.keys(componentChild.attributes()).reduce((acc, attributeName) => {
 				let attributeValue = getValue(componentChild.attributes()[attributeName]);
-				acc.push(`${attributeName}="${escapeSpecialChars(attributeValue)}"`);
+				if (typeof attributeValue === 'string') {
+					acc.push(`${attributeName}="${escapeSpecialChars(attributeValue)}"`);
+				} else if (typeof attributeValue === 'boolean') {
+					if (attributeValue) {
+						acc.push(`${attributeName}`);
+					}
+				}
 				return acc;
 			}, [] as string[]).join(' ');
 

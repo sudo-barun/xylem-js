@@ -25,7 +25,14 @@ function stringifyComponentChildren(componentChildren) {
         else if (componentChild instanceof ElementComponent) {
             const attributesString = Object.keys(componentChild.attributes()).reduce((acc, attributeName) => {
                 let attributeValue = getValue(componentChild.attributes()[attributeName]);
-                acc.push(`${attributeName}="${escapeSpecialChars(attributeValue)}"`);
+                if (typeof attributeValue === 'string') {
+                    acc.push(`${attributeName}="${escapeSpecialChars(attributeValue)}"`);
+                }
+                else if (typeof attributeValue === 'boolean') {
+                    if (attributeValue) {
+                        acc.push(`${attributeName}`);
+                    }
+                }
                 return acc;
             }, []).join(' ');
             const tagName = componentChild.tagName();
