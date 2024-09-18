@@ -1,6 +1,6 @@
 import ArrayMutateAction from "../ArrayMutateAction";
 
-type ArrayMutate = <MutationArgs extends any[]>(
+type ArrayMutate = <MutationArgs extends unknown[]>(
 	action: ArrayMutateAction<MutationArgs>,
 	...otherArgs: MutationArgs
 ) => void;

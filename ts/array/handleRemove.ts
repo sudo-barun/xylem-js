@@ -3,7 +3,7 @@ import Supplier from "../types/Supplier.js";
 import getValue from "../utilities/getValue.js";
 import Store from "../types/Store.js";
 
-function isInteger(value: any): boolean
+function isInteger(value: number): boolean
 {
 	return (value ^ 0) === value;
 }

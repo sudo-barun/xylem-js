@@ -6,17 +6,17 @@ import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
-function combineNamedSuppliers<T extends {[prop: string]: any}>(suppliers: {[prop: string]: Supplier<any>}): Supplier<T>
+function combineNamedSuppliers<T extends {[prop: string]: unknown}>(suppliers: {[prop: string]: Supplier<unknown>}): Supplier<T>
 {
 	return new CombinedSupplier<T>(suppliers);
 }
 
 class CombinedSupplier<T extends object> implements Supplier<T>
 {
-	declare _stores: {[prop: string]: Supplier<any>}
+	declare _stores: {[prop: string]: Supplier<unknown>}
 	declare _subscribers: Subscriber<T>[];
 
-	constructor(stores: {[prop: string]: Supplier<any>})
+	constructor(stores: {[prop: string]: Supplier<unknown>})
 	{
 		this._stores = stores;
 		this._subscribers = [];
@@ -31,7 +31,7 @@ class CombinedSupplier<T extends object> implements Supplier<T>
 		return Object.keys(this._stores).reduce((acc, key) => {
 			acc[key] = this._stores[key]._();
 			return acc;
-		}, {} as {[prop: string]:any}) as T;
+		}, {} as {[prop: string]:unknown}) as T;
 	}
 
 	subscribe(subscriber: Subscriber<T>): Unsubscriber
@@ -43,11 +43,11 @@ class CombinedSupplier<T extends object> implements Supplier<T>
 	_emit(value: T)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as any);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
 	}
 }
 
-class StoreSubscriber<T extends object> implements SubscriberObject<any>
+class StoreSubscriber<T extends object> implements SubscriberObject<unknown>
 {
 	declare _combinedStore: CombinedSupplier<T>;
 	declare _key: string;
@@ -58,7 +58,7 @@ class StoreSubscriber<T extends object> implements SubscriberObject<any>
 		this._key = key;
 	}
 
-	_(value: any)
+	_(value: unknown)
 	{
 		const mappedValue = Object.keys(this._combinedStore._stores).reduce((acc, key) => {
 			if (key === this._key) {
@@ -67,7 +67,7 @@ class StoreSubscriber<T extends object> implements SubscriberObject<any>
 				acc[key] = this._combinedStore._stores[key]._();
 			}
 			return acc;
-		}, {} as {[key: string]: any});
+		}, {} as {[key: string]: unknown});
 
 		this._combinedStore._emit(mappedValue as T);
 	}

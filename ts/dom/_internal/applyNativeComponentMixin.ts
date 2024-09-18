@@ -32,10 +32,10 @@ const NativeComponentMixin = {
 
 };
 
-type Constructor = new (...args: any[]) => {};
+type Constructor<T extends unknown[]> = new (...args: T) => NativeComponent;
 
 export default
-function applyNativeComponentMixin(constructor: Constructor)
+function applyNativeComponentMixin<T extends unknown[]>(constructor: Constructor<T>)
 {
 	for (const name of Object.getOwnPropertyNames(NativeComponentMixin)) {
 		if (constructor.prototype.hasOwnProperty(name)) {

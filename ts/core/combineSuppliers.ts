@@ -6,17 +6,17 @@ import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
-function combineSuppliers<T extends Array<any>>(suppliers: Array<Supplier<any>>): Supplier<T>
+function combineSuppliers<T extends Array<unknown>>(suppliers: Array<Supplier<unknown>>): Supplier<T>
 {
 	return new CombinedSupplier(suppliers);
 }
 
-class CombinedSupplier<T extends Array<any>> implements Supplier<T>
+class CombinedSupplier<T extends Array<unknown>> implements Supplier<T>
 {
-	declare _suppliers: Supplier<any>[];
+	declare _suppliers: Supplier<unknown>[];
 	declare _subscribers: Subscriber<T>[];
 
-	constructor(suppliers: Supplier<any>[])
+	constructor(suppliers: Supplier<unknown>[])
 	{
 		this._suppliers = suppliers;
 		this._subscribers = [];
@@ -40,11 +40,11 @@ class CombinedSupplier<T extends Array<any>> implements Supplier<T>
 	_emit(value: T)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as any);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
 	}
 }
 
-class StoreSubscriber<T extends Array<any>> implements SubscriberObject<any>
+class StoreSubscriber<T extends Array<unknown>> implements SubscriberObject<T>
 {
 	declare _combinedStore: CombinedSupplier<T>;
 	declare _index: number;
@@ -55,7 +55,7 @@ class StoreSubscriber<T extends Array<any>> implements SubscriberObject<any>
 		this._index = index;
 	}
 
-	_(value: any)
+	_(value: T)
 	{
 		const mappedValue = this._combinedStore._suppliers.map((store, index) => {
 			if (index === this._index) {

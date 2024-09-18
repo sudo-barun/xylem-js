@@ -1,4 +1,4 @@
-type FunctionOrCallableObject<Args extends Array<any>, Return> = (
+type FunctionOrCallableObject<Args extends Array<unknown>, Return> = (
 	((...args: Args) => Return)
 	|
 	{

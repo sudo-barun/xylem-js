@@ -1,9 +1,9 @@
 import Store from "./Store";
 
-type ArrayMutateHandler<MutationArgs extends any[]> = <T>(
+type ArrayMutateHandler<MutationArgs extends unknown[]> = <T>(
 	array: T[],
 	index$Array: Store<number>[],
 	...mutationArgs: MutationArgs
-) => any;
+) => unknown[];
 
 export default ArrayMutateHandler;

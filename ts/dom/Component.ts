@@ -204,13 +204,13 @@ class ComponentBoundedSupplier<T> implements Supplier<T>
 
 	_(): T
 	{
-		return this._supplier._.apply(this._supplier, arguments as any);
+		return this._supplier._.apply(this._supplier, arguments as unknown as []);
 	}
 
 	_emit(value: T)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as any);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
 	}
 
 	subscribe(subscriber: Subscriber<T>): Unsubscriber

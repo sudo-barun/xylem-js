@@ -50,7 +50,7 @@ class MappedSupplier<I,O> implements Supplier<O>
 	_emit(value: O)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as any);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [O]);
 	}
 
 	subscribe(subscriber: Subscriber<O>): Unsubscriber

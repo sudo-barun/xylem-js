@@ -25,7 +25,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 
 	declare index$Array: Store<number>[];
 	declare length$: ArrayLengthStore;
-	declare mutation: EmittableStream<ArrayMutation<T,any[]>>;
+	declare mutation: EmittableStream<ArrayMutation<T,unknown[]>>;
 	declare readonly: ReadonlySupplier<T>;
 
 	constructor(value: Array<T>)
@@ -59,7 +59,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 
 
 				const callSubscribers = new CallSubscribers(this);
-				callSubscribers._.apply(callSubscribers, arguments as any);
+				callSubscribers._.apply(callSubscribers, arguments as unknown as [T[]]);
 			}
 		}
 		return this._value;
@@ -71,12 +71,12 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 		return new _Unsubscriber(this, subscriber);
 	}
 
-	mutate<MutationArgs extends any[]>(action: ArrayMutateAction<MutationArgs>, ...mutationArgs: MutationArgs): void
+	mutate<MutationArgs extends unknown[]>(action: ArrayMutateAction<MutationArgs>, ...mutationArgs: MutationArgs): void
 	{
 		// The mutation argument can change, for example index$ value can change.
 		// So, initial value of arguments is returned from action and used.
 		const otherArgs_ = action._<T>(this._value, this.index$Array, ...mutationArgs);
-		this.mutation._([ this._value, action as ArrayMutateAction<any[]>, ...otherArgs_ ]);
+		this.mutation._([ this._value, action as ArrayMutateAction<unknown[]>, ...otherArgs_ ]);
 	}
 }
 
@@ -104,11 +104,11 @@ class ReadonlySupplier<T> implements Supplier<T[]>
 	}
 }
 
-class MutationLengthSubscriber implements SubscriberObject<number>
+class MutationLengthSubscriber<T> implements SubscriberObject<void>
 {
-	declare _arrayStore: ArrayStoreImpl<any>;
+	declare _arrayStore: ArrayStoreImpl<T>;
 
-	constructor(arrayStore: ArrayStoreImpl<any>)
+	constructor(arrayStore: ArrayStoreImpl<T>)
 	{
 		this._arrayStore = arrayStore;
 	}
@@ -121,10 +121,10 @@ class MutationLengthSubscriber implements SubscriberObject<number>
 
 class ArrayLengthStore implements Supplier<number>
 {
-	declare _arrayStore: Supplier<any[]>;
+	declare _arrayStore: Supplier<unknown[]>;
 	declare _subscribers: Subscriber<number>[];
 
-	constructor(arrayStore: Supplier<any[]>)
+	constructor(arrayStore: Supplier<unknown[]>)
 	{
 		this._arrayStore = arrayStore;
 		this._subscribers = [];
@@ -144,6 +144,6 @@ class ArrayLengthStore implements Supplier<number>
 	_emit(value: number)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as any);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [number]);
 	}
 }

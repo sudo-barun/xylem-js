@@ -2,7 +2,7 @@ import ArrayMutateHandler from "../types/ArrayMutateHandler.js";
 import Store from "../types/Store.js";
 import createStore from "../core/createStore.js";
 
-const handlePush: ArrayMutateHandler<[any]> = function <T>(
+const handlePush: ArrayMutateHandler<[unknown]> = function <T>(
 	array: T[],
 	index$Array: Store<number>[],
 	item: T

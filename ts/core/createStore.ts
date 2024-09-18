@@ -31,7 +31,7 @@ class StoreImpl<T> implements Store<T>
 			this._value = value!;
 			if (isDifferent) {
 				const callSubscribers = new CallSubscribers(this);
-				callSubscribers._.apply(callSubscribers, arguments as any);
+				callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
 			}
 		}
 		return this._value;

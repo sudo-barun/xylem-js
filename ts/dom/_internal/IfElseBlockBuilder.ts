@@ -3,7 +3,7 @@ import IfElseBuild from "../../types/_internal/IfElseBuild.js";
 import Supplier from "../../types/Supplier.js";
 
 type IfElseBlockItemData = {
-	condition: any|Supplier<any>,
+	condition: unknown|Supplier<unknown>,
 	build: IfElseBuild,
 };
 
@@ -13,7 +13,7 @@ class IfElseBlockBuilder
 	declare _ifConditions: Array<IfElseBlockItemData>;
 	declare _hasElse: boolean;
 
-	constructor(condition: any|Supplier<any>, build: IfElseBuild)
+	constructor(condition: unknown|Supplier<unknown>, build: IfElseBuild)
 	{
 		this._ifConditions = [{
 			condition,
@@ -22,7 +22,7 @@ class IfElseBlockBuilder
 		this._hasElse = false;
 	}
 
-	elseIf(condition: any|Supplier<any>, build: IfElseBuild): this
+	elseIf(condition: unknown|Supplier<unknown>, build: IfElseBuild): this
 	{
 		if (this._hasElse) {
 			throw new Error('Else block has already been set');

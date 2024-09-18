@@ -7,6 +7,7 @@ import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
 import isSupplier from '../utilities/isSupplier.js';
 import Supplier from '../types/Supplier.js';
 import TextComponent from './_internal/TextComponent.js';
+import Subscriber from '../types/Subscriber.js';
 
 const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
 const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;
@@ -17,7 +18,7 @@ const textStartRegex = /^<>$/;
 const textEndRegex = /^<\/>$/;
 
 export default
-function parseHTML(arr: any[]): ComponentChildren
+function parseHTML(arr: unknown[]): ComponentChildren
 {
 	let unclosedElement: ElementComponent|null = null;
 	let unclosedComment: CommentComponent|null = null;
@@ -30,7 +31,7 @@ function parseHTML(arr: any[]): ComponentChildren
 	for (let i = 0; i < arr.length; i++) {
 		const item = arr[i];
 		if (unclosedComment) {
-			if (commentEndRegex.test(item)) {
+			if (commentEndRegex.test(item as string)) {
 				if (unclosedCommentContent === null) {
 					console.error(`Comment end marker found without any content. Check following array at index ${i} : `, arr);
 					throw new Error('Comment end marker found without any content.');
@@ -42,11 +43,11 @@ function parseHTML(arr: any[]): ComponentChildren
 					console.error(`Comment content already defined inside comment markers. Check following array at index ${i} : `, arr);
 					throw new Error('Comment content already defined inside comment markers.');
 				}
-				unclosedComment.textContent(item);
-				unclosedCommentContent = item;
+				unclosedComment.textContent(item as string);
+				unclosedCommentContent = item as string;
 			}
 		} else if (unclosedText) {
-			if (textEndRegex.test(item)) {
+			if (textEndRegex.test(item as string)) {
 				if (unclosedTextContent === null) {
 					console.error(`Text end marker found without any content. Check following array at index ${i} : `, arr);
 					throw new Error('Text end marker found without any content.');
@@ -58,8 +59,8 @@ function parseHTML(arr: any[]): ComponentChildren
 					console.error(`Text content already defined inside text markers. Check following array at index ${i} : `, arr);
 					throw new Error('Text content already defined inside text markers.');
 				}
-				unclosedText.textContent(item);
-				unclosedTextContent = item;
+				unclosedText.textContent(item as string);
+				unclosedTextContent = item as string;
 			}
 		} else if (typeof item === 'string') {
 			if (selfClosingElementRegex.test(item)) {
@@ -171,35 +172,35 @@ function parseHTML(arr: any[]): ComponentChildren
 					const listenerRegex = /^@([a-zA-Z]+)$/;
 					if (listenerRegex.test(key)) {
 						const [ , eventName ] = listenerRegex.exec(key)!;
-						const type = typeof item[key];
+						const type = typeof (item as {[k: string]: unknown})[key];
 						if (
 							(['function', 'object'].indexOf(type) === -1)
 							||
-							(type === 'object' && item[key] === null)
+							(type === 'object' && (item as {[k: string]: unknown})[key] === null)
 							||
 							(
-								(type === 'object' && item[key] !== null)
+								(type === 'object' && (item as {[k: string]: unknown})[key] !== null)
 								&&
-								(typeof item[key]['handleEvent'] !== 'function')
+								(typeof (item as {[k: string]: {handleEvent: unknown}})[key]['handleEvent'] !== 'function')
 							)
 						) {
 							console.error('Listener must be function or object with "handleEvent" method.');
-							console.error('Listener:', item[key], ' at key: ', key);
+							console.error('Listener:', (item as {[k: string]: unknown})[key], ' at key: ', key);
 							console.error(`Check following array at index ${i}.`, arr);
 							throw new Error('Listener must be function or object with "handleEvent" method.');
 						}
-						elementOfAttributes.addListener(eventName, item[key]);
+						elementOfAttributes.addListener(eventName, (item as {[k: string]: EventListenerOrEventListenerObject})[key]);
 					} else if (key === '<>') {
-						elementOfAttributes.elementSubscriber(item[key]);
+						elementOfAttributes.elementSubscriber((item as {[k: string]: Subscriber<HTMLElement>})[key]);
 					} else if (key === '=') {
-						item[key](elementOfAttributes);
+						(item as {[k: string]: (e: ElementComponent) => void})[key](elementOfAttributes);
 					} else {
-						elementOfAttributes.attributes()[key] = item[key];
+						elementOfAttributes.attributes()[key] = (item as {[k: string]: unknown})[key];
 					}
 				}
 			}
 		} else {
-			children.push(new TextComponent(item));
+			children.push(new TextComponent(item as string));
 		}
 	}
 

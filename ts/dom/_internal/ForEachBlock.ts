@@ -87,9 +87,9 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 	}
 }
 
-function isHandler(value: any): value is Handler
+function isHandler(value: unknown): value is Handler
 {
 	return typeof value === 'function';
 }
 
-type Handler = <T>(...args: any[]) => void;
+type Handler = <T>(...args: unknown[]) => void;

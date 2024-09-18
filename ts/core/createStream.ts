@@ -38,7 +38,7 @@ class StreamImpl<T> implements ProxyStream<T>
 	_emit(value: T)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as any);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
 	}
 
 	unsubscribe(): void

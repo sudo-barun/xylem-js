@@ -81,7 +81,7 @@ function normalizeArrayStore<T,U>(
 	return createSupplier(normalizedData, stream);
 }
 
-function isHandler(value: any): value is Handler
+function isHandler(value: unknown): value is Handler
 {
 	return typeof value === 'function';
 }
@@ -90,5 +90,5 @@ type Handler = <T,U>(
 	createStoreForItem: (item: T) => Supplier<U>,
 	emit: Emitter<U[]>,
 	itemStores: Supplier<U>[],
-	...mutationArgs: any[]
+	...mutationArgs: unknown[]
 ) => void;

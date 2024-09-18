@@ -25,7 +25,7 @@ class EmittableStreamImpl<T> implements EmittableStream<T>
 	_(value: T): void
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as any);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
 	}
 
 	subscribe(subscriber: Subscriber<T>): Unsubscriber

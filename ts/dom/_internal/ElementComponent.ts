@@ -14,7 +14,7 @@ export default
 class ElementComponent
 {
 	declare _tagName: string;
-	declare _attributes: { [key:string]: any };
+	declare _attributes: { [key:string]: unknown };
 	declare _children: ComponentChildren;
 	declare _listeners: { [key:string]: EventListenerOrEventListenerObject };
 	declare _elementSubscriber: Subscriber<HTMLElement>|null;
@@ -40,7 +40,7 @@ class ElementComponent
 		return this._tagName;
 	}
 
-	attributes(): { [key:string]: any }
+	attributes(): { [key:string]: unknown }
 	{
 		return this._attributes;
 	}
@@ -104,15 +104,15 @@ class ElementComponent
 
 		for (const attr of Object.keys(this._attributes)) {
 			if (attr === '()') {
-				this._attributes[attr](element, attr);
+				(this._attributes[attr] as (e:HTMLElement, a:'()')=>void)(element, attr);
 			} else if (isSupplier<Attribute>(this._attributes[attr])) {
-				createAttributeFunction(this._attributes[attr])(element, attr);
+				createAttributeFunction(this._attributes[attr] as Supplier<Attribute>)(element, attr);
 			} else if (attr === 'class' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-				createAttributeFunction(attrClass(this._attributes[attr]))(element, attr);
+				createAttributeFunction(attrClass(this._attributes[attr] as ClassDefinitions))(element, attr);
 			} else if (attr === 'style' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-				createAttributeFunction(attrStyle(this._attributes[attr]))(element, attr);
+				createAttributeFunction(attrStyle(this._attributes[attr] as StyleDefinitions))(element, attr);
 			} else {
-				setAttribute(element, attr, this._attributes[attr]);
+				setAttribute(element, attr, this._attributes[attr] as Attribute);
 			}
 		}
 
@@ -186,7 +186,7 @@ class CombineStyleStringAndArray
 	}
 }
 
-function stringObjectToStringMapper(v: { [prop: string]: any })
+function stringObjectToStringMapper(v: { [prop: string]: unknown })
 {
 	return Object.keys(v).reduce((acc, cssProperty) => {
 		acc.push(`${cssProperty}: ${v[cssProperty]}`);
@@ -207,7 +207,7 @@ type ClassDefinitions = {
 	[className: string]: Supplier<boolean>,
 };
 
-function classObjectToStringMapper(v: { [prop: string]: any }): string
+function classObjectToStringMapper(v: { [prop: string]: unknown }): string
 {
 	return Object.keys(v).reduce((acc, className) => {
 		if (v[className]) {
@@ -279,7 +279,7 @@ function setAttribute(element: HTMLElement, name: string, value: Attribute)
 {
 	if (value === true) {
 		element.setAttribute(name, '');
-	} else if (([ undefined, null, false ] as any[]).indexOf(value) !== -1) {
+	} else if (([ undefined, null, false ] as unknown[]).indexOf(value) !== -1) {
 		element.removeAttribute(name);
 	} else {
 		element.setAttribute(name, <string> value);

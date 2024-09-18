@@ -14,9 +14,9 @@ class CallSubscribers<T>
 	{
 		for (const subscriber of this._stream._subscribers) {
 			if (typeof subscriber === 'function') {
-				subscriber.apply(null, arguments as any);
+				subscriber.apply(null, arguments as unknown as [T]);
 			} else {
-				subscriber._.apply(subscriber, arguments as any);
+				subscriber._.apply(subscriber, arguments as unknown as [T]);
 			}
 		}
 	}
