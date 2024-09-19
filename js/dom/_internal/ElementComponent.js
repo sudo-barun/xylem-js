@@ -126,8 +126,11 @@ class CombineStyleStringAndArray {
         }
     }
 }
-function stringObjectToStringMapper(v) {
+function styleObjectToStringMapper(v) {
     return Object.keys(v).reduce((acc, cssProperty) => {
+        if (v[cssProperty] === false) {
+            return acc;
+        }
         acc.push(`${cssProperty}: ${v[cssProperty]}`);
         return acc;
     }, []).join('; ');
@@ -137,7 +140,7 @@ function attrStyle(styleDefinitions) {
         return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
     }
     else {
-        return map(combineNamedSuppliers(styleDefinitions), stringObjectToStringMapper);
+        return map(combineNamedSuppliers(styleDefinitions), styleObjectToStringMapper);
     }
 }
 function classObjectToStringMapper(v) {

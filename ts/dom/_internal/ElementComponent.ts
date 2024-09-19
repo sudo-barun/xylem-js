@@ -164,7 +164,7 @@ interface ElementComponent extends NativeComponent {}
 applyNativeComponentMixin(ElementComponent);
 
 type StyleDefinitions = {
-	[cssProperty: string]: Supplier<string>,
+	[cssProperty: string]: Supplier<string|false>,
 };
 
 class CombineStyleStringAndArray
@@ -186,9 +186,12 @@ class CombineStyleStringAndArray
 	}
 }
 
-function stringObjectToStringMapper(v: { [prop: string]: unknown })
+function styleObjectToStringMapper(v: { [prop: string]: unknown }): string
 {
 	return Object.keys(v).reduce((acc, cssProperty) => {
+		if (v[cssProperty] === false) {
+			return acc;
+		}
 		acc.push(`${cssProperty}: ${v[cssProperty]}`);
 		return acc;
 	}, [] as string[]).join('; ');
@@ -199,7 +202,7 @@ function attrStyle(styleDefinitions: StyleDefinitions|[string, StyleDefinitions]
 	if (styleDefinitions instanceof Array) {
 		return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
 	} else {
-		return map(combineNamedSuppliers(styleDefinitions), stringObjectToStringMapper);
+		return map(combineNamedSuppliers(styleDefinitions), styleObjectToStringMapper);
 	}
 }
 
