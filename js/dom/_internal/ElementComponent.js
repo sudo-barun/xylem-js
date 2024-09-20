@@ -1,6 +1,8 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import combineNamedSuppliers from "../../core/combineNamedSuppliers.js";
+import combineSuppliers from "../../core/combineSuppliers.js";
 import Component from "../Component.js";
+import createStore from "../../core/createStore.js";
 import isSupplier from "../../utilities/isSupplier.js";
 import map from "../../core/map.js";
 export default class ElementComponent {
@@ -113,63 +115,71 @@ export default class ElementComponent {
     }
 }
 applyNativeComponentMixin(ElementComponent);
-class CombineStyleStringAndArray {
-    constructor(classDefinition) {
-        this._classDefinition = classDefinition;
-    }
-    _(v) {
-        if (v) {
-            return [this._classDefinition, v].join(' ');
-        }
-        else {
-            return this._classDefinition;
-        }
-    }
+function styleObjectToStringMapper(namedStyles) {
+    const mappedStyles = Object.entries(namedStyles)
+        .filter(([, propVal]) => propVal !== false)
+        .map((prop) => prop.join(': '));
+    return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
-function styleObjectToStringMapper(v) {
-    return Object.keys(v).reduce((acc, cssProperty) => {
-        if (v[cssProperty] === false) {
-            return acc;
-        }
-        acc.push(`${cssProperty}: ${v[cssProperty]}`);
-        return acc;
-    }, []).join('; ');
+function styleArrayToStringMapper(styles) {
+    const mappedStyles = styles.filter(propVal => propVal !== false);
+    return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 function attrStyle(styleDefinitions) {
     if (styleDefinitions instanceof Array) {
-        return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
+        return map(combineSuppliers(styleDefinitions.map(styleDefn => {
+            if (isSupplier(styleDefn)) {
+                return styleDefn;
+            }
+            if (typeof styleDefn === 'object' && styleDefn !== null) {
+                const namedSuppliers = {};
+                for (const name in styleDefn) {
+                    const propValue = styleDefn[name];
+                    namedSuppliers[name] = isSupplier(propValue)
+                        ? propValue
+                        : createStore(propValue);
+                }
+                return map(combineNamedSuppliers(namedSuppliers), styleObjectToStringMapper);
+            }
+            return createStore(styleDefn);
+        })), styleArrayToStringMapper);
     }
     else {
-        return map(combineNamedSuppliers(styleDefinitions), styleObjectToStringMapper);
+        return attrStyle([styleDefinitions]);
     }
 }
-function classObjectToStringMapper(v) {
-    return Object.keys(v).reduce((acc, className) => {
-        if (v[className]) {
-            acc.push(className);
-        }
-        return acc;
-    }, []).join(' ');
+function classObjectToStringMapper(namedClasses) {
+    const mappedClasses = Object
+        .entries(namedClasses)
+        .filter(([, classVal]) => classVal !== false)
+        .map(([class_]) => class_);
+    return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
-class CombineClassStringAndArray {
-    constructor(classDefinition) {
-        this._classDefinition = classDefinition;
-    }
-    _(v) {
-        if (v) {
-            return [this._classDefinition, v].join(' ');
-        }
-        else {
-            return this._classDefinition;
-        }
-    }
+function classArrayToStringMapper(classes) {
+    const mappedClasses = classes.filter(class_ => class_ !== false);
+    return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 function attrClass(classDefinitions) {
     if (classDefinitions instanceof Array) {
-        return map(attrClass(classDefinitions[1]), new CombineClassStringAndArray(classDefinitions[0]));
+        return map(combineSuppliers(classDefinitions.map(classDefn => {
+            if (isSupplier(classDefn)) {
+                return classDefn;
+            }
+            if (typeof classDefn === 'object' && classDefn !== null) {
+                const namedSuppliers = {};
+                for (const name in classDefn) {
+                    const propValue = classDefn[name];
+                    namedSuppliers[name] = isSupplier(propValue)
+                        ? propValue
+                        : createStore(propValue);
+                }
+                return map(combineNamedSuppliers(namedSuppliers), classObjectToStringMapper);
+            }
+            return createStore(classDefn);
+        })), classArrayToStringMapper);
     }
     else {
-        return map(combineNamedSuppliers(classDefinitions), classObjectToStringMapper);
+        return attrClass([classDefinitions]);
     }
 }
 class AttributeSubscriber {

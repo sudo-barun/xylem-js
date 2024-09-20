@@ -1,8 +1,10 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import combineNamedSuppliers from "../../core/combineNamedSuppliers.js";
+import combineSuppliers from "../../core/combineSuppliers.js";
 import Component from "../Component.js";
 import ComponentChildren from "../../types/ComponentChildren.js";
 import ComponentModifier from "../../types/ComponentModifier.js";
+import createStore from "../../core/createStore.js";
 import Supplier from "../../types/Supplier.js";
 import isSupplier from "../../utilities/isSupplier.js";
 import map from "../../core/map.js";
@@ -164,87 +166,99 @@ interface ElementComponent extends NativeComponent {}
 applyNativeComponentMixin(ElementComponent);
 
 type StyleDefinitions = {
-	[cssProperty: string]: Supplier<string|false>,
+	[cssProperty: string]: string|false|Supplier<string|false>,
 };
 
-class CombineStyleStringAndArray
+function styleObjectToStringMapper(namedStyles: { [prop: string]: string|false }): string|false
 {
-	declare _classDefinition: string;
-
-	constructor(classDefinition: string)
-	{
-		this._classDefinition = classDefinition;
-	}
-
-	_(v: string): string
-	{
-		if (v) {
-			return [this._classDefinition, v].join(' ');
-		} else {
-			return this._classDefinition;
-		}
-	}
+	const mappedStyles = Object.entries(namedStyles)
+		.filter(([,propVal]) => propVal !== false)
+		.map((prop) => prop.join(': '));
+	return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 
-function styleObjectToStringMapper(v: { [prop: string]: unknown }): string
+function styleArrayToStringMapper(styles: Array<string|false>): string|false
 {
-	return Object.keys(v).reduce((acc, cssProperty) => {
-		if (v[cssProperty] === false) {
-			return acc;
-		}
-		acc.push(`${cssProperty}: ${v[cssProperty]}`);
-		return acc;
-	}, [] as string[]).join('; ');
+	const mappedStyles = styles.filter(propVal => propVal !== false);
+	return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 
-function attrStyle(styleDefinitions: StyleDefinitions|[string, StyleDefinitions]): Supplier<string>
+function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<string|false>|StyleDefinitions>): Supplier<string|false>
 {
 	if (styleDefinitions instanceof Array) {
-		return map(attrStyle(styleDefinitions[1]), new CombineStyleStringAndArray(styleDefinitions[0]));
+		return map(
+			combineSuppliers<Array<string|false>>(styleDefinitions.map(styleDefn => {
+				if (isSupplier<string|false>(styleDefn)) {
+					return styleDefn;
+				}
+				if (typeof styleDefn === 'object' && styleDefn !== null) {
+					const namedSuppliers: {[prop: string]: Supplier<string|false>} = {};
+					for (const name in styleDefn) {
+						const propValue = styleDefn[name];
+						namedSuppliers[name] = isSupplier<string|false>(propValue)
+							? propValue
+							: createStore(propValue);
+					}
+					return map(
+						combineNamedSuppliers<{[prop: string]: string|false}>(namedSuppliers),
+						styleObjectToStringMapper
+					);
+				}
+				return createStore(styleDefn);
+			})),
+			styleArrayToStringMapper
+		);
 	} else {
-		return map(combineNamedSuppliers(styleDefinitions), styleObjectToStringMapper);
+		return attrStyle([styleDefinitions]);
 	}
 }
 
 type ClassDefinitions = {
-	[className: string]: Supplier<boolean>,
+	[className: string]: boolean|Supplier<boolean>,
 };
 
-function classObjectToStringMapper(v: { [prop: string]: unknown }): string
+function classObjectToStringMapper(namedClasses: { [prop: string]: boolean }): string|false
 {
-	return Object.keys(v).reduce((acc, className) => {
-		if (v[className]) {
-			acc.push(className);
-		}
-		return acc;
-	}, [] as string[]).join(' ');
+	const mappedClasses = Object
+		.entries(namedClasses)
+		.filter(([, classVal]) => classVal !== false)
+		.map(([class_]) => class_);
+	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 
-class CombineClassStringAndArray
+function classArrayToStringMapper(classes: Array<string|false>): string|false
 {
-	declare _classDefinition: string;
-
-	constructor(classDefinition: string)
-	{
-		this._classDefinition = classDefinition;
-	}
-
-	_(v: string): string
-	{
-		if (v) {
-			return [this._classDefinition, v].join(' ');
-		} else {
-			return this._classDefinition;
-		}
-	}
+	const mappedClasses = classes.filter(class_ => class_ !== false);
+	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 
-function attrClass(classDefinitions: ClassDefinitions|[string, ClassDefinitions]): Supplier<string>
+function attrClass(classDefinitions: ClassDefinitions|Array<string|Supplier<string|false>|ClassDefinitions>): Supplier<string|false>
 {
 	if (classDefinitions instanceof Array) {
-		return map(attrClass(classDefinitions[1]), new CombineClassStringAndArray(classDefinitions[0]));
+		return map(
+			combineSuppliers<Array<string|false>>(classDefinitions.map(classDefn => {
+				if (isSupplier<string|false>(classDefn)) {
+					return classDefn;
+				}
+				if (typeof classDefn === 'object' && classDefn !== null) {
+					const namedSuppliers: {[prop: string]: Supplier<boolean>} = {};
+					for (const name in classDefn) {
+						const propValue = classDefn[name];
+						namedSuppliers[name] = isSupplier<boolean>(propValue)
+							? propValue
+							: createStore(propValue);
+					}
+					return map(
+						combineNamedSuppliers<{[prop: string]: boolean}>(namedSuppliers),
+						classObjectToStringMapper,
+					);
+				}
+				return createStore(classDefn);
+			})),
+			classArrayToStringMapper
+		);
 	} else {
-		return map(combineNamedSuppliers(classDefinitions), classObjectToStringMapper);
+		return attrClass([classDefinitions]);
 	}
 }
 
