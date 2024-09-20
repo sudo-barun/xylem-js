@@ -15,47 +15,43 @@ const textEndRegex = /^<\/>$/;
 export default function parseHTML(arr) {
     let unclosedElement = null;
     let unclosedComment = null;
-    let unclosedCommentContent = null;
+    let unclosedCommentContentFound = false;
     let unclosedText = null;
-    let unclosedTextContent = null;
+    let unclosedTextContentFound = false;
     let previousElementWasSelfClosed = false;
     const children = [];
     for (let i = 0; i < arr.length; i++) {
         const item = arr[i];
         if (unclosedComment) {
-            if (commentEndRegex.test(item)) {
-                if (unclosedCommentContent === null) {
-                    console.error(`Comment end marker found without any content. Check following array at index ${i} : `, arr);
-                    throw new Error('Comment end marker found without any content.');
-                }
-                unclosedComment = null;
-                unclosedCommentContent = null;
+            if (unclosedCommentContentFound === false) {
+                unclosedComment.textContent(item);
+                unclosedCommentContentFound = true;
             }
             else {
-                if (unclosedCommentContent !== null) {
+                if (commentEndRegex.test(item)) {
+                    unclosedComment = null;
+                    unclosedCommentContentFound = false;
+                }
+                else {
                     console.error(`Comment content already defined inside comment markers. Check following array at index ${i} : `, arr);
                     throw new Error('Comment content already defined inside comment markers.');
                 }
-                unclosedComment.textContent(item);
-                unclosedCommentContent = item;
             }
         }
         else if (unclosedText) {
-            if (textEndRegex.test(item)) {
-                if (unclosedTextContent === null) {
-                    console.error(`Text end marker found without any content. Check following array at index ${i} : `, arr);
-                    throw new Error('Text end marker found without any content.');
-                }
-                unclosedText = null;
-                unclosedTextContent = null;
+            if (unclosedTextContentFound === false) {
+                unclosedText.textContent(item);
+                unclosedTextContentFound = true;
             }
             else {
-                if (unclosedTextContent !== null) {
+                if (textEndRegex.test(item)) {
+                    unclosedText = null;
+                    unclosedTextContentFound = false;
+                }
+                else {
                     console.error(`Text content already defined inside text markers. Check following array at index ${i} : `, arr);
                     throw new Error('Text content already defined inside text markers.');
                 }
-                unclosedText.textContent(item);
-                unclosedTextContent = item;
             }
         }
         else if (typeof item === 'string') {

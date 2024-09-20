@@ -22,45 +22,39 @@ function parseHTML(arr: unknown[]): ComponentChildren
 {
 	let unclosedElement: ElementComponent|null = null;
 	let unclosedComment: CommentComponent|null = null;
-	let unclosedCommentContent: string|Supplier<string>|null = null;
+	let unclosedCommentContentFound: boolean = false;
 	let unclosedText: TextComponent|null = null;
-	let unclosedTextContent: string|Supplier<string>|null = null;
+	let unclosedTextContentFound: boolean = false;
 	let previousElementWasSelfClosed: boolean = false;
 	const children: ComponentChildren = [];
 
 	for (let i = 0; i < arr.length; i++) {
 		const item = arr[i];
 		if (unclosedComment) {
-			if (commentEndRegex.test(item as string)) {
-				if (unclosedCommentContent === null) {
-					console.error(`Comment end marker found without any content. Check following array at index ${i} : `, arr);
-					throw new Error('Comment end marker found without any content.');
-				}
-				unclosedComment = null;
-				unclosedCommentContent = null;
+			if (unclosedCommentContentFound === false) {
+				unclosedComment.textContent(item as string|Supplier<string>);
+				unclosedCommentContentFound = true;
 			} else {
-				if (unclosedCommentContent !== null) {
+				if (commentEndRegex.test(item as string)) {
+					unclosedComment = null;
+					unclosedCommentContentFound = false;
+				} else {
 					console.error(`Comment content already defined inside comment markers. Check following array at index ${i} : `, arr);
 					throw new Error('Comment content already defined inside comment markers.');
 				}
-				unclosedComment.textContent(item as string);
-				unclosedCommentContent = item as string;
 			}
 		} else if (unclosedText) {
-			if (textEndRegex.test(item as string)) {
-				if (unclosedTextContent === null) {
-					console.error(`Text end marker found without any content. Check following array at index ${i} : `, arr);
-					throw new Error('Text end marker found without any content.');
-				}
-				unclosedText = null;
-				unclosedTextContent = null;
+			if (unclosedTextContentFound === false) {
+				unclosedText.textContent(item as string|Supplier<string>);
+				unclosedTextContentFound = true;
 			} else {
-				if (unclosedTextContent !== null) {
+				if (textEndRegex.test(item as string)) {
+					unclosedText = null;
+					unclosedTextContentFound = false;
+				} else {
 					console.error(`Text content already defined inside text markers. Check following array at index ${i} : `, arr);
 					throw new Error('Text content already defined inside text markers.');
 				}
-				unclosedText.textContent(item as string);
-				unclosedTextContent = item as string;
 			}
 		} else if (typeof item === 'string') {
 			if (selfClosingElementRegex.test(item)) {
