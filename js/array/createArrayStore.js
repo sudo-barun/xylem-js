@@ -15,7 +15,6 @@ class ArrayStoreImpl {
         this.index$Array = value.map((_, index) => createStore(index));
         this.length$ = new ArrayLengthStore(this);
         this.mutation = createEmittableStream();
-        this.mutation.subscribe(new MutationLengthSubscriber(this));
         this.readonly = new ReadonlySupplier(this);
     }
     _(newValue) {
@@ -43,6 +42,7 @@ class ArrayStoreImpl {
         // So, initial value of arguments is returned from action and used.
         const otherArgs_ = action._(this._value, this.index$Array, ...mutationArgs);
         this.mutation._([this._value, action, ...otherArgs_]);
+        this.length$._emit(this.length$._());
     }
 }
 class ReadonlySupplier {
@@ -58,14 +58,6 @@ class ReadonlySupplier {
     subscribe(subscriber) {
         this._store._subscribers.push(subscriber);
         return new _Unsubscriber(this._store, subscriber);
-    }
-}
-class MutationLengthSubscriber {
-    constructor(arrayStore) {
-        this._arrayStore = arrayStore;
-    }
-    _() {
-        this._arrayStore.length$._emit(this._arrayStore.length$._());
     }
 }
 class ArrayLengthStore {

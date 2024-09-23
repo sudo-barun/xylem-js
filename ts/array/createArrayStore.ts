@@ -8,7 +8,6 @@ import Supplier from "../types/Supplier.js";
 import EmittableStream from "../types/EmittableStream.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
-import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
 import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
 
@@ -40,7 +39,6 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 		this.index$Array = value.map((_, index) => createStore(index));
 		this.length$ = new ArrayLengthStore(this);
 		this.mutation = createEmittableStream();
-		this.mutation.subscribe(new MutationLengthSubscriber(this));
 		this.readonly = new ReadonlySupplier(this);
 	}
 
@@ -77,6 +75,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 		// So, initial value of arguments is returned from action and used.
 		const otherArgs_ = action._<T>(this._value, this.index$Array, ...mutationArgs);
 		this.mutation._([ this._value, action as ArrayMutateAction<unknown[]>, ...otherArgs_ ]);
+		this.length$._emit(this.length$._());
 	}
 }
 
@@ -101,21 +100,6 @@ class ReadonlySupplier<T> implements Supplier<T[]>
 	{
 		this._store._subscribers.push(subscriber);
 		return new _Unsubscriber(this._store, subscriber);
-	}
-}
-
-class MutationLengthSubscriber<T> implements SubscriberObject<void>
-{
-	declare _arrayStore: ArrayStoreImpl<T>;
-
-	constructor(arrayStore: ArrayStoreImpl<T>)
-	{
-		this._arrayStore = arrayStore;
-	}
-
-	_(): void
-	{
-		this._arrayStore.length$._emit(this._arrayStore.length$._());
 	}
 }
 
