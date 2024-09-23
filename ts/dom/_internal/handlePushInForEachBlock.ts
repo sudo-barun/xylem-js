@@ -7,6 +7,9 @@ function handlePushInForEachBlock<T>(this: ForEachBlock<T>, item: T)
 		item,
 		this.getLength() - 1
 	);
+	if (this._modifier) {
+		forEachBlockItem.setModifier(this._modifier);
+	}
 	forEachBlockItem.setup();
 	forEachBlockItem.setupDom();
 

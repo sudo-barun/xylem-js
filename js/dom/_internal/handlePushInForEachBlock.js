@@ -1,5 +1,8 @@
 export default function handlePushInForEachBlock(item) {
     const forEachBlockItem = this._buildVDomFragmentForNewlyAddedArrayItem(item, this.getLength() - 1);
+    if (this._modifier) {
+        forEachBlockItem.setModifier(this._modifier);
+    }
     forEachBlockItem.setup();
     forEachBlockItem.setupDom();
     for (const node of forEachBlockItem.domNodes()) {

@@ -7,6 +7,9 @@ function handleUnshiftInForEachBlock<T>(this: ForEachBlock<T>, item: T)
 		item,
 		0
 	);
+	if (this._modifier) {
+		forEachBlockItem.setModifier(this._modifier);
+	}
 	forEachBlockItem.setup();
 	forEachBlockItem.setupDom();
 
