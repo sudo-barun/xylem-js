@@ -5,9 +5,9 @@ export default function handleUnshiftInForEachBlock(item) {
     }
     forEachBlockItem.setup();
     forEachBlockItem.setupDom();
+    const firstNode = this.firstNode();
+    const nodeAfterFirst = firstNode.nextSibling;
     for (const node of forEachBlockItem.domNodes()) {
-        const firstNode = this.firstNode();
-        const nodeAfterFirst = firstNode.nextSibling;
         firstNode.parentNode.insertBefore(node, nodeAfterFirst);
     }
     this._children.unshift(forEachBlockItem);
