@@ -5,8 +5,8 @@ export default function handlePushInForEachBlock(item) {
     }
     forEachBlockItem.setup();
     forEachBlockItem.setupDom();
+    const lastNode = this.lastNode();
     for (const node of forEachBlockItem.domNodes()) {
-        const lastNode = this.lastNode();
         lastNode.parentNode.insertBefore(node, lastNode);
     }
     this._children.push(forEachBlockItem);
