@@ -78,11 +78,14 @@ class ElementComponent
 		return this._isSelfClosing;
 	}
 
-	setup(modifier?: ComponentModifier): void
+	setup(parentComponent: null|Component, modifier?: ComponentModifier): void
 	{
 		for (const child of this._children) {
-			if ((child instanceof Component) || (child instanceof ElementComponent)) {
+			if ((child instanceof Component)) {
+				child.setParentComponent(parentComponent);
 				child.setup(modifier);
+			} else if (child instanceof ElementComponent) {
+				child.setup(parentComponent, modifier);
 			}
 		}
 	}
@@ -139,6 +142,15 @@ class ElementComponent
 			acc.push(...item);
 			return acc;
 		}, [] as ChildNode[]);
+	}
+
+	notifyAfterSetup()
+	{
+		for (const vDomItem of this._children) {
+			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
+				vDomItem.notifyAfterSetup();
+			}
+		}
 	}
 
 	notifyAfterAttachToDom(): void

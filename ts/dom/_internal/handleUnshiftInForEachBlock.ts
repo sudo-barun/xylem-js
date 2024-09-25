@@ -10,7 +10,9 @@ function handleUnshiftInForEachBlock<T>(this: ForEachBlock<T>, item: T)
 	if (this._modifier) {
 		forEachBlockItem.setModifier(this._modifier);
 	}
+	forEachBlockItem.setParentComponent(this.getParentComponent());
 	forEachBlockItem.setup();
+	forEachBlockItem.notifyAfterSetup();
 	forEachBlockItem.setupDom();
 
 	const firstNode = this.firstNode();

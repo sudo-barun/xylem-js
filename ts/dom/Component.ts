@@ -14,12 +14,14 @@ import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default
 abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}>
 {
+	declare afterSetup: Stream<void>;
 	declare afterAttachToDom: Stream<void>;
 	declare beforeDetachFromDom: Stream<void>;
 
 	declare _attributes: EarlyAttributes & LateAttributes;
 	declare _modifier?: ComponentModifier;
 	declare _children: ComponentChildren;
+	declare _notifyAfterSetup: EmittableStream<void>;
 	declare _notifyAfterAttachToDom: EmittableStream<void>;
 	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
 	declare _eventUnsubscribers: Array<()=>void>;
@@ -27,9 +29,13 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	declare _firstNode: Comment;
 	declare _lastNode: Comment;
 
+	declare _parentComponent: null|Component;
+
 	constructor(attributes: EarlyAttributes = {} as EarlyAttributes)
 	{
 		this._attributes = attributes as typeof this._attributes;
+		this._notifyAfterSetup = createEmittableStream<void>();
+		this.afterSetup = this._notifyAfterSetup.subscribeOnly;
 		this._notifyAfterAttachToDom = createEmittableStream<void>();
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
 		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
@@ -39,6 +45,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._children = undefined!;
 		this._firstNode = undefined!;
 		this._lastNode = undefined!;
+		this._parentComponent = null;
 	}
 
 	abstract build(attributes: EarlyAttributes & LateAttributes): ComponentChildren;
@@ -46,6 +53,16 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	injectAttributes(attributes: LateAttributes)
 	{
 		this._attributes = { ...attributes, ...this._attributes };
+	}
+
+	setParentComponent(parentComponent: null|Component)
+	{
+		this._parentComponent = parentComponent;
+	}
+
+	getParentComponent(): null|Component
+	{
+		return this._parentComponent;
 	}
 
 	setModifier(modifier: ComponentModifier)
@@ -66,8 +83,11 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 		const children = this.build(this._attributes);
 		for (const _vDom of children) {
-			if ((_vDom instanceof Component) || (_vDom instanceof ElementComponent)) {
+			if ((_vDom instanceof Component)) {
+				_vDom.setParentComponent(this);
 				_vDom.setup(modifier);
+			} else if (_vDom instanceof ElementComponent) {
+				_vDom.setup(this, modifier);
 			}
 		}
 
@@ -81,12 +101,15 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 			vDomItem.detachFromDom();
 		}
 
+		this._notifyAfterSetup = createEmittableStream<void>();
+		this.afterSetup = this._notifyAfterSetup.subscribeOnly;
 		this._notifyAfterAttachToDom = createEmittableStream<void>();
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
 		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
 		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
 
 		this.setup(this._modifier);
+		this.notifyAfterSetup();
 		for (const vDom of this._children) {
 			vDom.setupDom();
 		}
@@ -150,6 +173,16 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 			this._lastNode = node!;
 		}
 		return this._lastNode;
+	}
+
+	notifyAfterSetup()
+	{
+		this._notifyAfterSetup._();
+		for (const vDomItem of this._children) {
+			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
+				vDomItem.notifyAfterSetup();
+			}
+		}
 	}
 
 	notifyAfterAttachToDom()

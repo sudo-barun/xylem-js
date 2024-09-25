@@ -5,6 +5,8 @@ import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default class Component {
     constructor(attributes = {}) {
         this._attributes = attributes;
+        this._notifyAfterSetup = createEmittableStream();
+        this.afterSetup = this._notifyAfterSetup.subscribeOnly;
         this._notifyAfterAttachToDom = createEmittableStream();
         this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
         this._notifyBeforeDetachFromDom = createEmittableStream();
@@ -14,9 +16,16 @@ export default class Component {
         this._children = undefined;
         this._firstNode = undefined;
         this._lastNode = undefined;
+        this._parentComponent = null;
     }
     injectAttributes(attributes) {
         this._attributes = { ...attributes, ...this._attributes };
+    }
+    setParentComponent(parentComponent) {
+        this._parentComponent = parentComponent;
+    }
+    getParentComponent() {
+        return this._parentComponent;
     }
     setModifier(modifier) {
         this._modifier = modifier;
@@ -33,8 +42,12 @@ export default class Component {
         }
         const children = this.build(this._attributes);
         for (const _vDom of children) {
-            if ((_vDom instanceof Component) || (_vDom instanceof ElementComponent)) {
+            if ((_vDom instanceof Component)) {
+                _vDom.setParentComponent(this);
                 _vDom.setup(modifier);
+            }
+            else if (_vDom instanceof ElementComponent) {
+                _vDom.setup(this, modifier);
             }
         }
         this._children = children;
@@ -44,11 +57,14 @@ export default class Component {
         for (const vDomItem of this._children) {
             vDomItem.detachFromDom();
         }
+        this._notifyAfterSetup = createEmittableStream();
+        this.afterSetup = this._notifyAfterSetup.subscribeOnly;
         this._notifyAfterAttachToDom = createEmittableStream();
         this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
         this._notifyBeforeDetachFromDom = createEmittableStream();
         this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
         this.setup(this._modifier);
+        this.notifyAfterSetup();
         for (const vDom of this._children) {
             vDom.setupDom();
         }
@@ -95,6 +111,14 @@ export default class Component {
             this._lastNode = node;
         }
         return this._lastNode;
+    }
+    notifyAfterSetup() {
+        this._notifyAfterSetup._();
+        for (const vDomItem of this._children) {
+            if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
+                vDomItem.notifyAfterSetup();
+            }
+        }
     }
     notifyAfterAttachToDom() {
         this._notifyAfterAttachToDom._();

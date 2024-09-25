@@ -3,7 +3,9 @@ export default function handleUnshiftInForEachBlock(item) {
     if (this._modifier) {
         forEachBlockItem.setModifier(this._modifier);
     }
+    forEachBlockItem.setParentComponent(this.getParentComponent());
     forEachBlockItem.setup();
+    forEachBlockItem.notifyAfterSetup();
     forEachBlockItem.setupDom();
     const firstNode = this.firstNode();
     const nodeAfterFirst = firstNode.nextSibling;
