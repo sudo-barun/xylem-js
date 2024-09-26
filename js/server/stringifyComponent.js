@@ -3,6 +3,7 @@ import Component from "../dom/Component.js";
 import ElementComponent from "../dom/_internal/ElementComponent.js";
 import getValue from "../utilities/getValue.js";
 import TextComponent from "../dom/_internal/TextComponent.js";
+import RawHTML from "../dom/RawHTML.js";
 const entities = {
     '&': '&amp;',
     '<': '&lt;',
@@ -51,6 +52,13 @@ function stringifyComponentChildren(componentChildren) {
             return `<${tagWithAttributes}>${childrenString}</${tagName}>`;
         }
         else if (componentChild instanceof Component) {
+            if (componentChild instanceof RawHTML) {
+                return [
+                    `<!--${escapeSpecialChars(componentChild.getComponentName())}-->`,
+                    componentChild.getContent(),
+                    `<!--/${escapeSpecialChars(componentChild.getComponentName())}-->`,
+                ].join('');
+            }
             return stringifyComponent(componentChild);
         }
         else {

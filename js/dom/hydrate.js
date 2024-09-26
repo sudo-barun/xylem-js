@@ -3,6 +3,7 @@ import Component from './Component.js';
 import ElementComponent from './_internal/ElementComponent.js';
 import TextComponent from './_internal/TextComponent.js';
 import getValue from '../utilities/getValue.js';
+import RawHTML from './RawHTML.js';
 export default function hydrate(component, domNodes, currentIndex = 0) {
     const componentFirstNode = domNodes[currentIndex];
     if (!(componentFirstNode instanceof Comment)) {
@@ -78,7 +79,14 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
             currentIndex++;
         }
         else if (componentChild instanceof Component) {
-            currentIndex = hydrate(componentChild, domNodes, currentIndex);
+            if (componentChild instanceof RawHTML) {
+                const domNodesSlice = Array.prototype.slice.call(domNodes, currentIndex, currentIndex + 3);
+                currentIndex += 3;
+                componentChild.setChildNodes(domNodesSlice);
+            }
+            else {
+                currentIndex = hydrate(componentChild, domNodes, currentIndex);
+            }
         }
         else {
             console.error('Unsupported data found', componentChild);
