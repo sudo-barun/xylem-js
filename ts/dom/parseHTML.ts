@@ -185,7 +185,7 @@ function parseHTML(arr: unknown[]): ComponentChildren
 						}
 						elementOfAttributes.addListener(eventName, (item as {[k: string]: EventListenerOrEventListenerObject})[key]);
 					} else if (key === '<>') {
-						elementOfAttributes.elementSubscriber((item as {[k: string]: Subscriber<HTMLElement>})[key]);
+						elementOfAttributes.elementSubscriber((item as {[k: string]: Subscriber<Element>})[key]);
 					} else if (key === '=') {
 						(item as {[k: string]: (e: ElementComponent) => void})[key](elementOfAttributes);
 					} else {

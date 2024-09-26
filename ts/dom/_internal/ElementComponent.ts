@@ -19,9 +19,9 @@ class ElementComponent
 	declare _attributes: { [key:string]: unknown };
 	declare _children: ComponentChildren;
 	declare _listeners: { [key:string]: EventListenerOrEventListenerObject };
-	declare _elementSubscriber: Subscriber<HTMLElement>|null;
+	declare _elementSubscriber: Subscriber<Element>|null;
 	declare _isSelfClosing: boolean;
-	declare _domNode: HTMLElement;
+	declare _domNode: Element;
 
 	constructor(
 		tagName: string,
@@ -62,7 +62,7 @@ class ElementComponent
 		this._listeners[eventName] = listener;
 	}
 
-	elementSubscriber(subscriber?: Subscriber<HTMLElement>|null): Subscriber<HTMLElement>|null
+	elementSubscriber(subscriber?: Subscriber<Element>|null): Subscriber<Element>|null
 	{
 		if (arguments.length !== 0) {
 			this._elementSubscriber = subscriber!;
@@ -90,7 +90,7 @@ class ElementComponent
 		}
 	}
 
-	createDomNode(): HTMLElement
+	createDomNode(): Element
 	{
 		return document.createElement(this._tagName);
 	}
@@ -109,7 +109,7 @@ class ElementComponent
 
 		for (const attr of Object.keys(this._attributes)) {
 			if (attr === '()') {
-				(this._attributes[attr] as (e:HTMLElement, a:'()')=>void)(element, attr);
+				(this._attributes[attr] as (e:Element, a:'()')=>void)(element, attr);
 			} else if (isSupplier<Attribute>(this._attributes[attr])) {
 				createAttributeFunction(this._attributes[attr] as Supplier<Attribute>)(element, attr);
 			} else if (attr === 'class' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
@@ -278,10 +278,10 @@ type Attribute = string|boolean|null|undefined;
 
 class AttributeSubscriber implements SubscriberObject<Attribute>
 {
-	declare _element: HTMLElement;
+	declare _element: Element;
 	declare _attributeName: string;
 
-	constructor(element: HTMLElement, attributeName: string)
+	constructor(element: Element, attributeName: string)
 	{
 		this._element = element;
 		this._attributeName = attributeName;
@@ -296,7 +296,7 @@ class AttributeSubscriber implements SubscriberObject<Attribute>
 function createAttributeFunction(supplier: Supplier<Attribute>)
 {
 	return function (
-		element: HTMLElement,
+		element: Element,
 		attributeName: string,
 	): void {
 		setAttribute(element, attributeName, supplier._());
@@ -304,7 +304,7 @@ function createAttributeFunction(supplier: Supplier<Attribute>)
 	};
 }
 
-function setAttribute(element: HTMLElement, name: string, value: Attribute)
+function setAttribute(element: Element, name: string, value: Attribute)
 {
 	if (value === true) {
 		element.setAttribute(name, '');
