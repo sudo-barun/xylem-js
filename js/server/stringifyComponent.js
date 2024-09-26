@@ -17,7 +17,11 @@ function escapeSpecialChars(str) {
 function stringifyComponentChildren(componentChildren) {
     const strings = componentChildren.map((componentChild) => {
         if (componentChild instanceof TextComponent) {
-            return escapeSpecialChars(getValue(componentChild.textContent()));
+            const value = getValue(componentChild.textContent());
+            if (typeof value === 'string') {
+                return escapeSpecialChars(value);
+            }
+            return value;
         }
         else if (componentChild instanceof CommentComponent) {
             return `<!--${getValue(componentChild.textContent())}-->`;
@@ -32,6 +36,9 @@ function stringifyComponentChildren(componentChildren) {
                     if (attributeValue) {
                         acc.push(`${attributeName}`);
                     }
+                }
+                else {
+                    acc.push(`${attributeName}="${attributeValue}"`);
                 }
                 return acc;
             }, []).join(' ');

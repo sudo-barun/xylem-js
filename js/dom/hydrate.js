@@ -43,17 +43,17 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
             currentIndex++;
         }
         else if (componentChild instanceof ElementComponent) {
-            if (!(node instanceof HTMLElement)) {
-                console.error('HTMLElement node not found.');
-                console.error('Expected: HTMLElement node with tagName:', componentChild.tagName());
+            if (!(node instanceof Element)) {
+                console.error('Element node not found.');
+                console.error('Expected: Element node with tagName:', componentChild.tagName());
                 console.error('Found:', node);
-                throw new Error('HTMLElement node not found.');
+                throw new Error('Element node not found.');
             }
             for (const attributeName of Object.keys(componentChild.attributes())) {
                 const attrVal = getValue(componentChild.attributes()[attributeName]);
                 if (typeof attrVal === 'string') {
                     if (attrVal !== node.getAttribute(attributeName)) {
-                        throw new Error(`Value of attribute "${attributeName}" of HTMLElement does not match.`);
+                        throw new Error(`Value of attribute "${attributeName}" of Element does not match.`);
                     }
                 }
                 else if (typeof attrVal === 'boolean') {
