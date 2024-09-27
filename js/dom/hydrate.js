@@ -54,7 +54,9 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
                 const attrVal = getValue(componentChild.attributes()[attributeName]);
                 if (typeof attrVal === 'string') {
                     if (attrVal !== node.getAttribute(attributeName)) {
-                        throw new Error(`Value of attribute "${attributeName}" of Element does not match.`);
+                        console.error(`Value of attribute "${attributeName}" of Element does not match.`);
+                        console.error('Expected: ', attrVal);
+                        console.error('Found: ', node.getAttribute(attributeName));
                     }
                 }
                 else if (typeof attrVal === 'boolean') {
