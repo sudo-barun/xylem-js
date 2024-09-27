@@ -42,19 +42,44 @@ export default class ElementComponent {
         }
         return this._isSelfClosing;
     }
-    setup(parentComponent, modifier) {
+    setup(parentComponent, namespace, modifier) {
+        if (this._tagName === 'svg') {
+            this._namespace = 'svg';
+        }
+        else if (this._tagName === 'math') {
+            this._namespace = 'mathml';
+        }
+        else {
+            if (namespace !== undefined) {
+                this._namespace = namespace;
+            }
+        }
         for (const child of this._children) {
             if ((child instanceof Component)) {
                 child.setParentComponent(parentComponent);
+                if (this._namespace !== undefined) {
+                    child.setNamespace(this._namespace);
+                }
                 child.setup(modifier);
             }
             else if (child instanceof ElementComponent) {
-                child.setup(parentComponent, modifier);
+                child.setup(parentComponent, this._namespace, modifier);
             }
         }
     }
     createDomNode() {
-        return document.createElement(this._tagName, { is: this._attributes.is });
+        if (this._namespace === undefined) {
+            return document.createElement(this._tagName, { is: this._attributes.is });
+        }
+        else if (this._namespace === 'svg') {
+            return document.createElementNS('http://www.w3.org/2000/svg', this._tagName, { is: this._attributes.is });
+        }
+        else if (this._namespace === 'mathml') {
+            return document.createElementNS('http://www.w3.org/1998/Math/MathML', this._tagName, { is: this._attributes.is });
+        }
+        else {
+            throw new Error(`Unsupported namespace "${this._namespace}" encountered`);
+        }
     }
     setupDom() {
         const nodeExists = !!this._domNode;

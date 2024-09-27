@@ -22,6 +22,7 @@ class ElementComponent
 	declare _elementSubscriber: Subscriber<Element>|null;
 	declare _isSelfClosing: boolean;
 	declare _domNode: Element;
+	declare _namespace?: 'svg'|'mathml';
 
 	constructor(
 		tagName: string,
@@ -78,24 +79,52 @@ class ElementComponent
 		return this._isSelfClosing;
 	}
 
-	setup(parentComponent: null|Component, modifier?: ComponentModifier): void
+	setup(parentComponent: null|Component, namespace?: 'svg'|'mathml', modifier?: ComponentModifier): void
 	{
+		if (this._tagName === 'svg') {
+			this._namespace = 'svg';
+		} else if (this._tagName === 'math') {
+			this._namespace = 'mathml';
+		} else {
+			if (namespace !== undefined) {
+				this._namespace = namespace;
+			}
+		}
 		for (const child of this._children) {
 			if ((child instanceof Component)) {
 				child.setParentComponent(parentComponent);
+				if (this._namespace !== undefined) {
+					child.setNamespace(this._namespace);
+				}
 				child.setup(modifier);
 			} else if (child instanceof ElementComponent) {
-				child.setup(parentComponent, modifier);
+				child.setup(parentComponent, this._namespace, modifier);
 			}
 		}
 	}
 
 	createDomNode(): Element
 	{
-		return document.createElement(
-			this._tagName,
-			{ is: this._attributes.is as string }
-		);
+		if (this._namespace === undefined) {
+			return document.createElement(
+				this._tagName,
+				{ is: this._attributes.is as string }
+			);
+		} else if (this._namespace === 'svg') {
+			return document.createElementNS(
+				'http://www.w3.org/2000/svg',
+				this._tagName,
+				{ is: this._attributes.is as string }
+			);
+		} else if (this._namespace === 'mathml') {
+			return document.createElementNS(
+				'http://www.w3.org/1998/Math/MathML',
+				this._tagName,
+				{ is: this._attributes.is as string }
+			);
+		} else {
+			throw new Error(`Unsupported namespace "${this._namespace}" encountered`);
+		}
 	}
 
 	setupDom(): void

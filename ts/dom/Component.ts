@@ -30,6 +30,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	declare _lastNode: Comment;
 
 	declare _parentComponent: null|Component;
+	declare _namespace?: 'svg'|'mathml';
 
 	constructor(attributes: EarlyAttributes = {} as EarlyAttributes)
 	{
@@ -65,6 +66,16 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		return this._parentComponent;
 	}
 
+	setNamespace(namespace: 'svg'|'mathml'|undefined)
+	{
+		this._namespace = namespace;
+	}
+
+	getNamespace(): 'svg'|'mathml'|undefined
+	{
+		return this._namespace;
+	}
+
 	setModifier(modifier: ComponentModifier)
 	{
 		this._modifier = modifier;
@@ -85,9 +96,12 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		for (const _vDom of children) {
 			if ((_vDom instanceof Component)) {
 				_vDom.setParentComponent(this);
+				if (this._namespace !== undefined) {
+					_vDom.setNamespace(this._namespace);
+				}
 				_vDom.setup(modifier);
 			} else if (_vDom instanceof ElementComponent) {
-				_vDom.setup(this, modifier);
+				_vDom.setup(this, this._namespace, modifier);
 			}
 		}
 

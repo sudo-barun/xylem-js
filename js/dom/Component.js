@@ -27,6 +27,12 @@ export default class Component {
     getParentComponent() {
         return this._parentComponent;
     }
+    setNamespace(namespace) {
+        this._namespace = namespace;
+    }
+    getNamespace() {
+        return this._namespace;
+    }
     setModifier(modifier) {
         this._modifier = modifier;
     }
@@ -44,10 +50,13 @@ export default class Component {
         for (const _vDom of children) {
             if ((_vDom instanceof Component)) {
                 _vDom.setParentComponent(this);
+                if (this._namespace !== undefined) {
+                    _vDom.setNamespace(this._namespace);
+                }
                 _vDom.setup(modifier);
             }
             else if (_vDom instanceof ElementComponent) {
-                _vDom.setup(this, modifier);
+                _vDom.setup(this, this._namespace, modifier);
             }
         }
         this._children = children;
