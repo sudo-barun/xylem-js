@@ -94,7 +94,7 @@ class ElementComponent
 	{
 		return document.createElement(
 			this._tagName,
-			typeof this._attributes.is === 'string' ? { is: this._attributes.is } : {}
+			{ is: this._attributes.is as string }
 		);
 	}
 

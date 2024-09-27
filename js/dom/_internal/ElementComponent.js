@@ -54,7 +54,7 @@ export default class ElementComponent {
         }
     }
     createDomNode() {
-        return document.createElement(this._tagName, typeof this._attributes.is === 'string' ? { is: this._attributes.is } : {});
+        return document.createElement(this._tagName, { is: this._attributes.is });
     }
     setupDom() {
         const nodeExists = !!this._domNode;
