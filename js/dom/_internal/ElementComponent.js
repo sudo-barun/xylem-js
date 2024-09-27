@@ -127,7 +127,8 @@ export default class ElementComponent {
 }
 applyNativeComponentMixin(ElementComponent);
 function styleObjectToStringMapper(namedStyles) {
-    const mappedStyles = Object.entries(namedStyles)
+    const mappedStyles = Object.keys(namedStyles)
+        .map((propName) => [propName, namedStyles[propName]])
         .filter(([, propVal]) => propVal !== false)
         .map((prop) => prop.join(': '));
     return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
@@ -161,7 +162,8 @@ function attrStyle(styleDefinitions) {
 }
 function classObjectToStringMapper(namedClasses) {
     const mappedClasses = Object
-        .entries(namedClasses)
+        .keys(namedClasses)
+        .map((class_) => [class_, namedClasses[class_]])
         .filter(([, classVal]) => classVal !== false)
         .map(([class_]) => class_);
     return mappedClasses.length === 0 ? false : mappedClasses.join(' ');

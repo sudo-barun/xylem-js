@@ -186,7 +186,8 @@ type StyleDefinitions = {
 
 function styleObjectToStringMapper(namedStyles: { [prop: string]: string|false }): string|false
 {
-	const mappedStyles = Object.entries(namedStyles)
+	const mappedStyles = Object.keys(namedStyles)
+		.map((propName) => [propName, namedStyles[propName]])
 		.filter(([,propVal]) => propVal !== false)
 		.map((prop) => prop.join(': '));
 	return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
@@ -235,7 +236,8 @@ type ClassDefinitions = {
 function classObjectToStringMapper(namedClasses: { [prop: string]: boolean }): string|false
 {
 	const mappedClasses = Object
-		.entries(namedClasses)
+		.keys(namedClasses)
+		.map((class_) => [class_, namedClasses[class_]])
 		.filter(([, classVal]) => classVal !== false)
 		.map(([class_]) => class_);
 	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');

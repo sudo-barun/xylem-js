@@ -20,13 +20,15 @@ export default class IfElseBlock extends Component {
     }
     setActive(index) {
         this._activeBlockIndex = index;
-        for (const [index, isActive$] of this._isActiveStores.entries()) {
+        for (let index = 0; index < this._isActiveStores.length; index++) {
+            const isActive$ = this._isActiveStores[index];
             isActive$._(index === this._activeBlockIndex);
         }
     }
     build(attributes) {
         this.setActive(getActiveBlockIndex(attributes.itemAttributesArray.map((itemAttributes) => itemAttributes.condition)));
-        for (const [index, itemAttributes] of attributes.itemAttributesArray.entries()) {
+        for (let index = 0; index < attributes.itemAttributesArray.length; index++) {
+            const itemAttributes = attributes.itemAttributesArray[index];
             if (!(isSupplier(itemAttributes.condition))) {
                 continue;
             }

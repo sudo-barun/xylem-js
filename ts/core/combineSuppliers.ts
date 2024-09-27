@@ -21,7 +21,8 @@ class CombinedSupplier<T extends Array<unknown>> implements Supplier<T>
 		this._suppliers = suppliers;
 		this._subscribers = [];
 
-		for (const [index, supplier] of suppliers.entries()) {
+		for (let index = 0; index < suppliers.length; index++) {
+			const supplier = suppliers[index];
 			supplier.subscribe(new StoreSubscriber(this, index))
 		}
 	}
