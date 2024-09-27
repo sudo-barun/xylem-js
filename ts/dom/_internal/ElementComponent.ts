@@ -92,7 +92,10 @@ class ElementComponent
 
 	createDomNode(): Element
 	{
-		return document.createElement(this._tagName);
+		return document.createElement(
+			this._tagName,
+			typeof this._attributes.is === 'string' ? { is: this._attributes.is } : {}
+		);
 	}
 
 	setupDom(): void
