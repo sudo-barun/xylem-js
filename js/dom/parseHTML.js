@@ -169,7 +169,7 @@ export default function parseHTML(arr) {
                     throw new Error(`No preceeding element found.`);
                 }
                 for (const key of Object.keys(item)) {
-                    const listenerRegex = /^@([a-zA-Z]+)$/;
+                    const listenerRegex = /^@(.*)$/;
                     if (listenerRegex.test(key)) {
                         const [, eventName] = listenerRegex.exec(key);
                         const type = typeof item[key];

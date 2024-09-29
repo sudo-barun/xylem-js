@@ -163,7 +163,7 @@ function parseHTML(arr: unknown[]): ComponentChildren
 				}
 
 				for (const key of Object.keys(item)) {
-					const listenerRegex = /^@([a-zA-Z]+)$/;
+					const listenerRegex = /^@(.*)$/;
 					if (listenerRegex.test(key)) {
 						const [ , eventName ] = listenerRegex.exec(key)!;
 						const type = typeof (item as {[k: string]: unknown})[key];
