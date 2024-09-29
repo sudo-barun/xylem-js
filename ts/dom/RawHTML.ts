@@ -32,7 +32,10 @@ class RawHTML extends Component
 
 	domNodes(): ChildNode[]
 	{
-		return this._childNodes;
+		const nodes = this._childNodes.slice();
+		nodes.unshift(this._firstNode);
+		nodes.push(this._lastNode);
+		return nodes;
 	}
 
 	getContent(): string

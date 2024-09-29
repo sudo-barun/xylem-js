@@ -16,7 +16,10 @@ export default class RawHTML extends Component {
         this._childNodes = childNodes;
     }
     domNodes() {
-        return this._childNodes;
+        const nodes = this._childNodes.slice();
+        nodes.unshift(this._firstNode);
+        nodes.push(this._lastNode);
+        return nodes;
     }
     getContent() {
         return this._content;
