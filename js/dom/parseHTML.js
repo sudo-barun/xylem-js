@@ -127,12 +127,12 @@ export default function parseHTML(arr) {
             unclosedElement.children().push(...parseHTML(item));
         }
         else if (item instanceof IfElseBlockBuilder) {
-            console.error(`IfBlockBuilder was found. Close IfBlockBuilder with "endIf" inside following array at index ${i} : `, arr);
-            throw new Error('IfBlockBuilder was found. Close IfBlockBuilder with "endIf"');
+            console.error(`"if_()" is not ended with "endIf()" inside following array at index ${i} : `, arr);
+            throw new Error('"if_()" is not ended with "endIf()"');
         }
         else if (item instanceof ForEachBuilder) {
-            console.error(`ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach" inside following array at index ${i} : `, arr);
-            throw new Error('ForEachBlockBuilder was found. Close ForEachBlockBuilder with "endForEach"');
+            console.error(`"forEach()" is not ended with "endForEach()" inside following array at index ${i} : `, arr);
+            throw new Error('"forEach()" is not ended with "endForEach()"');
         }
         else if (item instanceof Component
             || item instanceof ElementComponent
