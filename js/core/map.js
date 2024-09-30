@@ -4,18 +4,18 @@ export default function map(supplier, mapper) {
     return new MappedSupplier(supplier, mapper);
 }
 class MappedSupplier {
-    constructor(store, mapper) {
-        this._store = store;
+    constructor(supplier, mapper) {
+        this._supplier = supplier;
         this._mapper = mapper;
         this._subscribers = [];
-        store.subscribe(new StoreSubscriber(this, mapper));
+        supplier.subscribe(new StoreSubscriber(this, mapper));
     }
     _() {
         if (typeof this._mapper === 'function') {
-            return this._mapper(this._store._());
+            return this._mapper(this._supplier._());
         }
         else {
-            return this._mapper._(this._store._());
+            return this._mapper._(this._supplier._());
         }
     }
     _emit(value) {

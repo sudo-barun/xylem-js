@@ -5,7 +5,7 @@ import FunctionOrCallableObject from "../FunctionOrCallableObject";
 
 type ForEachBuild<T> = FunctionOrCallableObject<[
 	item: T,
-	index: Supplier<number>,
+	index$: Supplier<number>,
 	component: ForEachBlockItem<T>,
 ], ComponentChildren>;
 

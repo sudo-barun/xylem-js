@@ -25,25 +25,25 @@ function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
 
 class MappedSupplier<I,O> implements Supplier<O>
 {
-	declare _store: Supplier<I>;
+	declare _supplier: Supplier<I>;
 	declare _mapper: Mapper<I,O>;
 	declare _subscribers: Subscriber<O>[];
 
-	constructor(store: Supplier<I>, mapper: Mapper<I,O>)
+	constructor(supplier: Supplier<I>, mapper: Mapper<I,O>)
 	{
-		this._store = store;
+		this._supplier = supplier;
 		this._mapper = mapper;
 		this._subscribers = [];
 
-		store.subscribe(new StoreSubscriber(this, mapper));
+		supplier.subscribe(new StoreSubscriber(this, mapper));
 	}
 
 	_(): O
 	{
 		if (typeof this._mapper === 'function') {
-			return this._mapper(this._store._());
+			return this._mapper(this._supplier._());
 		} else {
-			return this._mapper._(this._store._());
+			return this._mapper._(this._supplier._());
 		}
 	}
 
