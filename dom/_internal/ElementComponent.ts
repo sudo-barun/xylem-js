@@ -26,8 +26,8 @@ class ElementComponent
 
 	constructor(
 		tagName: string,
-		attributes = {},
-		children = []
+		attributes: { [key: string]: unknown } = {},
+		children: ComponentChildren = []
 	) {
 		this._tagName = tagName;
 		this._attributes = attributes;
