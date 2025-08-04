@@ -82,7 +82,7 @@ export default class ElementComponent {
         }
     }
     setupDom() {
-        const nodeExists = !!this._domNode;
+        const isNewNode = !this._domNode;
         const element = this._domNode = this._domNode || this.createDomNode();
         if (this._elementSubscriber) {
             if (typeof this._elementSubscriber === 'function') {
@@ -97,16 +97,18 @@ export default class ElementComponent {
                 this._attributes[attr](element, attr);
             }
             else if (isSupplier(this._attributes[attr])) {
-                createAttributeFunction(this._attributes[attr])(element, attr);
+                createAttributeFunction(this._attributes[attr])(element, attr, isNewNode);
             }
             else if (attr === 'class' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-                createAttributeFunction(attrClass(this._attributes[attr]))(element, attr);
+                createAttributeFunction(attrClass(this._attributes[attr]))(element, attr, isNewNode);
             }
             else if (attr === 'style' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-                createAttributeFunction(attrStyle(this._attributes[attr]))(element, attr);
+                createAttributeFunction(attrStyle(this._attributes[attr]))(element, attr, isNewNode);
             }
             else {
-                setAttribute(element, attr, this._attributes[attr]);
+                if (isNewNode) {
+                    setAttribute(element, attr, this._attributes[attr]);
+                }
             }
         }
         for (const event of Object.keys(this._listeners)) {
@@ -115,7 +117,7 @@ export default class ElementComponent {
         for (const node of this._children) {
             node.setupDom();
         }
-        if (!nodeExists) {
+        if (isNewNode) {
             for (const node of this.getChildNodes()) {
                 element.appendChild(node);
             }
@@ -230,8 +232,10 @@ class AttributeSubscriber {
     }
 }
 function createAttributeFunction(supplier) {
-    return function (element, attributeName) {
-        setAttribute(element, attributeName, supplier._());
+    return function (element, attributeName, isNewNode) {
+        if (isNewNode) {
+            setAttribute(element, attributeName, supplier._());
+        }
         supplier.subscribe(new AttributeSubscriber(element, attributeName));
     };
 }

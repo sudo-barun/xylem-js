@@ -129,7 +129,7 @@ class ElementComponent
 
 	setupDom(): void
 	{
-		const nodeExists = !!this._domNode;
+		const isNewNode = !this._domNode;
 		const element = this._domNode = this._domNode || this.createDomNode();
 		if (this._elementSubscriber) {
 			if (typeof this._elementSubscriber === 'function') {
@@ -143,13 +143,15 @@ class ElementComponent
 			if (attr === '()') {
 				(this._attributes[attr] as (e:Element, a:'()')=>void)(element, attr);
 			} else if (isSupplier<Attribute>(this._attributes[attr])) {
-				createAttributeFunction(this._attributes[attr] as Supplier<Attribute>)(element, attr);
+				createAttributeFunction(this._attributes[attr] as Supplier<Attribute>)(element, attr, isNewNode);
 			} else if (attr === 'class' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-				createAttributeFunction(attrClass(this._attributes[attr] as ClassDefinitions))(element, attr);
+				createAttributeFunction(attrClass(this._attributes[attr] as ClassDefinitions))(element, attr, isNewNode);
 			} else if (attr === 'style' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-				createAttributeFunction(attrStyle(this._attributes[attr] as StyleDefinitions))(element, attr);
+				createAttributeFunction(attrStyle(this._attributes[attr] as StyleDefinitions))(element, attr, isNewNode);
 			} else {
-				setAttribute(element, attr, this._attributes[attr] as Attribute);
+				if (isNewNode) {
+					setAttribute(element, attr, this._attributes[attr] as Attribute);
+				}
 			}
 		}
 
@@ -160,7 +162,7 @@ class ElementComponent
 		for (const node of this._children) {
 			node.setupDom();
 		}
-		if (! nodeExists) {
+		if (isNewNode) {
 			for (const node of this.getChildNodes()) {
 				element.appendChild(node);
 			}
@@ -332,8 +334,11 @@ function createAttributeFunction(supplier: Supplier<Attribute>)
 	return function (
 		element: Element,
 		attributeName: string,
+		isNewNode: boolean
 	): void {
-		setAttribute(element, attributeName, supplier._());
+		if (isNewNode) {
+			setAttribute(element, attributeName, supplier._());
+		}
 		supplier.subscribe(new AttributeSubscriber(element, attributeName));
 	};
 }
