@@ -9,7 +9,7 @@ import Store from "../../types/Store.js";
 import Supplier from "../../types/Supplier.js";
 
 type IfElseBlockItemData = {
-	condition: unknown|Supplier<unknown>,
+	condition: unknown,
 	build: IfElseBuild,
 };
 
@@ -17,7 +17,7 @@ type Attributes = {
 	itemAttributesArray: IfElseBlockItemData[],
 };
 
-function getActiveBlockIndex(conditions: Array<unknown|Supplier<unknown>>): number
+function getActiveBlockIndex(conditions: Array<unknown>): number
 {
 	for (let i = 0; i < conditions.length; i++) {
 		if (getValue(conditions[i])) {
