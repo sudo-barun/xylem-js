@@ -5,8 +5,26 @@ import Unsubscriber from "../types/Unsubscriber.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
+type TypeOfSupplier<T> = T extends Supplier<infer U> ? U : never;
+
+type ArrayOfSupplierToSupplierOfArray<T extends Array<Supplier<unknown>>> = {
+	[K in keyof T]: TypeOfSupplier<T[K]>
+};
+
 export default
-function combineSuppliers<T extends Array<unknown>>(suppliers: Array<Supplier<unknown>>): Supplier<T>
+function combineSuppliers<A,T extends [Supplier<A>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+export default
+function combineSuppliers<A,B,T extends [Supplier<A>,Supplier<B>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+export default
+function combineSuppliers<A,B,C,T extends [Supplier<A>,Supplier<B>,Supplier<C>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+export default
+function combineSuppliers<A,B,C,D,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+export default
+function combineSuppliers<A,B,C,D,E,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>,Supplier<E>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+export default
+function combineSuppliers<T extends Array<Supplier<unknown>>>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+export default
+function combineSuppliers<T extends Array<Supplier<unknown>>>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 {
 	return new CombinedSupplier(suppliers);
 }

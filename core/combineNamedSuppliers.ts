@@ -5,10 +5,16 @@ import Unsubscriber from "../types/Unsubscriber.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
+type TypeOfSupplier<T> = T extends Supplier<infer U> ? U : never;
+
+type ObjectOfSupplierToSupplierOfObject<T extends { [name: string]: Supplier<unknown> }> = {
+	[K in keyof T]: TypeOfSupplier<T[K]>
+};
+
 export default
-function combineNamedSuppliers<T extends {[prop: string]: unknown}>(suppliers: {[prop: string]: Supplier<unknown>}): Supplier<T>
+function combineNamedSuppliers<T extends {[prop: string]: Supplier<unknown>}>(suppliers: T): Supplier<ObjectOfSupplierToSupplierOfObject<T>>
 {
-	return new CombinedSupplier<T>(suppliers);
+	return new CombinedSupplier<ObjectOfSupplierToSupplierOfObject<typeof suppliers>>(suppliers);
 }
 
 class CombinedSupplier<T extends object> implements Supplier<T>
