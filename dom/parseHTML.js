@@ -58,7 +58,6 @@ export default function parseHTML(arr) {
             if (selfClosingElementRegex.test(item)) {
                 const [, tagName] = selfClosingElementRegex.exec(item);
                 const element = new ElementComponent(tagName);
-                element.isSelfClosing(true);
                 children.push(element);
                 previousElementWasSelfClosed = true;
             }

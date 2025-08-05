@@ -23,6 +23,13 @@ function escapeSpecialChars(str: string) {
 	);
 }
 
+const voidElementsInHTML = [
+	'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr',
+].reduce((acc, el) => {
+	acc[el] = true;
+	return acc;
+}, Object.create(null));
+
 function stringifyComponentChildren(componentChildren: ComponentChildren): string
 {
 	const strings: string[] = componentChildren.map((componentChild) => {
@@ -57,7 +64,7 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 			const tagName = componentChild.tagName();
 			const childrenString = stringifyComponentChildren(componentChild.children());
 			const tagWithAttributes = attributesString ? [tagName, attributesString].join(' ') : tagName;
-			if (componentChild.isSelfClosing()) {
+			if (componentChild.getNamespace() === 'html' && componentChild.tagName().toLowerCase() in voidElementsInHTML) {
 				return `<${tagWithAttributes}/>`;
 			}
 			return `<${tagWithAttributes}>${childrenString}</${tagName}>`;

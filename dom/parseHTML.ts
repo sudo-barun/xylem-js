@@ -60,7 +60,6 @@ function parseHTML(arr: unknown[]): ComponentChildren
 			if (selfClosingElementRegex.test(item)) {
 				const [ , tagName ] = selfClosingElementRegex.exec(item)!;
 				const element = new ElementComponent(tagName);
-				element.isSelfClosing(true);
 				children.push(element);
 				previousElementWasSelfClosed = true;
 			} else if (elementStartRegex.test(item)) {

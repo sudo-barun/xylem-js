@@ -20,7 +20,6 @@ class ElementComponent
 	declare _children: ComponentChildren;
 	declare _listeners: { [key:string]: EventListenerOrEventListenerObject };
 	declare _elementSubscriber: Subscriber<Element>|null;
-	declare _isSelfClosing: boolean;
 	declare _domNode: Element;
 	declare _namespace?: 'svg'|'mathml';
 
@@ -34,7 +33,6 @@ class ElementComponent
 		this._children = children;
 		this._listeners = {};
 		this._elementSubscriber = null;
-		this._isSelfClosing = false;
 		this._domNode = undefined!;
 	}
 
@@ -46,6 +44,11 @@ class ElementComponent
 	attributes(): { [key:string]: unknown }
 	{
 		return this._attributes;
+	}
+
+	getNamespace(): 'html'|'svg'|'mathml'
+	{
+		return this._namespace ?? 'html';
 	}
 
 	children(): ComponentChildren
@@ -69,14 +72,6 @@ class ElementComponent
 			this._elementSubscriber = subscriber!;
 		}
 		return this._elementSubscriber;
-	}
-
-	isSelfClosing(isSelfClosing?: boolean): boolean
-	{
-		if (arguments.length !== 0) {
-			this._isSelfClosing = isSelfClosing!;
-		}
-		return this._isSelfClosing;
 	}
 
 	setup(parentComponent: null|Component, namespace?: 'svg'|'mathml', modifier?: ComponentModifier): void

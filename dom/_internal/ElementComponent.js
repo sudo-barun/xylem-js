@@ -12,7 +12,6 @@ export default class ElementComponent {
         this._children = children;
         this._listeners = {};
         this._elementSubscriber = null;
-        this._isSelfClosing = false;
         this._domNode = undefined;
     }
     tagName() {
@@ -20,6 +19,9 @@ export default class ElementComponent {
     }
     attributes() {
         return this._attributes;
+    }
+    getNamespace() {
+        return this._namespace ?? 'html';
     }
     children() {
         return this._children;
@@ -35,12 +37,6 @@ export default class ElementComponent {
             this._elementSubscriber = subscriber;
         }
         return this._elementSubscriber;
-    }
-    isSelfClosing(isSelfClosing) {
-        if (arguments.length !== 0) {
-            this._isSelfClosing = isSelfClosing;
-        }
-        return this._isSelfClosing;
     }
     setup(parentComponent, namespace, modifier) {
         if (this._tagName === 'svg') {
