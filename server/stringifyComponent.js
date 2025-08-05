@@ -1,9 +1,10 @@
 import CommentComponent from "../dom/_internal/CommentComponent.js";
 import Component from "../dom/Component.js";
-import ElementComponent from "../dom/_internal/ElementComponent.js";
+import ElementComponent, { attrClass, attrStyle } from "../dom/_internal/ElementComponent.js";
 import getValue from "../utilities/getValue.js";
 import TextComponent from "../dom/_internal/TextComponent.js";
 import RawHTML from "../dom/RawHTML.js";
+import isSupplier from "../utilities/isSupplier.js";
 const entities = {
     '&': '&amp;',
     '<': '&lt;',
@@ -35,14 +36,27 @@ function stringifyComponentChildren(componentChildren) {
         }
         else if (componentChild instanceof ElementComponent) {
             const attributesString = Object.keys(componentChild.attributes()).reduce((acc, attributeName) => {
-                let attributeValue = getValue(componentChild.attributes()[attributeName]);
-                if (typeof attributeValue === 'boolean') {
-                    if (attributeValue) {
+                let attributeValue = componentChild.attributes()[attributeName];
+                let attributeValuePrimitive;
+                if (isSupplier(attributeValue)) {
+                    attributeValuePrimitive = attributeValue._();
+                }
+                else if (attributeName === 'class' && typeof attributeValue === 'object' && attributeValue !== null) {
+                    attributeValuePrimitive = attrClass(attributeValue)._();
+                }
+                else if (attributeName === 'style' && typeof attributeValue === 'object' && attributeValue !== null) {
+                    attributeValuePrimitive = attrStyle(attributeValue)._();
+                }
+                else {
+                    attributeValuePrimitive = attributeValue;
+                }
+                if (typeof attributeValuePrimitive === 'boolean') {
+                    if (attributeValuePrimitive) {
                         acc.push(`${attributeName}`);
                     }
                 }
                 else {
-                    acc.push(`${attributeName}="${escapeSpecialChars(String(attributeValue))}"`);
+                    acc.push(`${attributeName}="${escapeSpecialChars(String(attributeValuePrimitive))}"`);
                 }
                 return acc;
             }, []).join(' ');

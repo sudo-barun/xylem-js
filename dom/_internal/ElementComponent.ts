@@ -206,6 +206,7 @@ interface ElementComponent extends NativeComponent {}
 
 applyNativeComponentMixin(ElementComponent);
 
+export
 type StyleDefinitions = {
 	[cssProperty: string]: string|false|Supplier<string|false>,
 };
@@ -225,6 +226,7 @@ function styleArrayToStringMapper(styles: Array<string|false>): string|false
 	return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 
+export
 function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<string|false>|StyleDefinitions>): Supplier<string|false>
 {
 	if (styleDefinitions instanceof Array) {
@@ -255,6 +257,7 @@ function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<stri
 	}
 }
 
+export
 type ClassDefinitions = {
 	[className: string]: boolean|Supplier<boolean>,
 };
@@ -275,6 +278,7 @@ function classArrayToStringMapper(classes: Array<string|false>): string|false
 	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 
+export
 function attrClass(classDefinitions: ClassDefinitions|Array<string|Supplier<string|false>|ClassDefinitions>): Supplier<string|false>
 {
 	if (classDefinitions instanceof Array) {
@@ -305,6 +309,7 @@ function attrClass(classDefinitions: ClassDefinitions|Array<string|Supplier<stri
 	}
 }
 
+export
 type Attribute = string|boolean|null|undefined;
 
 class AttributeSubscriber implements SubscriberObject<Attribute>

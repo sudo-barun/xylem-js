@@ -160,7 +160,7 @@ function styleArrayToStringMapper(styles) {
     const mappedStyles = styles.filter(propVal => propVal !== false);
     return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
-function attrStyle(styleDefinitions) {
+export function attrStyle(styleDefinitions) {
     if (styleDefinitions instanceof Array) {
         return map(combineSuppliers(styleDefinitions.map(styleDefn => {
             if (isSupplier(styleDefn)) {
@@ -195,7 +195,7 @@ function classArrayToStringMapper(classes) {
     const mappedClasses = classes.filter(class_ => class_ !== false);
     return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
-function attrClass(classDefinitions) {
+export function attrClass(classDefinitions) {
     if (classDefinitions instanceof Array) {
         return map(combineSuppliers(classDefinitions.map(classDefn => {
             if (isSupplier(classDefn)) {
