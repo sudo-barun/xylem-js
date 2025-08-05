@@ -29,12 +29,12 @@ function combineSuppliers<T extends Array<Supplier<unknown>>>(suppliers: T): Sup
 	return new CombinedSupplier(suppliers);
 }
 
-class CombinedSupplier<T extends Array<unknown>> implements Supplier<T>
+class CombinedSupplier<T extends Array<Supplier<unknown>>> implements Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 {
-	declare _suppliers: Supplier<unknown>[];
-	declare _subscribers: Subscriber<T>[];
+	declare _suppliers: T;
+	declare _subscribers: Array<Subscriber<ArrayOfSupplierToSupplierOfArray<T>>>;
 
-	constructor(suppliers: Supplier<unknown>[])
+	constructor(suppliers: T)
 	{
 		this._suppliers = suppliers;
 		this._subscribers = [];
@@ -45,25 +45,25 @@ class CombinedSupplier<T extends Array<unknown>> implements Supplier<T>
 		}
 	}
 
-	_(): T
+	_(): ArrayOfSupplierToSupplierOfArray<T>
 	{
-		return this._suppliers.map((store) => store._()) as T;
+		return this._suppliers.map((store) => store._()) as ArrayOfSupplierToSupplierOfArray<T>;
 	}
 
-	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	subscribe(subscriber: Subscriber<ArrayOfSupplierToSupplierOfArray<T>>): Unsubscriber
 	{
 		this._subscribers.push(subscriber);
 		return new UnsubscriberImpl(this, subscriber);
 	}
 
-	_emit(value: T)
+	_emit(value: ArrayOfSupplierToSupplierOfArray<T>)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [ArrayOfSupplierToSupplierOfArray<T>]);
 	}
 }
 
-class StoreSubscriber<T extends Array<unknown>> implements SubscriberObject<T>
+class StoreSubscriber<T extends Array<Supplier<unknown>>> implements SubscriberObject<unknown>
 {
 	declare _combinedStore: CombinedSupplier<T>;
 	declare _index: number;
@@ -74,7 +74,7 @@ class StoreSubscriber<T extends Array<unknown>> implements SubscriberObject<T>
 		this._index = index;
 	}
 
-	_(value: T)
+	_(value: unknown)
 	{
 		const mappedValue = this._combinedStore._suppliers.map((store, index) => {
 			if (index === this._index) {
@@ -83,6 +83,6 @@ class StoreSubscriber<T extends Array<unknown>> implements SubscriberObject<T>
 				return store._();
 			}
 		});
-		this._combinedStore._emit(mappedValue as T);
+		this._combinedStore._emit(mappedValue as ArrayOfSupplierToSupplierOfArray<T>);
 	}
 }

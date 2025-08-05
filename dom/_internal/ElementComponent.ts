@@ -234,7 +234,7 @@ function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<stri
 {
 	if (styleDefinitions instanceof Array) {
 		return map(
-			combineSuppliers<Array<string|false>>(styleDefinitions.map(styleDefn => {
+			combineSuppliers(styleDefinitions.map(styleDefn => {
 				if (isSupplier<string|false>(styleDefn)) {
 					return styleDefn;
 				}
@@ -247,7 +247,7 @@ function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<stri
 							: createStore(propValue);
 					}
 					return map(
-						combineNamedSuppliers<{[prop: string]: string|false}>(namedSuppliers),
+						combineNamedSuppliers(namedSuppliers),
 						styleObjectToStringMapper
 					);
 				}
@@ -284,7 +284,7 @@ function attrClass(classDefinitions: ClassDefinitions|Array<string|Supplier<stri
 {
 	if (classDefinitions instanceof Array) {
 		return map(
-			combineSuppliers<Array<string|false>>(classDefinitions.map(classDefn => {
+			combineSuppliers(classDefinitions.map(classDefn => {
 				if (isSupplier<string|false>(classDefn)) {
 					return classDefn;
 				}
@@ -297,7 +297,7 @@ function attrClass(classDefinitions: ClassDefinitions|Array<string|Supplier<stri
 							: createStore(propValue);
 					}
 					return map(
-						combineNamedSuppliers<{[prop: string]: boolean}>(namedSuppliers),
+						combineNamedSuppliers(namedSuppliers),
 						classObjectToStringMapper,
 					);
 				}

@@ -7,22 +7,22 @@ import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 type TypeOfSupplier<T> = T extends Supplier<infer U> ? U : never;
 
-type ObjectOfSupplierToSupplierOfObject<T extends { [name: string]: Supplier<unknown> }> = {
+type ObjectOfSupplierToSupplierOfObject<T extends { [key: string]: Supplier<unknown> }> = {
 	[K in keyof T]: TypeOfSupplier<T[K]>
 };
 
 export default
-function combineNamedSuppliers<T extends {[prop: string]: Supplier<unknown>}>(suppliers: T): Supplier<ObjectOfSupplierToSupplierOfObject<T>>
+function combineNamedSuppliers<T extends {[key: string]: Supplier<unknown>}>(suppliers: T): Supplier<ObjectOfSupplierToSupplierOfObject<T>>
 {
-	return new CombinedSupplier<ObjectOfSupplierToSupplierOfObject<typeof suppliers>>(suppliers);
+	return new CombinedSupplier(suppliers);
 }
 
-class CombinedSupplier<T extends object> implements Supplier<T>
+class CombinedSupplier<T extends {[key: string]: Supplier<unknown>}> implements Supplier<ObjectOfSupplierToSupplierOfObject<T>>
 {
-	declare _stores: {[prop: string]: Supplier<unknown>}
-	declare _subscribers: Subscriber<T>[];
+	declare _stores: T
+	declare _subscribers: Array<Subscriber<ObjectOfSupplierToSupplierOfObject<T>>>;
 
-	constructor(stores: {[prop: string]: Supplier<unknown>})
+	constructor(stores: T)
 	{
 		this._stores = stores;
 		this._subscribers = [];
@@ -32,28 +32,28 @@ class CombinedSupplier<T extends object> implements Supplier<T>
 		}
 	}
 
-	_(): T
+	_(): ObjectOfSupplierToSupplierOfObject<T>
 	{
 		return Object.keys(this._stores).reduce((acc, key) => {
 			acc[key] = this._stores[key]._();
 			return acc;
-		}, {} as {[prop: string]:unknown}) as T;
+		}, {} as {[key: string] :unknown}) as ObjectOfSupplierToSupplierOfObject<T>;
 	}
 
-	subscribe(subscriber: Subscriber<T>): Unsubscriber
+	subscribe(subscriber: Subscriber<ObjectOfSupplierToSupplierOfObject<T>>): Unsubscriber
 	{
 		this._subscribers.push(subscriber);
 		return new UnsubscriberImpl(this, subscriber);
 	}
 
-	_emit(value: T)
+	_emit(value: ObjectOfSupplierToSupplierOfObject<T>)
 	{
 		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
+		callSubscribers._.apply(callSubscribers, arguments as unknown as [ObjectOfSupplierToSupplierOfObject<T>]);
 	}
 }
 
-class StoreSubscriber<T extends object> implements SubscriberObject<unknown>
+class StoreSubscriber<T extends {[key: string]: Supplier<unknown>}> implements SubscriberObject<unknown>
 {
 	declare _combinedStore: CombinedSupplier<T>;
 	declare _key: string;
@@ -75,6 +75,6 @@ class StoreSubscriber<T extends object> implements SubscriberObject<unknown>
 			return acc;
 		}, {} as {[key: string]: unknown});
 
-		this._combinedStore._emit(mappedValue as T);
+		this._combinedStore._emit(mappedValue as ObjectOfSupplierToSupplierOfObject<T>);
 	}
 }
