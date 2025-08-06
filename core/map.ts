@@ -12,10 +12,10 @@ type MapperObject<I,O> = {
 type Mapper<I,O> = MapperFunction<I,O> | MapperObject<I,O>;
 
 export default
-function map<T>(supplier: Supplier<T>, mapper: Mapper<T,T>): Supplier<T>
+function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
 
 export default
-function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
+function map<T>(supplier: Supplier<T>, mapper: Mapper<T,T>): Supplier<T>
 
 export default
 function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
