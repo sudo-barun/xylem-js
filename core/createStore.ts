@@ -6,6 +6,10 @@ import Unsubscriber from "../types/Unsubscriber.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
+function createStore<T,U extends void> (value: void): Store<T>;
+export default
+function createStore<T> (value: T): Store<T>;
+export default
 function createStore<T> (value: T): Store<T>
 {
 	return new StoreImpl(value);
