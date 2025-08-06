@@ -9,7 +9,7 @@ import EmittableStream from "../types/EmittableStream.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
 import Unsubscriber from "../types/Unsubscriber.js";
-import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 function createArrayStore<T> (value: Array<T>): ArrayStore<T>
@@ -66,7 +66,7 @@ class ArrayStoreImpl<T> implements ArrayStore<T>
 	subscribe(subscriber: Subscriber<T[]>): Unsubscriber
 	{
 		this._subscribers.push(subscriber);
-		return new _Unsubscriber(this, subscriber);
+		return new UnsubscriberImpl(this, subscriber);
 	}
 
 	mutate<MutationArgs extends unknown[]>(action: ArrayMutateAction<MutationArgs>, ...mutationArgs: MutationArgs): void
@@ -99,7 +99,7 @@ class ReadonlySupplier<T> implements Supplier<T[]>
 	subscribe(subscriber: Subscriber<T[]>): Unsubscriber
 	{
 		this._store._subscribers.push(subscriber);
-		return new _Unsubscriber(this._store, subscriber);
+		return new UnsubscriberImpl(this._store, subscriber);
 	}
 }
 
@@ -122,7 +122,7 @@ class ArrayLengthStore implements Supplier<number>
 	subscribe(subscriber: Subscriber<number>): Unsubscriber
 	{
 		this._subscribers.push(subscriber);
-		return new _Unsubscriber(this, subscriber);
+		return new UnsubscriberImpl(this, subscriber);
 	}
 
 	_emit(value: number)

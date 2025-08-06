@@ -1,5 +1,5 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
-import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default function createStore(value) {
     return new StoreImpl(value);
 }
@@ -22,7 +22,7 @@ class StoreImpl {
     }
     subscribe(subscriber) {
         this._subscribers.push(subscriber);
-        return new _Unsubscriber(this, subscriber);
+        return new UnsubscriberImpl(this, subscriber);
     }
 }
 class ReadonlySupplier {

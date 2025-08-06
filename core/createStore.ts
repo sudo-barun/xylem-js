@@ -3,7 +3,7 @@ import Supplier from "../types/Supplier.js";
 import Store from "../types/Store.js";
 import Subscriber from "../types/Subscriber.js";
 import Unsubscriber from "../types/Unsubscriber.js";
-import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 function createStore<T> (value: T): Store<T>
@@ -40,7 +40,7 @@ class StoreImpl<T> implements Store<T>
 	subscribe(subscriber: Subscriber<T>): Unsubscriber
 	{
 		this._subscribers.push(subscriber);
-		return new _Unsubscriber(this, subscriber);
+		return new UnsubscriberImpl(this, subscriber);
 	}
 }
 

@@ -1,7 +1,7 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import createStore from "../core/createStore.js";
-import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default function createArrayStore(value) {
     return new ArrayStoreImpl(value);
 }
@@ -35,7 +35,7 @@ class ArrayStoreImpl {
     }
     subscribe(subscriber) {
         this._subscribers.push(subscriber);
-        return new _Unsubscriber(this, subscriber);
+        return new UnsubscriberImpl(this, subscriber);
     }
     mutate(action, ...mutationArgs) {
         // The mutation argument can change, for example index$ value can change.
@@ -57,7 +57,7 @@ class ReadonlySupplier {
     }
     subscribe(subscriber) {
         this._store._subscribers.push(subscriber);
-        return new _Unsubscriber(this._store, subscriber);
+        return new UnsubscriberImpl(this._store, subscriber);
     }
 }
 class ArrayLengthStore {
@@ -70,7 +70,7 @@ class ArrayLengthStore {
     }
     subscribe(subscriber) {
         this._subscribers.push(subscriber);
-        return new _Unsubscriber(this, subscriber);
+        return new UnsubscriberImpl(this, subscriber);
     }
     _emit(value) {
         const callSubscribers = new CallSubscribers(this);

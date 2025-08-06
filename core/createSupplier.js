@@ -1,5 +1,5 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
-import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default function createSupplier(getter, stream) {
     return new SupplierImpl(getter, stream);
 }
@@ -19,7 +19,7 @@ class SupplierImpl {
     }
     subscribe(subscriber) {
         this._subscribers.push(subscriber);
-        return new _Unsubscriber(this, subscriber);
+        return new UnsubscriberImpl(this, subscriber);
     }
 }
 class StreamSubscriber {

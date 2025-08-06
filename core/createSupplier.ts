@@ -5,7 +5,7 @@ import Subscriber from "../types/Subscriber.js";
 import SubscriberObject from "../types/SubscriberObject.js";
 import Unsubscriber from "../types/Unsubscriber.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
-import _Unsubscriber from "../utilities/_internal/UnsubscriberImpl.js";
+import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 function createSupplier<T>(
@@ -45,7 +45,7 @@ class SupplierImpl<T> implements Supplier<T>
 	subscribe(subscriber: Subscriber<T>): Unsubscriber
 	{
 		this._subscribers.push(subscriber);
-		return new _Unsubscriber(this, subscriber);
+		return new UnsubscriberImpl(this, subscriber);
 	}
 }
 
