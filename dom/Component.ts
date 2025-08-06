@@ -49,7 +49,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._parentComponent = null;
 	}
 
-	abstract build(attributes: EarlyAttributes & LateAttributes): ComponentChildren;
+	abstract build(attrs: EarlyAttributes & LateAttributes): ComponentChildren;
 
 	injectAttributes(attributes: LateAttributes)
 	{
