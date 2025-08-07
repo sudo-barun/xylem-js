@@ -262,19 +262,19 @@ type ClassDefinitions = {
 	[className: string]: boolean|Supplier<boolean>,
 };
 
-function classObjectToStringMapper(namedClasses: { [prop: string]: boolean }): string|false
+function classObjectToStringMapper(namedClasses: { [prop: string]: unknown }): string|false
 {
 	const mappedClasses = Object
 		.keys(namedClasses)
-		.map((class_) => [class_, namedClasses[class_]])
-		.filter(([, classVal]) => classVal !== false)
+		.map((class_) => [class_, namedClasses[class_]] as [string, unknown])
+		.filter(([, classVal]) => classVal)
 		.map(([class_]) => class_);
 	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 
 function classArrayToStringMapper(classes: Array<string|false>): string|false
 {
-	const mappedClasses = classes.filter(class_ => class_ !== false);
+	const mappedClasses = classes.filter(class_ => class_);
 	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 

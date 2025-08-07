@@ -187,12 +187,12 @@ function classObjectToStringMapper(namedClasses) {
     const mappedClasses = Object
         .keys(namedClasses)
         .map((class_) => [class_, namedClasses[class_]])
-        .filter(([, classVal]) => classVal !== false)
+        .filter(([, classVal]) => classVal)
         .map(([class_]) => class_);
     return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 function classArrayToStringMapper(classes) {
-    const mappedClasses = classes.filter(class_ => class_ !== false);
+    const mappedClasses = classes.filter(class_ => class_);
     return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 export function attrClass(classDefinitions) {
