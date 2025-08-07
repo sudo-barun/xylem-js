@@ -152,12 +152,18 @@ applyNativeComponentMixin(ElementComponent);
 function styleObjectToStringMapper(namedStyles) {
     const mappedStyles = Object.keys(namedStyles)
         .map((propName) => [propName, namedStyles[propName]])
-        .filter(([, propVal]) => propVal !== false)
+        .filter(([, propVal]) => propVal !== '' && propVal !== false && propVal !== null && propVal !== undefined)
         .map((prop) => prop.join(': '));
     return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 function styleArrayToStringMapper(styles) {
-    const mappedStyles = styles.filter(propVal => propVal !== false);
+    let mappedStyles = styles.filter(propVal => propVal !== false && propVal !== null && propVal !== undefined);
+    if (mappedStyles.length > 1) {
+        mappedStyles = mappedStyles.filter(class_ => class_ !== '');
+        if (mappedStyles.length === 0) {
+            mappedStyles = [''];
+        }
+    }
     return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 export function attrStyle(styleDefinitions) {

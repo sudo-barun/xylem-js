@@ -208,21 +208,28 @@ applyNativeComponentMixin(ElementComponent);
 
 export
 type StyleDefinitions = {
-	[cssProperty: string]: string|false|Supplier<string|false>,
+	[cssProperty: string]: string|number|bigint|false|null|undefined|Supplier<string|number|bigint|false|null|undefined>,
 };
 
-function styleObjectToStringMapper(namedStyles: { [prop: string]: string|false }): string|false
+function styleObjectToStringMapper(namedStyles: { [prop: string]: string|number|bigint|false|null|undefined }): string|false
 {
 	const mappedStyles = Object.keys(namedStyles)
 		.map((propName) => [propName, namedStyles[propName]])
-		.filter(([,propVal]) => propVal !== false)
+		.filter(([,propVal]) => propVal !== '' && propVal !== false && propVal !== null && propVal !== undefined)
 		.map((prop) => prop.join(': '));
 	return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 
-function styleArrayToStringMapper(styles: Array<string|false>): string|false
+function styleArrayToStringMapper(styles: Array<string|false|null|undefined>): string|false
 {
-	const mappedStyles = styles.filter(propVal => propVal !== false);
+	let mappedStyles: string[] = styles.filter(propVal => propVal !== false && propVal !== null && propVal !== undefined);
+	if (mappedStyles.length > 1) {
+		mappedStyles = mappedStyles.filter(class_ => class_ !== '');
+		if (mappedStyles.length === 0) {
+			mappedStyles = [''];
+		}
+	}
+
 	return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
 
@@ -236,10 +243,10 @@ function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<stri
 					return styleDefn;
 				}
 				if (typeof styleDefn === 'object' && styleDefn !== null) {
-					const namedSuppliers: {[prop: string]: Supplier<string|false>} = {};
+					const namedSuppliers: {[prop: string]: Supplier<string|number|bigint|false|null|undefined>} = {};
 					for (const name in styleDefn) {
 						const propValue = styleDefn[name];
-						namedSuppliers[name] = isSupplier<string|false>(propValue)
+						namedSuppliers[name] = isSupplier(propValue)
 							? propValue
 							: createStore(propValue);
 					}
