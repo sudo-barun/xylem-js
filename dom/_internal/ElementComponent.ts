@@ -259,7 +259,7 @@ function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<stri
 
 export
 type ClassDefinitions = {
-	[className: string]: boolean|Supplier<boolean>,
+	[className: string]: unknown|Supplier<unknown>,
 };
 
 function classObjectToStringMapper(namedClasses: { [prop: string]: unknown }): string|false
@@ -272,14 +272,21 @@ function classObjectToStringMapper(namedClasses: { [prop: string]: unknown }): s
 	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 
-function classArrayToStringMapper(classes: Array<string|false>): string|false
+function classArrayToStringMapper(classes: Array<string|false|null|undefined>): string|false
 {
-	const mappedClasses = classes.filter(class_ => class_);
+	let mappedClasses: string[] = classes.filter(class_ => class_ !== false && class_ !== null && class_ !== undefined);
+	if (mappedClasses.length > 1) {
+		mappedClasses = mappedClasses.filter(class_ => class_ !== '');
+		if (mappedClasses.length === 0) {
+			mappedClasses = [''];
+		}
+	}
+
 	return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 
 export
-function attrClass(classDefinitions: ClassDefinitions|Array<string|Supplier<string|false>|ClassDefinitions>): Supplier<string|false>
+function attrClass(classDefinitions: ClassDefinitions|Array<string|false|null|undefined|Supplier<string|false|null|undefined>|ClassDefinitions>): Supplier<string|false>
 {
 	if (classDefinitions instanceof Array) {
 		return map(
@@ -288,10 +295,10 @@ function attrClass(classDefinitions: ClassDefinitions|Array<string|Supplier<stri
 					return classDefn;
 				}
 				if (typeof classDefn === 'object' && classDefn !== null) {
-					const namedSuppliers: {[prop: string]: Supplier<boolean>} = {};
+					const namedSuppliers: {[prop: string]: Supplier<unknown>} = {};
 					for (const name in classDefn) {
-						const propValue = classDefn[name];
-						namedSuppliers[name] = isSupplier<boolean>(propValue)
+						const propValue = (classDefn as ClassDefinitions)[name];
+						namedSuppliers[name] = isSupplier(propValue)
 							? propValue
 							: createStore(propValue);
 					}

@@ -192,7 +192,13 @@ function classObjectToStringMapper(namedClasses) {
     return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 function classArrayToStringMapper(classes) {
-    const mappedClasses = classes.filter(class_ => class_);
+    let mappedClasses = classes.filter(class_ => class_ !== false && class_ !== null && class_ !== undefined);
+    if (mappedClasses.length > 1) {
+        mappedClasses = mappedClasses.filter(class_ => class_ !== '');
+        if (mappedClasses.length === 0) {
+            mappedClasses = [''];
+        }
+    }
     return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
 export function attrClass(classDefinitions) {
