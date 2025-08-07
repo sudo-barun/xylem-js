@@ -126,13 +126,6 @@ class ElementComponent
 	{
 		const isNewNode = !this._domNode;
 		const element = this._domNode = this._domNode || this.createDomNode();
-		if (this._elementSubscriber) {
-			if (typeof this._elementSubscriber === 'function') {
-				this._elementSubscriber(element);
-			} else {
-				this._elementSubscriber._(element);
-			}
-		}
 
 		for (const attr of Object.keys(this._attributes)) {
 			if (attr === '()') {
@@ -160,6 +153,14 @@ class ElementComponent
 		if (isNewNode) {
 			for (const node of this.getChildNodes()) {
 				element.appendChild(node);
+			}
+		}
+
+		if (this._elementSubscriber) {
+			if (typeof this._elementSubscriber === 'function') {
+				this._elementSubscriber(element);
+			} else {
+				this._elementSubscriber._(element);
 			}
 		}
 	}
