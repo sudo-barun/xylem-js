@@ -24,13 +24,23 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
     for (const componentChild of componentChildren) {
         const node = domNodes[currentIndex];
         if (componentChild instanceof TextComponent) {
-            if (!(node instanceof Text)) {
+            const textContent = getValue(componentChild.textContent());
+            if ((textContent === '' || textContent === null || textContent === undefined)
+                &&
+                    node instanceof Comment) {
+                const newNode = document.createTextNode('');
+                node.parentNode.replaceChild(newNode, node);
+                componentChild.domNode(newNode);
+            }
+            else if (!(node instanceof Text)) {
                 console.error('Text node not found.');
                 console.error('Expected: Text node with text content:', getValue(componentChild.textContent()));
                 console.error('Found:', node);
                 throw new Error('Text node not found.');
             }
-            componentChild.domNode(node);
+            else {
+                componentChild.domNode(node);
+            }
             currentIndex++;
         }
         else if (componentChild instanceof CommentComponent) {

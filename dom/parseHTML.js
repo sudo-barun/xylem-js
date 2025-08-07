@@ -199,7 +199,9 @@ export default function parseHTML(arr) {
             }
         }
         else {
-            children.push(new TextComponent(item));
+            if (!(item === null || item === undefined)) {
+                children.push(new TextComponent(String(item)));
+            }
         }
     }
     if (unclosedComment) {

@@ -193,7 +193,9 @@ function parseHTML(arr: unknown[]): ComponentChildren
 				}
 			}
 		} else {
-			children.push(new TextComponent(item as string));
+			if (!(item === null || item === undefined)) {
+				children.push(new TextComponent(String(item)));
+			}
 		}
 	}
 

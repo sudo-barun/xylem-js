@@ -38,6 +38,9 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 		if (componentChild instanceof TextComponent) {
 
 			const value = getValue(componentChild.textContent());
+			if (value === '' || value === null || value === undefined) {
+				return '<!---->';
+			}
 			if (typeof value === 'string') {
 				return escapeSpecialChars(value);
 			}

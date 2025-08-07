@@ -36,7 +36,10 @@ class TextComponent
 		const textContent = getValue(this.textContent());
 
 		if (nodeExists) {
-			if (String(textContent) !== this._domNode.textContent) {
+			const textContentStr = (textContent === '' || textContent === null || textContent === undefined)
+				? ''
+				: String(textContent);
+			if (textContentStr !== this._domNode.textContent) {
 				console.error('Content of Text object is different from content of Text node.');
 				console.error('Content of Text node:', this._domNode.textContent);
 				console.error('Content of Text object:', textContent);
