@@ -365,6 +365,6 @@ function setAttribute(element: Element, name: string, value: Attribute)
 	} else if (([ undefined, null, false ] as unknown[]).indexOf(value) !== -1) {
 		element.removeAttribute(name);
 	} else {
-		element.setAttribute(name, <string> value);
+		element.setAttribute(name, value as string);
 	}
 }
