@@ -19,7 +19,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	declare beforeDetachFromDom: Stream<void>;
 
 	declare _attributes: EarlyAttributes & LateAttributes;
-	declare _modifier?: ComponentModifier;
+	declare _modifier?: ComponentModifier|undefined;
 	declare _children: ComponentChildren;
 	declare _notifyAfterSetup: EmittableStream<void>;
 	declare _notifyAfterAttachToDom: EmittableStream<void>;
@@ -30,7 +30,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	declare _lastNode: Comment;
 
 	declare _parentComponent: null|Component;
-	declare _namespace?: 'svg'|'mathml';
+	declare _namespace?: 'svg'|'mathml'|undefined;
 
 	constructor(attributes: EarlyAttributes = {} as EarlyAttributes)
 	{
