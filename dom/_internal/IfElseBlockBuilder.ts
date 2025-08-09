@@ -1,5 +1,5 @@
 import IfElseBlock from "./IfElseBlock.js";
-import IfElseBuild from "../../types/_internal/IfElseBuild.js";
+import type IfElseBuild from "../../types/_internal/IfElseBuild.js";
 
 type IfElseBlockItemData = {
 	condition: unknown,

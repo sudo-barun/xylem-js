@@ -1,4 +1,4 @@
-import Store from "../types/Store.js";
+import type Store from "../types/Store.js";
 
 export default
 function cumulate<T>(

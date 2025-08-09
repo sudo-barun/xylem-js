@@ -1,6 +1,6 @@
-import StreamWithSubscribers from "../../types/_internal/StreamWithSubscribers";
-import Subscriber from "../../types/Subscriber";
-import Unsubscriber from "../../types/Unsubscriber";
+import type StreamWithSubscribers from "../../types/_internal/StreamWithSubscribers";
+import type Subscriber from "../../types/Subscriber";
+import type Unsubscriber from "../../types/Unsubscriber";
 
 export default
 class UnsubscriberImpl<T> implements Unsubscriber

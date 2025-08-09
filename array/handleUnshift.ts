@@ -1,5 +1,5 @@
-import ArrayMutateHandler from "../types/ArrayMutateHandler.js";
-import Store from "../types/Store.js";
+import type ArrayMutateHandler from "../types/ArrayMutateHandler.js";
+import type Store from "../types/Store.js";
 import createStore from "../core/createStore.js";
 
 const handleUnshift: ArrayMutateHandler<[unknown]> = function <T>(

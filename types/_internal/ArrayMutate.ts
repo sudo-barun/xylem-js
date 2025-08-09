@@ -1,8 +1,8 @@
-import ArrayMutateAction from "../ArrayMutateAction";
+import type ArrayMutateAction from "../ArrayMutateAction";
 
 type ArrayMutate = <MutationArgs extends unknown[]>(
 	action: ArrayMutateAction<MutationArgs>,
 	...otherArgs: MutationArgs
 ) => void;
 
-export default ArrayMutate;
+export { type ArrayMutate as default };

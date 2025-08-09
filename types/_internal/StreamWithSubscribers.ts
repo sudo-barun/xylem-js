@@ -1,5 +1,5 @@
-import Stream from "../Stream";
-import Subscriber from "../Subscriber";
+import type Stream from "../Stream";
+import type Subscriber from "../Subscriber";
 
 type StreamWithSubscribers<T> = (
 	Stream<T>
@@ -7,4 +7,4 @@ type StreamWithSubscribers<T> = (
 	{ _subscribers: Subscriber<T>[] }
 );
 
-export default StreamWithSubscribers;
+export { type StreamWithSubscribers as default };

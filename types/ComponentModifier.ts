@@ -1,5 +1,5 @@
-import Component from "../dom/Component";
+import type Component from "../dom/Component";
 
 type ComponentModifier = (component: Component) => void;
 
-export default ComponentModifier;
+export { type ComponentModifier as default };

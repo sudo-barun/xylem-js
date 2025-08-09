@@ -1,11 +1,11 @@
-import ArrayMutation from "../../types/ArrayMutation.js";
-import ArraySupplier from "../../types/ArraySupplier.js";
+import type ArrayMutation from "../../types/ArrayMutation.js";
+import type ArraySupplier from "../../types/ArraySupplier.js";
 import Component from "../Component.js";
-import ComponentChildren from "../../types/ComponentChildren.js";
+import type ComponentChildren from "../../types/ComponentChildren.js";
 import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
-import Supplier from "../../types/Supplier.js";
-import ForEachBuild from "../../types/_internal/ForEachBuild.js";
+import type Supplier from "../../types/Supplier.js";
+import type ForEachBuild from "../../types/_internal/ForEachBuild.js";
 
 type Attributes<T> = {
 	array: T[]|Supplier<T[]>|ArraySupplier<T>;

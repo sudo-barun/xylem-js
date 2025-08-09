@@ -1,12 +1,12 @@
 import Component from "../Component.js";
-import ComponentChildren from "../../types/ComponentChildren.js";
+import type ComponentChildren from "../../types/ComponentChildren.js";
 import createStore from "../../core/createStore.js";
 import getValue from "../../utilities/getValue.js";
 import IfElseBlockItem from "./IfElseBlockItem.js";
-import IfElseBuild from "../../types/_internal/IfElseBuild.js";
+import type IfElseBuild from "../../types/_internal/IfElseBuild.js";
 import isSupplier from "../../utilities/isSupplier.js";
-import Store from "../../types/Store.js";
-import Supplier from "../../types/Supplier.js";
+import type Store from "../../types/Store.js";
+import type Supplier from "../../types/Supplier.js";
 
 type IfElseBlockItemData = {
 	condition: unknown,

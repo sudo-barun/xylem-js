@@ -2,4 +2,4 @@ type Getter<T> = {
 	_(): T,
 };
 
-export default Getter;
+export { type Getter as default };

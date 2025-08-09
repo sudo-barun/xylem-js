@@ -1,6 +1,6 @@
-import SubscriberFunction from "./SubscriberFunction";
-import SubscriberObject from "./SubscriberObject";
+import type SubscriberFunction from "./SubscriberFunction";
+import type SubscriberObject from "./SubscriberObject";
 
 type Subscriber<T> = SubscriberFunction<T> | SubscriberObject<T>;
 
-export default Subscriber;
+export { type Subscriber as default };

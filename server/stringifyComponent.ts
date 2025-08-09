@@ -1,12 +1,12 @@
 import CommentComponent from "../dom/_internal/CommentComponent.js";
 import Component from "../dom/Component.js";
-import ElementComponent, { attrClass, Attribute, attrStyle, ClassDefinitions, StyleDefinitions } from "../dom/_internal/ElementComponent.js";
+import ElementComponent, { attrClass, type Attribute, attrStyle, type ClassDefinitions, type StyleDefinitions } from "../dom/_internal/ElementComponent.js";
 import getValue from "../utilities/getValue.js";
 import TextComponent from "../dom/_internal/TextComponent.js";
-import ComponentChildren from "../types/ComponentChildren.js";
+import type ComponentChildren from "../types/ComponentChildren.js";
 import RawHTML from "../dom/RawHTML.js";
 import isSupplier from "../utilities/isSupplier.js";
-import Supplier from "../types/Supplier.js";
+import type Supplier from "../types/Supplier.js";
 
 const entities = {
 	'&': '&amp;',

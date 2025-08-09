@@ -1,13 +1,13 @@
 import CommentComponent from './_internal/CommentComponent.js';
 import Component from './Component.js';
-import ComponentChildren from '../types/ComponentChildren.js';
+import type ComponentChildren from '../types/ComponentChildren.js';
 import ElementComponent from './_internal/ElementComponent.js';
 import ForEachBuilder from './_internal/ForEachBlockBuilder.js';
 import IfElseBlockBuilder from './_internal/IfElseBlockBuilder.js';
 import isSupplier from '../utilities/isSupplier.js';
-import Supplier from '../types/Supplier.js';
+import type Supplier from '../types/Supplier.js';
 import TextComponent from './_internal/TextComponent.js';
-import Subscriber from '../types/Subscriber.js';
+import type Subscriber from '../types/Subscriber.js';
 
 const elementStartRegex = /^<([0-9a-zA-Z-]+)>$/;
 const elementEndRegex = /^<\/([0-9a-zA-Z-]+)>$/;

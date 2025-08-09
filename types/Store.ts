@@ -1,5 +1,5 @@
-import Supplier from "./Supplier";
-import Setter from "./Setter";
+import type Supplier from "./Supplier";
+import type Setter from "./Setter";
 
 type Store<T> =
 (
@@ -10,4 +10,4 @@ type Store<T> =
 	{ readonly: Supplier<T> }
 );
 
-export default Store;
+export { type Store as default };

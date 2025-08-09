@@ -1,5 +1,5 @@
-import ForEachBlock from "./ForEachBlock.js";
-import ForEachBlockItem from "./ForEachBlockItem.js";
+import type ForEachBlock from "./ForEachBlock.js";
+import type ForEachBlockItem from "./ForEachBlockItem.js";
 
 export default
 function handleRemoveInForEachBlock<T>(this: ForEachBlock<T>, index: number)

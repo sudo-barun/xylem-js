@@ -1,5 +1,5 @@
-import Stream from "./Stream";
-import Unsubscriber from "./Unsubscriber";
+import type Stream from "./Stream";
+import type Unsubscriber from "./Unsubscriber";
 
 type ProxyStream<T> = (
 	Stream<T>
@@ -7,4 +7,4 @@ type ProxyStream<T> = (
 	{ unsubscribe: () => void }
 );
 
-export default ProxyStream;
+export { type ProxyStream as default };

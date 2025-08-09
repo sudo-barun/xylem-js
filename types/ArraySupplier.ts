@@ -1,7 +1,7 @@
-import ArrayMutate from "./_internal/ArrayMutate";
-import ArrayMutation from "./ArrayMutation";
-import Supplier from "./Supplier";
-import EmittableStream from "./EmittableStream";
+import type ArrayMutate from "./_internal/ArrayMutate";
+import type ArrayMutation from "./ArrayMutation";
+import type Supplier from "./Supplier";
+import type EmittableStream from "./EmittableStream";
 
 type ArraySupplier<T> = (
 	Supplier<Array<T>>
@@ -14,4 +14,4 @@ type ArraySupplier<T> = (
 	}
 );
 
-export default ArraySupplier;
+export { type ArraySupplier as default };

@@ -1,4 +1,4 @@
-import ComponentChildren from '../types/ComponentChildren.js';
+import type ComponentChildren from '../types/ComponentChildren.js';
 import Component from './Component.js';
 
 export default

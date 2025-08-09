@@ -1,8 +1,8 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
-import Emitter from "../types/Emitter.js";
-import ProxyStream from "../types/ProxyStream.js";
-import Subscriber from "../types/Subscriber.js";
-import Unsubscriber from "../types/Unsubscriber.js";
+import type Emitter from "../types/Emitter.js";
+import type ProxyStream from "../types/ProxyStream.js";
+import type Subscriber from "../types/Subscriber.js";
+import type Unsubscriber from "../types/Unsubscriber.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default

@@ -1,7 +1,7 @@
 import Component from "../Component.js";
-import ComponentChildren from "../../types/ComponentChildren.js";
-import Supplier from "../../types/Supplier.js";
-import IfElseBuild from "../../types/_internal/IfElseBuild.js";
+import type ComponentChildren from "../../types/ComponentChildren.js";
+import type Supplier from "../../types/Supplier.js";
+import type IfElseBuild from "../../types/_internal/IfElseBuild.js";
 
 type Attributes = {
 	build: IfElseBuild,

@@ -1,4 +1,4 @@
-import NativeComponent from "../../types/_internal/NativeComponent.js";
+import type NativeComponent from "../../types/_internal/NativeComponent.js";
 
 const NativeComponentMixin = {
 

@@ -1,4 +1,4 @@
-import Supplier from "../types/Supplier.js";
+import type Supplier from "../types/Supplier.js";
 
 export default
 function isSupplier<T>(value: unknown): value is Supplier<T>

@@ -1,7 +1,7 @@
-import ArrayMutateHandler from "../types/ArrayMutateHandler.js";
+import type ArrayMutateHandler from "../types/ArrayMutateHandler.js";
 import cumulate from "../core/cumulate.js";
-import Store from "../types/Store.js";
-import Supplier from "../types/Supplier.js";
+import type Store from "../types/Store.js";
+import type Supplier from "../types/Supplier.js";
 import getValue from "../utilities/getValue.js";
 
 function isInteger(value: number): boolean

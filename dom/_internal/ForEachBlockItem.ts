@@ -1,7 +1,7 @@
 import Component from "../Component.js";
-import ComponentChildren from "../../types/ComponentChildren.js";
-import Supplier from "../../types/Supplier.js";
-import ForEachBuild from "../../types/_internal/ForEachBuild.js";
+import type ComponentChildren from "../../types/ComponentChildren.js";
+import type Supplier from "../../types/Supplier.js";
+import type ForEachBuild from "../../types/_internal/ForEachBuild.js";
 
 type Attributes<T> = {
 	buildArgs: [item: T, index$: Supplier<number>],

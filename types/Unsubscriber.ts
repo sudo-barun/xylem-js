@@ -2,4 +2,4 @@ type Unsubscriber = {
 	_(): void,
 };
 
-export default Unsubscriber;
+export { type Unsubscriber as default };

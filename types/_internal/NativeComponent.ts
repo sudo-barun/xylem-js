@@ -16,4 +16,4 @@ type NativeComponent = {
 
 };
 
-export default NativeComponent;
+export { type NativeComponent as default };

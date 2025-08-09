@@ -1,9 +1,9 @@
-import Supplier from "../types/Supplier.js";
-import Getter from "../types/Getter.js";
-import Stream from "../types/Stream.js";
-import Subscriber from "../types/Subscriber.js";
-import SubscriberObject from "../types/SubscriberObject.js";
-import Unsubscriber from "../types/Unsubscriber.js";
+import type Supplier from "../types/Supplier.js";
+import type Getter from "../types/Getter.js";
+import type Stream from "../types/Stream.js";
+import type Subscriber from "../types/Subscriber.js";
+import type SubscriberObject from "../types/SubscriberObject.js";
+import type Unsubscriber from "../types/Unsubscriber.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 

@@ -1,14 +1,14 @@
-import ArrayMutateAction from "../types/ArrayMutateAction.js";
-import ArrayMutation from "../types/ArrayMutation.js";
-import ArrayStore from "../types/ArrayStore.js";
+import type ArrayMutateAction from "../types/ArrayMutateAction.js";
+import type ArrayMutation from "../types/ArrayMutation.js";
+import type ArrayStore from "../types/ArrayStore.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import createStore from "../core/createStore.js";
-import Supplier from "../types/Supplier.js";
-import EmittableStream from "../types/EmittableStream.js";
-import Store from "../types/Store.js";
-import Subscriber from "../types/Subscriber.js";
-import Unsubscriber from "../types/Unsubscriber.js";
+import type Supplier from "../types/Supplier.js";
+import type EmittableStream from "../types/EmittableStream.js";
+import type Store from "../types/Store.js";
+import type Subscriber from "../types/Subscriber.js";
+import type Unsubscriber from "../types/Unsubscriber.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default

@@ -1,4 +1,4 @@
-import ForEachBlock from "./ForEachBlock.js";
+import type ForEachBlock from "./ForEachBlock.js";
 
 export default
 function handleMoveInForEachBlock<T>(

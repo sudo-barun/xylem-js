@@ -1,7 +1,7 @@
 import createStream from "../core/createStream.js";
-import Emitter from "../types/Emitter.js";
-import Stream from "../types/Stream.js";
-import Unsubscriber from "../types/Unsubscriber.js";
+import type Emitter from "../types/Emitter.js";
+import type Stream from "../types/Stream.js";
+import type Unsubscriber from "../types/Unsubscriber.js";
 
 export default
 function createStreamOfDomEvent(

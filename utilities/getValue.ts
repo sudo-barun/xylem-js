@@ -1,4 +1,4 @@
-import Supplier from "../types/Supplier.js";
+import type Supplier from "../types/Supplier.js";
 import isSupplier from "./isSupplier.js";
 
 export default

@@ -1,12 +1,12 @@
-import ArrayMutation from "../types/ArrayMutation.js";
-import ArraySupplier from "../types/ArraySupplier.js";
-import Supplier from "../types/Supplier.js";
+import type ArrayMutation from "../types/ArrayMutation.js";
+import type ArraySupplier from "../types/ArraySupplier.js";
+import type Supplier from "../types/Supplier.js";
 import createSupplier from "../core/createSupplier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
-import Getter from "../types/Getter.js";
-import SubscriberObject from "../types/SubscriberObject.js";
-import EmittableStream from "../types/EmittableStream.js";
-import Emitter from "../types/Emitter.js";
+import type Getter from "../types/Getter.js";
+import type SubscriberObject from "../types/SubscriberObject.js";
+import type EmittableStream from "../types/EmittableStream.js";
+import type Emitter from "../types/Emitter.js";
 
 class NormalizedData<T> implements Getter<T[]>
 {

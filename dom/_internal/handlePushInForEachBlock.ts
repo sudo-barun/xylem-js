@@ -1,4 +1,4 @@
-import ForEachBlock from "./ForEachBlock.js";
+import type ForEachBlock from "./ForEachBlock.js";
 
 export default
 function handlePushInForEachBlock<T>(this: ForEachBlock<T>, item: T)

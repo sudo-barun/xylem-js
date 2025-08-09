@@ -1,7 +1,7 @@
-import ComponentChildren from "../ComponentChildren";
-import Supplier from "../Supplier";
-import ForEachBlockItem from "../../dom/_internal/ForEachBlockItem";
-import FunctionOrCallableObject from "../FunctionOrCallableObject";
+import type ComponentChildren from "../ComponentChildren";
+import type Supplier from "../Supplier";
+import type ForEachBlockItem from "../../dom/_internal/ForEachBlockItem";
+import type FunctionOrCallableObject from "../FunctionOrCallableObject";
 
 type ForEachBuild<T> = FunctionOrCallableObject<[
 	item: T,
@@ -9,4 +9,4 @@ type ForEachBuild<T> = FunctionOrCallableObject<[
 	component: ForEachBlockItem<T>,
 ], ComponentChildren>;
 
-export default ForEachBuild;
+export { type ForEachBuild as default };

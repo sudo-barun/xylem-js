@@ -1,7 +1,7 @@
-import EmittableStream from "../types/EmittableStream.js";
-import Stream from "../types/Stream.js";
-import Subscriber from "../types/Subscriber.js";
-import Unsubscriber from "../types/Unsubscriber.js";
+import type EmittableStream from "../types/EmittableStream.js";
+import type Stream from "../types/Stream.js";
+import type Subscriber from "../types/Subscriber.js";
+import type Unsubscriber from "../types/Unsubscriber.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 

@@ -1,4 +1,4 @@
-import StreamWithSubscribers from "../../types/_internal/StreamWithSubscribers.js";
+import type StreamWithSubscribers from "../../types/_internal/StreamWithSubscribers.js";
 
 export default
 class CallSubscribers<T>

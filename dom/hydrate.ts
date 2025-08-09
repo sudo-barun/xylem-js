@@ -1,4 +1,4 @@
-import ComponentChildren from '../types/ComponentChildren.js';
+import type ComponentChildren from '../types/ComponentChildren.js';
 import CommentComponent from './_internal/CommentComponent.js';
 import Component from './Component.js';
 import ElementComponent from './_internal/ElementComponent.js';

@@ -1,3 +1,3 @@
 type SubscriberFunction<T> = (value: T) => void;
 
-export default SubscriberFunction;
+export { type SubscriberFunction as default };

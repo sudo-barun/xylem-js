@@ -1,5 +1,5 @@
-import Emitter from "./Emitter";
-import Stream from "./Stream";
+import type Emitter from "./Emitter";
+import type Stream from "./Stream";
 
 type EmittableStream<T> = (
 	(Emitter<T> & Stream<T>)
@@ -7,4 +7,4 @@ type EmittableStream<T> = (
 	{ subscribeOnly: Stream<T> }
 );
 
-export default EmittableStream;
+export { type EmittableStream as default };

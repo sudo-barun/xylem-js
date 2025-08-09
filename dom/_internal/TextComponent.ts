@@ -1,9 +1,9 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
-import Supplier from "../../types/Supplier.js";
+import type Supplier from "../../types/Supplier.js";
 import isSupplier from "../../utilities/isSupplier.js";
 import getValue from "../../utilities/getValue.js";
-import NativeComponent from "../../types/_internal/NativeComponent.js";
-import SubscriberObject from "../../types/SubscriberObject.js";
+import type NativeComponent from "../../types/_internal/NativeComponent.js";
+import type SubscriberObject from "../../types/SubscriberObject.js";
 
 export default
 class TextComponent

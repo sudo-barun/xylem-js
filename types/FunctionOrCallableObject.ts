@@ -6,4 +6,4 @@ type FunctionOrCallableObject<Args extends Array<unknown>, Return> = (
 	}
 );
 
-export default FunctionOrCallableObject;
+export { type FunctionOrCallableObject as default };

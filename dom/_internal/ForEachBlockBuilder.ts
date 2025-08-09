@@ -1,7 +1,7 @@
-import ArraySupplier from "../../types/ArraySupplier.js";
+import type ArraySupplier from "../../types/ArraySupplier.js";
 import ForEachBlock from "./ForEachBlock.js";
-import ForEachBuild from "../../types/_internal/ForEachBuild.js";
-import Supplier from "../../types/Supplier.js";
+import type ForEachBuild from "../../types/_internal/ForEachBuild.js";
+import type Supplier from "../../types/Supplier.js";
 
 export default
 class ForEachBlockBuilder<T>

@@ -2,4 +2,4 @@ type SubscriberObject<T> = {
 	_(value: T): void,
 };
 
-export default SubscriberObject;
+export { type SubscriberObject as default };

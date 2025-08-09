@@ -2,15 +2,15 @@ import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import combineNamedSuppliers from "../../core/combineNamedSuppliers.js";
 import combineSuppliers from "../../core/combineSuppliers.js";
 import Component from "../Component.js";
-import ComponentChildren from "../../types/ComponentChildren.js";
-import ComponentModifier from "../../types/ComponentModifier.js";
+import type ComponentChildren from "../../types/ComponentChildren.js";
+import type ComponentModifier from "../../types/ComponentModifier.js";
 import createStore from "../../core/createStore.js";
-import Supplier from "../../types/Supplier.js";
+import type Supplier from "../../types/Supplier.js";
 import isSupplier from "../../utilities/isSupplier.js";
 import map from "../../core/map.js";
-import NativeComponent from "../../types/_internal/NativeComponent.js";
-import Subscriber from "../../types/Subscriber.js";
-import SubscriberObject from "../../types/SubscriberObject.js";
+import type NativeComponent from "../../types/_internal/NativeComponent.js";
+import type Subscriber from "../../types/Subscriber.js";
+import type SubscriberObject from "../../types/SubscriberObject.js";
 
 export default
 class ElementComponent

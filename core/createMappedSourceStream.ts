@@ -1,9 +1,9 @@
-import Emitter from "../types/Emitter.js";
-import Stream from "../types/Stream.js";
-import Subscriber from "../types/Subscriber.js";
-import SubscriberFunction from "../types/SubscriberFunction.js";
-import SubscriberObject from "../types/SubscriberObject.js";
-import Unsubscriber from "../types/Unsubscriber.js";
+import type Emitter from "../types/Emitter.js";
+import type Stream from "../types/Stream.js";
+import type Subscriber from "../types/Subscriber.js";
+import type SubscriberFunction from "../types/SubscriberFunction.js";
+import type SubscriberObject from "../types/SubscriberObject.js";
+import type Unsubscriber from "../types/Unsubscriber.js";
 
 export
 type MappedSourceStream<I,O> = Emitter<I> & Stream<O>;

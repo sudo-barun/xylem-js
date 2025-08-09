@@ -1,8 +1,8 @@
-import ArrayMutate from "./_internal/ArrayMutate";
-import ArrayMutation from "./ArrayMutation";
-import Supplier from "./Supplier";
-import EmittableStream from "./EmittableStream";
-import Store from "./Store";
+import type ArrayMutate from "./_internal/ArrayMutate";
+import type ArrayMutation from "./ArrayMutation";
+import type Supplier from "./Supplier";
+import type EmittableStream from "./EmittableStream";
+import type Store from "./Store";
 
 type ArrayStore<T> = (
 	Store<Array<T>>
@@ -15,4 +15,4 @@ type ArrayStore<T> = (
 	}
 );
 
-export default ArrayStore;
+export { type ArrayStore as default };

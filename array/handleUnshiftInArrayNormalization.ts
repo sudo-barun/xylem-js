@@ -1,5 +1,5 @@
-import Emitter from "../types/Emitter.js";
-import Supplier from "../types/Supplier.js";
+import type Emitter from "../types/Emitter.js";
+import type Supplier from "../types/Supplier.js";
 
 export default
 function handleUnshiftInArrayNormalization<T,U>(

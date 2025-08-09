@@ -1,6 +1,6 @@
-import Getter from "./Getter";
-import Stream from "./Stream";
+import type Getter from "./Getter";
+import type Stream from "./Stream";
 
 type Supplier<T> = Getter<T> & Stream<T>;
 
-export default Supplier;
+export { type Supplier as default };

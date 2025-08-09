@@ -1,4 +1,4 @@
-import Component from "./Component.js";
+import type Component from "./Component.js";
 
 export default
 function mountComponent(component: Component, element: Element)

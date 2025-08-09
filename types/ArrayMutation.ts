@@ -1,4 +1,4 @@
-import ArrayMutateAction from "./ArrayMutateAction";
+import type ArrayMutateAction from "./ArrayMutateAction";
 
 type ArrayMutation<T, MutationArgs extends unknown[] = unknown[]> = [
 	value: T[],
@@ -6,4 +6,4 @@ type ArrayMutation<T, MutationArgs extends unknown[] = unknown[]> = [
 	...mutationArgs: MutationArgs,
 ];
 
-export default ArrayMutation;
+export { type ArrayMutation as default };

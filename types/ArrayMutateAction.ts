@@ -1,8 +1,8 @@
-import ArrayMutateHandler from "./ArrayMutateHandler";
+import type ArrayMutateHandler from "./ArrayMutateHandler";
 
 type ArrayMutateAction<MutationArgs extends unknown[]> = {
 	_: ArrayMutateHandler<MutationArgs>,
 	[key: string]: unknown,
 };
 
-export default ArrayMutateAction;
+export { type ArrayMutateAction as default };

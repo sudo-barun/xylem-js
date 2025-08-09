@@ -1,4 +1,4 @@
-import Store from "./Store";
+import type Store from "./Store";
 
 type ArrayMutateHandler<MutationArgs extends unknown[]> = <T>(
 	array: T[],
@@ -6,4 +6,4 @@ type ArrayMutateHandler<MutationArgs extends unknown[]> = <T>(
 	...mutationArgs: MutationArgs
 ) => unknown[];
 
-export default ArrayMutateHandler;
+export { type ArrayMutateHandler as default };
