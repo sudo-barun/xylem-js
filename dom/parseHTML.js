@@ -171,20 +171,49 @@ export default function parseHTML(arr) {
                     const listenerRegex = /^@(.*)$/;
                     if (listenerRegex.test(key)) {
                         const [, eventName] = listenerRegex.exec(key);
-                        const type = typeof item[key];
-                        if ((['function', 'object'].indexOf(type) === -1)
-                            ||
-                                (type === 'object' && item[key] === null)
-                            ||
-                                ((type === 'object' && item[key] !== null)
-                                    &&
-                                        (typeof item[key]['handleEvent'] !== 'function'))) {
-                            console.error('Listener must be function or object with "handleEvent" method.');
+                        const listener = item[key];
+                        try {
+                            if (typeof listener === 'function') {
+                                elementOfAttributes.addListener(eventName, listener);
+                            }
+                            else if (typeof listener === 'object' && listener !== null) {
+                                if (listener instanceof Array) {
+                                    if (listener.every(listenerItem => ((listenerItem instanceof Array)
+                                        && ((typeof listenerItem[0] === 'function')
+                                            || ((typeof listenerItem[0] === 'object' && listenerItem[0] !== null)
+                                                && ('handleEvent' in listenerItem[0])
+                                                && (typeof listenerItem[0].handleEvent === 'function')))
+                                        && ((listenerItem[1] === undefined)
+                                            || (typeof listenerItem[1] === 'object' && listenerItem[1] !== null)
+                                            || (typeof listenerItem[1] === 'boolean'))))) {
+                                        elementOfAttributes.addListener(eventName, listener);
+                                    }
+                                    else {
+                                        throw new Error();
+                                    }
+                                }
+                                else {
+                                    if ('handleEvent' in listener && typeof listener.handleEvent === 'function') {
+                                        elementOfAttributes.addListener(eventName, listener);
+                                    }
+                                    else {
+                                        throw new Error();
+                                    }
+                                }
+                            }
+                            else {
+                                throw new Error();
+                            }
+                        }
+                        catch (er) {
+                            const errorMessage = er.message || 'Listener must be one of the following:'
+                                + '\n1. (() => void) | {handleEvent:()=>void}'
+                                + '\n2. Array<[ (() => void) | {handleEvent:()=>void}, boolean | object ]>';
+                            console.error(errorMessage);
                             console.error('Listener:', item[key], ' at key: ', key);
                             console.error(`Check following array at index ${i}.`, arr);
-                            throw new Error('Listener must be function or object with "handleEvent" method.');
+                            throw new Error(errorMessage);
                         }
-                        elementOfAttributes.addListener(eventName, item[key]);
                     }
                     else if (key === '<>') {
                         elementOfAttributes.elementSubscriber(item[key]);

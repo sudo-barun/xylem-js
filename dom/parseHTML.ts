@@ -165,24 +165,55 @@ function parseHTML(arr: unknown[]): ComponentChildren
 					const listenerRegex = /^@(.*)$/;
 					if (listenerRegex.test(key)) {
 						const [ , eventName ] = listenerRegex.exec(key)!;
-						const type = typeof (item as {[k: string]: unknown})[key];
-						if (
-							(['function', 'object'].indexOf(type) === -1)
-							||
-							(type === 'object' && (item as {[k: string]: unknown})[key] === null)
-							||
-							(
-								(type === 'object' && (item as {[k: string]: unknown})[key] !== null)
-								&&
-								(typeof (item as {[k: string]: {handleEvent: unknown}})[key]['handleEvent'] !== 'function')
-							)
-						) {
-							console.error('Listener must be function or object with "handleEvent" method.');
+						const listener = (item as {[k: string]: unknown})[key] as ElementComponent['_listeners'][''];
+
+						try {
+							if (typeof listener === 'function') {
+								elementOfAttributes.addListener(eventName, listener);
+							} else if (typeof listener === 'object' && listener !== null) {
+								if (listener instanceof Array) {
+									if (
+										listener.every(listenerItem => (
+											(listenerItem instanceof Array)
+											&& (
+												(typeof listenerItem[0] === 'function')
+												|| (
+													(typeof listenerItem[0] === 'object' && listenerItem[0] !== null)
+													&& ('handleEvent' in listenerItem[0])
+													&& (typeof listenerItem[0].handleEvent === 'function')
+												)
+											)
+											&& (
+												(listenerItem[1] === undefined)
+												|| (typeof listenerItem[1] === 'object' && listenerItem[1] !== null)
+												|| (typeof listenerItem[1] === 'boolean')
+											)
+										))
+									) {
+										elementOfAttributes.addListener(eventName, listener);
+									} else {
+										throw new Error();
+									}
+								} else {
+									if ('handleEvent' in listener && typeof listener.handleEvent === 'function') {
+										elementOfAttributes.addListener(eventName, listener);
+									} else {
+										throw new Error();
+									}
+								}
+							} else {
+								throw new Error();
+							}
+						} catch (er) {
+							const errorMessage = (er as Error).message || 'Listener must be one of the following:'
+								+ '\n1. (() => void) | {handleEvent:()=>void}'
+								+ '\n2. Array<[ (() => void) | {handleEvent:()=>void}, boolean | object ]>'
+							;
+							console.error(errorMessage);
 							console.error('Listener:', (item as {[k: string]: unknown})[key], ' at key: ', key);
 							console.error(`Check following array at index ${i}.`, arr);
-							throw new Error('Listener must be function or object with "handleEvent" method.');
+							throw new Error(errorMessage);
 						}
-						elementOfAttributes.addListener(eventName, (item as {[k: string]: EventListenerOrEventListenerObject})[key]);
 					} else if (key === '<>') {
 						elementOfAttributes.elementSubscriber((item as {[k: string]: Subscriber<Element>})[key]);
 					} else if (key === '=') {

@@ -100,7 +100,17 @@ export default class ElementComponent {
             }
         }
         for (const event of Object.keys(this._listeners)) {
-            element.addEventListener(event, this._listeners[event]);
+            const listener = this._listeners[event];
+            if (listener instanceof Array) {
+                for (const listenerItem of listener) {
+                    if (listenerItem instanceof Array) {
+                        element.addEventListener(event, listenerItem[0], listenerItem[1]);
+                    }
+                }
+            }
+            else {
+                element.addEventListener(event, listener);
+            }
         }
         for (const node of this._children) {
             node.setupDom();

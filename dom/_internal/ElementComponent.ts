@@ -18,7 +18,11 @@ class ElementComponent
 	declare _tagName: string;
 	declare _attributes: { [key:string]: unknown };
 	declare _children: ComponentChildren;
-	declare _listeners: { [key:string]: EventListenerOrEventListenerObject };
+	declare _listeners: {
+		[key:string]:
+			| EventListenerOrEventListenerObject
+			| Array<[ EventListenerOrEventListenerObject, (boolean | EventListenerOptions)? ]>
+	};
 	declare _elementSubscriber: Subscriber<Element>|null;
 	declare _domNode: Element;
 	declare _namespace?: 'svg'|'mathml';
@@ -56,12 +60,12 @@ class ElementComponent
 		return this._children;
 	}
 
-	listeners(): { [key:string]: EventListenerOrEventListenerObject }
+	listeners(): typeof this._listeners
 	{
 		return this._listeners;
 	}
 
-	addListener(eventName: string, listener: EventListenerOrEventListenerObject)
+	addListener(eventName: string, listener: (typeof this._listeners)[''])
 	{
 		this._listeners[eventName] = listener;
 	}
@@ -144,7 +148,16 @@ class ElementComponent
 		}
 
 		for (const event of Object.keys(this._listeners)) {
-			element.addEventListener(event, this._listeners[event]);
+			const listener = this._listeners[event];
+			if (listener instanceof Array) {
+				for (const listenerItem of listener) {
+					if (listenerItem instanceof Array) {
+						element.addEventListener(event, listenerItem[0], listenerItem[1]);
+					}
+				}
+			} else {
+				element.addEventListener(event, listener);
+			}
 		}
 
 		for (const node of this._children) {
