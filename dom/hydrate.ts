@@ -7,32 +7,34 @@ import getValue from '../utilities/getValue.js';
 import RawHTML from './RawHTML.js';
 
 export default
-function hydrate(component: Component, domNodes: ArrayLike<Node>, currentIndex = 0): number
+function hydrate(component: Component, startNode: ChildNode): ChildNode|null
 {
-	const componentFirstNode = domNodes[currentIndex];
-	if (! (componentFirstNode instanceof Comment)) {
+	let node: ChildNode|null = startNode;
+	if (! (node instanceof Comment)) {
 		throw new Error('The first node of component was not found');
 	}
-	component.firstNode(componentFirstNode);
-	currentIndex++;
+	component.firstNode(node);
+	if (node.nextSibling === null) {
+		throw new Error('nextSibling does not exist');
+	}
+	node = node.nextSibling;
 
-	currentIndex = hydrateComponentChildren(component.children(), domNodes, currentIndex);
+	node = hydrateComponentChildren(component.children(), node);
 
-	const componentLastNode = domNodes[currentIndex];
-	if (! (componentLastNode instanceof Comment)) {
+	if (! (node instanceof Comment)) {
 		throw new Error('The last node of component was not found');
 	}
-	component.lastNode(componentLastNode);
-	currentIndex++;
+	component.lastNode(node);
+	node = node.nextSibling;
 
-	return currentIndex;
+	return node;
 }
 
 export
-function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes: ArrayLike<Node>, currentIndex = 0): number
+function hydrateComponentChildren(componentChildren: ComponentChildren, startNode: ChildNode|null): ChildNode|null
 {
+	let node: ChildNode|null = startNode;
 	for (const componentChild of componentChildren) {
-		const node = domNodes[currentIndex];
 
 		if (componentChild instanceof TextComponent) {
 
@@ -53,7 +55,7 @@ function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes
 			} else {
 				componentChild.domNode(node);
 			}
-			currentIndex++;
+			node = node.nextSibling;
 
 		} else if (componentChild instanceof CommentComponent) {
 
@@ -64,7 +66,7 @@ function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes
 				throw new Error('Comment node not found.');
 			}
 			componentChild.domNode(node);
-			currentIndex++;
+			node = node.nextSibling;
 
 		} else if (componentChild instanceof ElementComponent) {
 
@@ -98,17 +100,16 @@ function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes
 				}
 			}
 			componentChild.domNode(node);
-			hydrateComponentChildren(componentChild.children(), node.childNodes);
-			currentIndex++;
+			hydrateComponentChildren(componentChild.children(), node.firstChild);
+			node = node.nextSibling;
 
 		} else if (componentChild instanceof Component) {
 
 			if (componentChild instanceof RawHTML) {
-				const domNodesSlice = Array.prototype.slice.call(domNodes, currentIndex, currentIndex + 3);
-				currentIndex += 3;
-				componentChild.setChildNodes(domNodesSlice);
+				componentChild.setChildNodes([ node!, node!.nextSibling!, node!.nextSibling!.nextSibling! ]);
+				node = node!.nextSibling!.nextSibling!.nextSibling;
 			} else {
-				currentIndex = hydrate(componentChild, domNodes, currentIndex);
+				node = hydrate(componentChild, node!);
 			}
 
 		} else {
@@ -117,5 +118,5 @@ function hydrateComponentChildren(componentChildren: ComponentChildren, domNodes
 		}
 	}
 
-	return currentIndex;
+	return node;
 }

@@ -1,8 +1,8 @@
 import hydrate from "./hydrate.js";
-export default function hydrateComponent(component, nodes) {
+export default function hydrateComponent(component, startNode) {
     component.setup();
     component.notifyAfterSetup();
-    hydrate(component, nodes);
+    hydrate(component, startNode);
     component.setupDom();
     component.notifyAfterAttachToDom();
     return () => {

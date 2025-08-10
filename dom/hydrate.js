@@ -4,25 +4,27 @@ import ElementComponent from './_internal/ElementComponent.js';
 import TextComponent from './_internal/TextComponent.js';
 import getValue from '../utilities/getValue.js';
 import RawHTML from './RawHTML.js';
-export default function hydrate(component, domNodes, currentIndex = 0) {
-    const componentFirstNode = domNodes[currentIndex];
-    if (!(componentFirstNode instanceof Comment)) {
+export default function hydrate(component, startNode) {
+    let node = startNode;
+    if (!(node instanceof Comment)) {
         throw new Error('The first node of component was not found');
     }
-    component.firstNode(componentFirstNode);
-    currentIndex++;
-    currentIndex = hydrateComponentChildren(component.children(), domNodes, currentIndex);
-    const componentLastNode = domNodes[currentIndex];
-    if (!(componentLastNode instanceof Comment)) {
+    component.firstNode(node);
+    if (node.nextSibling === null) {
+        throw new Error('nextSibling does not exist');
+    }
+    node = node.nextSibling;
+    node = hydrateComponentChildren(component.children(), node);
+    if (!(node instanceof Comment)) {
         throw new Error('The last node of component was not found');
     }
-    component.lastNode(componentLastNode);
-    currentIndex++;
-    return currentIndex;
+    component.lastNode(node);
+    node = node.nextSibling;
+    return node;
 }
-export function hydrateComponentChildren(componentChildren, domNodes, currentIndex = 0) {
+export function hydrateComponentChildren(componentChildren, startNode) {
+    let node = startNode;
     for (const componentChild of componentChildren) {
-        const node = domNodes[currentIndex];
         if (componentChild instanceof TextComponent) {
             const textContent = getValue(componentChild.textContent());
             if ((textContent === '' || textContent === null || textContent === undefined)
@@ -41,7 +43,7 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
             else {
                 componentChild.domNode(node);
             }
-            currentIndex++;
+            node = node.nextSibling;
         }
         else if (componentChild instanceof CommentComponent) {
             if (!(node instanceof Comment)) {
@@ -51,7 +53,7 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
                 throw new Error('Comment node not found.');
             }
             componentChild.domNode(node);
-            currentIndex++;
+            node = node.nextSibling;
         }
         else if (componentChild instanceof ElementComponent) {
             if (!(node instanceof Element)) {
@@ -87,17 +89,16 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
                 }
             }
             componentChild.domNode(node);
-            hydrateComponentChildren(componentChild.children(), node.childNodes);
-            currentIndex++;
+            hydrateComponentChildren(componentChild.children(), node.firstChild);
+            node = node.nextSibling;
         }
         else if (componentChild instanceof Component) {
             if (componentChild instanceof RawHTML) {
-                const domNodesSlice = Array.prototype.slice.call(domNodes, currentIndex, currentIndex + 3);
-                currentIndex += 3;
-                componentChild.setChildNodes(domNodesSlice);
+                componentChild.setChildNodes([node, node.nextSibling, node.nextSibling.nextSibling]);
+                node = node.nextSibling.nextSibling.nextSibling;
             }
             else {
-                currentIndex = hydrate(componentChild, domNodes, currentIndex);
+                node = hydrate(componentChild, node);
             }
         }
         else {
@@ -105,5 +106,5 @@ export function hydrateComponentChildren(componentChildren, domNodes, currentInd
             throw new Error('Unsupported data found');
         }
     }
-    return currentIndex;
+    return node;
 }

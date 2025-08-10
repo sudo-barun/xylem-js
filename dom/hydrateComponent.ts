@@ -2,11 +2,11 @@ import type Component from "./Component.js";
 import hydrate from "./hydrate.js";
 
 export default
-function hydrateComponent(component: Component, nodes: ArrayLike<Node>)
+function hydrateComponent(component: Component, startNode: ChildNode)
 {
 	component.setup();
 	component.notifyAfterSetup();
-	hydrate(component, nodes);
+	hydrate(component, startNode);
 	component.setupDom();
 	component.notifyAfterAttachToDom();
 
