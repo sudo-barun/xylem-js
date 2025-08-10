@@ -3,7 +3,7 @@ export default class ForEachBlockItem extends Component {
     build(attributes) {
         const build = attributes.build;
         if (typeof build === 'function') {
-            return build(...attributes.buildArgs, this);
+            return build.call(this, ...attributes.buildArgs, this);
         }
         else {
             return build._(...attributes.buildArgs, this);

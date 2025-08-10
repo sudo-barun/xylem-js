@@ -1,5 +1,5 @@
-type FunctionOrCallableObject<Args extends Array<unknown>, Return> = (
-	((...args: Args) => Return)
+type FunctionOrCallableObject<This, Args extends Array<unknown>, Return> = (
+	((this: This, ...args: Args) => Return)
 	|
 	{
 		_: (...args: Args) => Return,

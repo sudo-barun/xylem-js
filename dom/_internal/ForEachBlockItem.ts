@@ -15,7 +15,7 @@ class ForEachBlockItem<T> extends Component<Attributes<T>>
 	{
 		const build = attributes.build;
 		if (typeof build === 'function') {
-			return build(...attributes.buildArgs, this);
+			return build.call(this, ...attributes.buildArgs, this);
 		} else {
 			return build._(...attributes.buildArgs, this);
 		}

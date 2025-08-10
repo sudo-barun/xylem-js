@@ -22,7 +22,7 @@ class IfElseBlockItem extends Component<Attributes>
 		if (isActive$._()) {
 			const build = attributes.build;
 			if (typeof build === 'function') {
-				return build(this);
+				return build.call(this, this);
 			} else {
 				return build._(this);
 			}
