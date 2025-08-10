@@ -4,6 +4,7 @@ import type Subscriber from "../types/Subscriber.js";
 import type SubscriberObject from "../types/SubscriberObject.js";
 import type Unsubscriber from "../types/Unsubscriber.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
+import type HasLifecycle from "../types/HasLifecycle.js";
 
 type MapperFunction<I,O> = (value: I) => O;
 type MapperObject<I,O> = {
@@ -12,30 +13,34 @@ type MapperObject<I,O> = {
 type Mapper<I,O> = MapperFunction<I,O> | MapperObject<I,O>;
 
 export default
-function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
+function map<I,O>(hasLifecycle: HasLifecycle, supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
 
 export default
-function map<T>(supplier: Supplier<T>, mapper: Mapper<T,T>): Supplier<T>
+function map<T>(hasLifecycle: HasLifecycle, supplier: Supplier<T>, mapper: Mapper<T,T>): Supplier<T>
 
 export default
-function map<I,O>(supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
+function map<I,O>(hasLifecycle: HasLifecycle, supplier: Supplier<I>, mapper: Mapper<I,O>): Supplier<O>
 {
-	return new MappedSupplier(supplier, mapper);
+	return new MappedSupplier(hasLifecycle, supplier, mapper);
 }
 
 class MappedSupplier<I,O> implements Supplier<O>
 {
+	declare _hasLifecycle: HasLifecycle;
 	declare _supplier: Supplier<I>;
 	declare _mapper: Mapper<I,O>;
 	declare _subscribers: Subscriber<O>[];
 
-	constructor(supplier: Supplier<I>, mapper: Mapper<I,O>)
+	constructor(hasLifecycle: HasLifecycle, supplier: Supplier<I>, mapper: Mapper<I,O>)
 	{
+		this._hasLifecycle = hasLifecycle;
 		this._supplier = supplier;
 		this._mapper = mapper;
 		this._subscribers = [];
 
-		supplier.subscribe(new StoreSubscriber(this, mapper));
+		hasLifecycle.beforeDetachFromDom.subscribe(
+			supplier.subscribe(new StoreSubscriber(this, mapper))
+		);
 	}
 
 	_(): O

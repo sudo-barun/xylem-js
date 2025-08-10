@@ -1,14 +1,15 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
-export default function map(supplier, mapper) {
-    return new MappedSupplier(supplier, mapper);
+export default function map(hasLifecycle, supplier, mapper) {
+    return new MappedSupplier(hasLifecycle, supplier, mapper);
 }
 class MappedSupplier {
-    constructor(supplier, mapper) {
+    constructor(hasLifecycle, supplier, mapper) {
+        this._hasLifecycle = hasLifecycle;
         this._supplier = supplier;
         this._mapper = mapper;
         this._subscribers = [];
-        supplier.subscribe(new StoreSubscriber(this, mapper));
+        hasLifecycle.beforeDetachFromDom.subscribe(supplier.subscribe(new StoreSubscriber(this, mapper)));
     }
     _() {
         if (typeof this._mapper === 'function') {

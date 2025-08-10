@@ -4,17 +4,29 @@ import isSupplier from "../../utilities/isSupplier.js";
 import getValue from "../../utilities/getValue.js";
 import type NativeComponent from "../../types/_internal/NativeComponent.js";
 import type SubscriberObject from "../../types/SubscriberObject.js";
+import type Stream from "../../types/Stream.js";
+import type EmittableStream from "../../types/EmittableStream.js";
+import createEmittableStream from "../../core/createEmittableStream.js";
 
 export default
 class TextComponent
 {
 	declare _textContent: string|Supplier<string>;
 	declare _domNode: Text;
+	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
+	declare beforeDetachFromDom: Stream<void>;
 
 	constructor(textContent: string|Supplier<string>)
 	{
 		this._textContent = textContent;
 		this._domNode = undefined!;
+		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
+		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+	}
+
+	notifyBeforeDetachFromDom()
+	{
+		this._notifyBeforeDetachFromDom._();
 	}
 
 	textContent(textContent?: string|Supplier<string>)
@@ -48,7 +60,9 @@ class TextComponent
 		}
 
 		if (isSupplier(this._textContent)) {
-			this._textContent.subscribe(new TextContentSubscriber(this));
+			this.beforeDetachFromDom.subscribe(
+				this._textContent.subscribe(new TextContentSubscriber(this))
+			);
 		}
 
 		this._domNode = this._domNode || document.createTextNode(textContent);

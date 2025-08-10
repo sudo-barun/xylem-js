@@ -1,10 +1,16 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
 import isSupplier from "../../utilities/isSupplier.js";
 import getValue from "../../utilities/getValue.js";
+import createEmittableStream from "../../core/createEmittableStream.js";
 export default class TextComponent {
     constructor(textContent) {
         this._textContent = textContent;
         this._domNode = undefined;
+        this._notifyBeforeDetachFromDom = createEmittableStream();
+        this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+    }
+    notifyBeforeDetachFromDom() {
+        this._notifyBeforeDetachFromDom._();
     }
     textContent(textContent) {
         if (arguments.length !== 0) {
@@ -30,7 +36,7 @@ export default class TextComponent {
             }
         }
         if (isSupplier(this._textContent)) {
-            this._textContent.subscribe(new TextContentSubscriber(this));
+            this.beforeDetachFromDom.subscribe(this._textContent.subscribe(new TextContentSubscriber(this)));
         }
         this._domNode = this._domNode || document.createTextNode(textContent);
     }

@@ -213,9 +213,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	{
 		this._notifyBeforeDetachFromDom._();
 		for (const vDomItem of this._children) {
-			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
-				vDomItem.notifyBeforeDetachFromDom();
-			}
+			vDomItem.notifyBeforeDetachFromDom();
 		}
 	}
 

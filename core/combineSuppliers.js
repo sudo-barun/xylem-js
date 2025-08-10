@@ -1,15 +1,15 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
-export default function combineSuppliers(suppliers) {
-    return new CombinedSupplier(suppliers);
+export default function combineSuppliers(hasLifecycle, suppliers) {
+    return new CombinedSupplier(hasLifecycle, suppliers);
 }
 class CombinedSupplier {
-    constructor(suppliers) {
+    constructor(hasLifecycle, suppliers) {
         this._suppliers = suppliers;
         this._subscribers = [];
         for (let index = 0; index < suppliers.length; index++) {
             const supplier = suppliers[index];
-            supplier.subscribe(new StoreSubscriber(this, index));
+            hasLifecycle.beforeDetachFromDom.subscribe(supplier.subscribe(new StoreSubscriber(this, index)));
         }
     }
     _() {

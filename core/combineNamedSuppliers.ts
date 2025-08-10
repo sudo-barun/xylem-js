@@ -4,6 +4,7 @@ import type SubscriberObject from "../types/SubscriberObject.js";
 import type Unsubscriber from "../types/Unsubscriber.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
+import type HasLifecycle from "../types/HasLifecycle.js";
 
 type TypeOfSupplier<T> = T extends Supplier<infer U> ? U : never;
 
@@ -12,9 +13,9 @@ type ObjectOfSupplierToSupplierOfObject<T extends { [key: string]: Supplier<unkn
 };
 
 export default
-function combineNamedSuppliers<T extends {[key: string]: Supplier<unknown>}>(suppliers: T): Supplier<ObjectOfSupplierToSupplierOfObject<T>>
+function combineNamedSuppliers<T extends {[key: string]: Supplier<unknown>}>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ObjectOfSupplierToSupplierOfObject<T>>
 {
-	return new CombinedSupplier(suppliers);
+	return new CombinedSupplier(hasLifecycle, suppliers);
 }
 
 class CombinedSupplier<T extends {[key: string]: Supplier<unknown>}> implements Supplier<ObjectOfSupplierToSupplierOfObject<T>>
@@ -22,13 +23,15 @@ class CombinedSupplier<T extends {[key: string]: Supplier<unknown>}> implements 
 	declare _stores: T
 	declare _subscribers: Array<Subscriber<ObjectOfSupplierToSupplierOfObject<T>>>;
 
-	constructor(stores: T)
+	constructor(hasLifecycle: HasLifecycle, stores: T)
 	{
 		this._stores = stores;
 		this._subscribers = [];
 
 		for (const key of Object.keys(stores)) {
-			stores[key].subscribe(new StoreSubscriber(this, key));
+			hasLifecycle.beforeDetachFromDom.subscribe(
+				stores[key].subscribe(new StoreSubscriber(this, key))
+			);
 		}
 	}
 

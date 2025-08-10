@@ -11,6 +11,10 @@ import map from "../../core/map.js";
 import type NativeComponent from "../../types/_internal/NativeComponent.js";
 import type Subscriber from "../../types/Subscriber.js";
 import type SubscriberObject from "../../types/SubscriberObject.js";
+import type EmittableStream from "../../types/EmittableStream.js";
+import type Stream from "../../types/Stream.js";
+import createEmittableStream from "../../core/createEmittableStream.js";
+import type HasLifecycle from "../../types/HasLifecycle.js";
 
 export default
 class ElementComponent
@@ -26,6 +30,8 @@ class ElementComponent
 	declare _elementSubscriber: Subscriber<Element>|null;
 	declare _domNode: Element;
 	declare _namespace?: 'svg'|'mathml';
+	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
+	declare beforeDetachFromDom: Stream<void>;
 
 	constructor(
 		tagName: string,
@@ -38,6 +44,8 @@ class ElementComponent
 		this._listeners = {};
 		this._elementSubscriber = null;
 		this._domNode = undefined!;
+		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
+		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
 	}
 
 	tagName(): string
@@ -135,11 +143,11 @@ class ElementComponent
 			if (attr === '()') {
 				(this._attributes[attr] as (e:Element, a:'()')=>void)(element, attr);
 			} else if (isSupplier<Attribute>(this._attributes[attr])) {
-				createAttributeFunction(this._attributes[attr] as Supplier<Attribute>)(element, attr, isNewNode);
+				createAttributeFunction(this, this._attributes[attr] as Supplier<Attribute>)(element, attr, isNewNode);
 			} else if (attr === 'class' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-				createAttributeFunction(attrClass(this._attributes[attr] as ClassDefinitions))(element, attr, isNewNode);
+				createAttributeFunction(this, attrClass(this, this._attributes[attr] as ClassDefinitions))(element, attr, isNewNode);
 			} else if (attr === 'style' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-				createAttributeFunction(attrStyle(this._attributes[attr] as StyleDefinitions))(element, attr, isNewNode);
+				createAttributeFunction(this, attrStyle(this, this._attributes[attr] as StyleDefinitions))(element, attr, isNewNode);
 			} else {
 				if (isNewNode) {
 					setAttribute(element, attr, this._attributes[attr] as Attribute);
@@ -203,10 +211,9 @@ class ElementComponent
 
 	notifyBeforeDetachFromDom(): void
 	{
+		this._notifyBeforeDetachFromDom._();
 		for (const vDomItem of this._children) {
-			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
-				vDomItem.notifyBeforeDetachFromDom();
-			}
+			vDomItem.notifyBeforeDetachFromDom();
 		}
 	}
 }
@@ -244,11 +251,12 @@ function styleArrayToStringMapper(styles: Array<string|false|null|undefined>): s
 }
 
 export
-function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<string|false>|StyleDefinitions>): Supplier<string|false>
+function attrStyle(hasLifecycle: HasLifecycle, styleDefinitions: StyleDefinitions|Array<string|Supplier<string|false>|StyleDefinitions>): Supplier<string|false>
 {
 	if (styleDefinitions instanceof Array) {
 		return map(
-			combineSuppliers(styleDefinitions.map(styleDefn => {
+			hasLifecycle,
+			combineSuppliers(hasLifecycle, styleDefinitions.map(styleDefn => {
 				if (isSupplier<string|false>(styleDefn)) {
 					return styleDefn;
 				}
@@ -261,7 +269,8 @@ function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<stri
 							: createStore(propValue);
 					}
 					return map(
-						combineNamedSuppliers(namedSuppliers),
+						hasLifecycle,
+						combineNamedSuppliers(hasLifecycle, namedSuppliers),
 						styleObjectToStringMapper
 					);
 				}
@@ -270,7 +279,7 @@ function attrStyle(styleDefinitions: StyleDefinitions|Array<string|Supplier<stri
 			styleArrayToStringMapper
 		);
 	} else {
-		return attrStyle([styleDefinitions]);
+		return attrStyle(hasLifecycle, [styleDefinitions]);
 	}
 }
 
@@ -303,11 +312,12 @@ function classArrayToStringMapper(classes: Array<string|false|null|undefined>): 
 }
 
 export
-function attrClass(classDefinitions: ClassDefinitions|Array<string|false|null|undefined|Supplier<string|false|null|undefined>|ClassDefinitions>): Supplier<string|false>
+function attrClass(hasLifecycle: HasLifecycle, classDefinitions: ClassDefinitions|Array<string|false|null|undefined|Supplier<string|false|null|undefined>|ClassDefinitions>): Supplier<string|false>
 {
 	if (classDefinitions instanceof Array) {
 		return map(
-			combineSuppliers(classDefinitions.map(classDefn => {
+			hasLifecycle,
+			combineSuppliers(hasLifecycle, classDefinitions.map(classDefn => {
 				if (isSupplier<string|false>(classDefn)) {
 					return classDefn;
 				}
@@ -320,7 +330,8 @@ function attrClass(classDefinitions: ClassDefinitions|Array<string|false|null|un
 							: createStore(propValue);
 					}
 					return map(
-						combineNamedSuppliers(namedSuppliers),
+						hasLifecycle,
+						combineNamedSuppliers(hasLifecycle, namedSuppliers),
 						classObjectToStringMapper,
 					);
 				}
@@ -329,7 +340,7 @@ function attrClass(classDefinitions: ClassDefinitions|Array<string|false|null|un
 			classArrayToStringMapper
 		);
 	} else {
-		return attrClass([classDefinitions]);
+		return attrClass(hasLifecycle, [classDefinitions]);
 	}
 }
 
@@ -353,7 +364,7 @@ class AttributeSubscriber implements SubscriberObject<Attribute>
 	}
 }
 
-function createAttributeFunction(supplier: Supplier<Attribute>)
+function createAttributeFunction(hasLifecycle: HasLifecycle, supplier: Supplier<Attribute>)
 {
 	return function (
 		element: Element,
@@ -363,7 +374,9 @@ function createAttributeFunction(supplier: Supplier<Attribute>)
 		if (isNewNode) {
 			setAttribute(element, attributeName, supplier._());
 		}
-		supplier.subscribe(new AttributeSubscriber(element, attributeName));
+		hasLifecycle.beforeDetachFromDom.subscribe(
+			supplier.subscribe(new AttributeSubscriber(element, attributeName))
+		);
 	};
 }
 

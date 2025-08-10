@@ -5,6 +5,7 @@ import Component from "../Component.js";
 import createStore from "../../core/createStore.js";
 import isSupplier from "../../utilities/isSupplier.js";
 import map from "../../core/map.js";
+import createEmittableStream from "../../core/createEmittableStream.js";
 export default class ElementComponent {
     constructor(tagName, attributes = {}, children = []) {
         this._tagName = tagName;
@@ -13,6 +14,8 @@ export default class ElementComponent {
         this._listeners = {};
         this._elementSubscriber = null;
         this._domNode = undefined;
+        this._notifyBeforeDetachFromDom = createEmittableStream();
+        this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
     }
     tagName() {
         return this._tagName;
@@ -85,13 +88,13 @@ export default class ElementComponent {
                 this._attributes[attr](element, attr);
             }
             else if (isSupplier(this._attributes[attr])) {
-                createAttributeFunction(this._attributes[attr])(element, attr, isNewNode);
+                createAttributeFunction(this, this._attributes[attr])(element, attr, isNewNode);
             }
             else if (attr === 'class' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-                createAttributeFunction(attrClass(this._attributes[attr]))(element, attr, isNewNode);
+                createAttributeFunction(this, attrClass(this, this._attributes[attr]))(element, attr, isNewNode);
             }
             else if (attr === 'style' && typeof this._attributes[attr] === 'object' && this._attributes[attr] !== null) {
-                createAttributeFunction(attrStyle(this._attributes[attr]))(element, attr, isNewNode);
+                createAttributeFunction(this, attrStyle(this, this._attributes[attr]))(element, attr, isNewNode);
             }
             else {
                 if (isNewNode) {
@@ -147,10 +150,9 @@ export default class ElementComponent {
         }
     }
     notifyBeforeDetachFromDom() {
+        this._notifyBeforeDetachFromDom._();
         for (const vDomItem of this._children) {
-            if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
-                vDomItem.notifyBeforeDetachFromDom();
-            }
+            vDomItem.notifyBeforeDetachFromDom();
         }
     }
 }
@@ -172,9 +174,9 @@ function styleArrayToStringMapper(styles) {
     }
     return mappedStyles.length === 0 ? false : mappedStyles.join('; ');
 }
-export function attrStyle(styleDefinitions) {
+export function attrStyle(hasLifecycle, styleDefinitions) {
     if (styleDefinitions instanceof Array) {
-        return map(combineSuppliers(styleDefinitions.map(styleDefn => {
+        return map(hasLifecycle, combineSuppliers(hasLifecycle, styleDefinitions.map(styleDefn => {
             if (isSupplier(styleDefn)) {
                 return styleDefn;
             }
@@ -186,13 +188,13 @@ export function attrStyle(styleDefinitions) {
                         ? propValue
                         : createStore(propValue);
                 }
-                return map(combineNamedSuppliers(namedSuppliers), styleObjectToStringMapper);
+                return map(hasLifecycle, combineNamedSuppliers(hasLifecycle, namedSuppliers), styleObjectToStringMapper);
             }
             return createStore(styleDefn);
         })), styleArrayToStringMapper);
     }
     else {
-        return attrStyle([styleDefinitions]);
+        return attrStyle(hasLifecycle, [styleDefinitions]);
     }
 }
 function classObjectToStringMapper(namedClasses) {
@@ -213,9 +215,9 @@ function classArrayToStringMapper(classes) {
     }
     return mappedClasses.length === 0 ? false : mappedClasses.join(' ');
 }
-export function attrClass(classDefinitions) {
+export function attrClass(hasLifecycle, classDefinitions) {
     if (classDefinitions instanceof Array) {
-        return map(combineSuppliers(classDefinitions.map(classDefn => {
+        return map(hasLifecycle, combineSuppliers(hasLifecycle, classDefinitions.map(classDefn => {
             if (isSupplier(classDefn)) {
                 return classDefn;
             }
@@ -227,13 +229,13 @@ export function attrClass(classDefinitions) {
                         ? propValue
                         : createStore(propValue);
                 }
-                return map(combineNamedSuppliers(namedSuppliers), classObjectToStringMapper);
+                return map(hasLifecycle, combineNamedSuppliers(hasLifecycle, namedSuppliers), classObjectToStringMapper);
             }
             return createStore(classDefn);
         })), classArrayToStringMapper);
     }
     else {
-        return attrClass([classDefinitions]);
+        return attrClass(hasLifecycle, [classDefinitions]);
     }
 }
 class AttributeSubscriber {
@@ -245,12 +247,12 @@ class AttributeSubscriber {
         setAttribute(this._element, this._attributeName, value);
     }
 }
-function createAttributeFunction(supplier) {
+function createAttributeFunction(hasLifecycle, supplier) {
     return function (element, attributeName, isNewNode) {
         if (isNewNode) {
             setAttribute(element, attributeName, supplier._());
         }
-        supplier.subscribe(new AttributeSubscriber(element, attributeName));
+        hasLifecycle.beforeDetachFromDom.subscribe(supplier.subscribe(new AttributeSubscriber(element, attributeName)));
     };
 }
 function setAttribute(element, name, value) {

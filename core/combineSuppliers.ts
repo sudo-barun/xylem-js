@@ -4,6 +4,7 @@ import type SubscriberObject from "../types/SubscriberObject.js";
 import type Unsubscriber from "../types/Unsubscriber.js";
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
+import type HasLifecycle from "../types/HasLifecycle.js";
 
 type TypeOfSupplier<T> = T extends Supplier<infer U> ? U : never;
 
@@ -12,21 +13,21 @@ type ArrayOfSupplierToSupplierOfArray<T extends Array<Supplier<unknown>>> = {
 };
 
 export default
-function combineSuppliers<A,T extends [Supplier<A>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combineSuppliers<A,T extends [Supplier<A>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,T extends [Supplier<A>,Supplier<B>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combineSuppliers<A,B,T extends [Supplier<A>,Supplier<B>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,C,T extends [Supplier<A>,Supplier<B>,Supplier<C>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combineSuppliers<A,B,C,T extends [Supplier<A>,Supplier<B>,Supplier<C>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,C,D,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combineSuppliers<A,B,C,D,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,C,D,E,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>,Supplier<E>]>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combineSuppliers<A,B,C,D,E,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>,Supplier<E>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<T extends Array<Supplier<unknown>>>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combineSuppliers<T extends Array<Supplier<unknown>>>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<T extends Array<Supplier<unknown>>>(suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combineSuppliers<T extends Array<Supplier<unknown>>>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 {
-	return new CombinedSupplier(suppliers);
+	return new CombinedSupplier(hasLifecycle, suppliers);
 }
 
 class CombinedSupplier<T extends Array<Supplier<unknown>>> implements Supplier<ArrayOfSupplierToSupplierOfArray<T>>
@@ -34,14 +35,17 @@ class CombinedSupplier<T extends Array<Supplier<unknown>>> implements Supplier<A
 	declare _suppliers: T;
 	declare _subscribers: Array<Subscriber<ArrayOfSupplierToSupplierOfArray<T>>>;
 
-	constructor(suppliers: T)
+	constructor(hasLifecycle: HasLifecycle, suppliers: T)
 	{
 		this._suppliers = suppliers;
 		this._subscribers = [];
 
 		for (let index = 0; index < suppliers.length; index++) {
 			const supplier = suppliers[index];
-			supplier.subscribe(new StoreSubscriber(this, index))
+
+			hasLifecycle.beforeDetachFromDom.subscribe(
+				supplier.subscribe(new StoreSubscriber(this, index))
+			);
 		}
 	}
 
