@@ -173,22 +173,19 @@ function parseHTML(arr: unknown[]): ComponentChildren
 							} else if (typeof listener === 'object' && listener !== null) {
 								if (listener instanceof Array) {
 									if (
-										listener.every(listenerItem => (
-											(listenerItem instanceof Array)
-											&& (
-												(typeof listenerItem[0] === 'function')
-												|| (
-													(typeof listenerItem[0] === 'object' && listenerItem[0] !== null)
-													&& ('handleEvent' in listenerItem[0])
-													&& (typeof listenerItem[0].handleEvent === 'function')
-												)
+										(
+											(typeof listener[0] === 'function')
+											|| (
+												(typeof listener[0] === 'object' && listener[0] !== null)
+												&& ('handleEvent' in listener[0])
+												&& (typeof listener[0].handleEvent === 'function')
 											)
-											&& (
-												(listenerItem[1] === undefined)
-												|| (typeof listenerItem[1] === 'object' && listenerItem[1] !== null)
-												|| (typeof listenerItem[1] === 'boolean')
-											)
-										))
+										)
+										&& (
+											(listener[1] === undefined)
+											|| (typeof listener[1] === 'object' && listener[1] !== null)
+											|| (typeof listener[1] === 'boolean')
+										)
 									) {
 										elementOfAttributes.addListener(eventName, listener);
 									} else {
@@ -207,7 +204,7 @@ function parseHTML(arr: unknown[]): ComponentChildren
 						} catch (er) {
 							const errorMessage = (er as Error).message || 'Listener must be one of the following:'
 								+ '\n1. (() => void) | {handleEvent:()=>void}'
-								+ '\n2. Array<[ (() => void) | {handleEvent:()=>void}, boolean | object ]>'
+								+ '\n2. [ (() => void) | {handleEvent:()=>void}, boolean | object ]'
 							;
 							console.error(errorMessage);
 							console.error('Listener:', (item as {[k: string]: unknown})[key], ' at key: ', key);

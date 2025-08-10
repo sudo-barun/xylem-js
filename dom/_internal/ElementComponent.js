@@ -102,11 +102,7 @@ export default class ElementComponent {
         for (const event of Object.keys(this._listeners)) {
             const listener = this._listeners[event];
             if (listener instanceof Array) {
-                for (const listenerItem of listener) {
-                    if (listenerItem instanceof Array) {
-                        element.addEventListener(event, listenerItem[0], listenerItem[1]);
-                    }
-                }
+                element.addEventListener(event, listener[0], listener[1]);
             }
             else {
                 element.addEventListener(event, listener);
