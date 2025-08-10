@@ -23,6 +23,9 @@ class CombinedSupplier {
         const callSubscribers = new CallSubscribers(this);
         callSubscribers._.apply(callSubscribers, arguments);
     }
+    get _value() {
+        return this._();
+    }
 }
 class StoreSubscriber {
     constructor(combinedStore, index) {

@@ -61,6 +61,11 @@ class CombinedSupplier<T extends Array<Supplier<unknown>>> implements Supplier<A
 		const callSubscribers = new CallSubscribers(this);
 		callSubscribers._.apply(callSubscribers, arguments as unknown as [ArrayOfSupplierToSupplierOfArray<T>]);
 	}
+
+	get _value()
+	{
+		return this._();
+	}
 }
 
 class StoreSubscriber<T extends Array<Supplier<unknown>>> implements SubscriberObject<unknown>

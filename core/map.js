@@ -26,6 +26,9 @@ class MappedSupplier {
         this._subscribers.push(subscriber);
         return new UnsubscriberImpl(this, subscriber);
     }
+    get _value() {
+        return this._();
+    }
 }
 class StoreSubscriber {
     constructor(mappedStore, mapper) {

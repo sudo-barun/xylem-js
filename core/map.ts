@@ -58,6 +58,11 @@ class MappedSupplier<I,O> implements Supplier<O>
 		this._subscribers.push(subscriber);
 		return new UnsubscriberImpl(this, subscriber);
 	}
+
+	get _value()
+	{
+		return this._();
+	}
 }
 
 class StoreSubscriber<I,O> implements SubscriberObject<I>
