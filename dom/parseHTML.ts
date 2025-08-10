@@ -99,13 +99,13 @@ function parseHTML(arr: unknown[]): ComponentChildren
 			} else if (textEndRegex.test(item)) {
 				throw new Error(`Text end marker(</>) found without preceeding text start marker(<>).`);
 			} else {
-				const partiallyResemblingElementStartRegex = /<([a-zA-Z]+)/;
+				const partiallyResemblingElementStartRegex = /^<\S+/;
 				if (partiallyResemblingElementStartRegex.test(item)) {
-					console.warn(`Text partially resembling start tag found: ${item} . Consider using text markers: <>${item}</>.`);
+					console.warn(`Text partially resembling start tag found: ${JSON.stringify(item)} . Consider using text markers: "<>",${JSON.stringify(item)},"</>" .`);
 				}
-				const partiallyResemblingElementEndRegex = /<\/([a-zA-Z]+)/;
+				const partiallyResemblingElementEndRegex = /^<\/\S+/;
 				if (partiallyResemblingElementEndRegex.test(item)) {
-					console.warn(`Text partially resembling end tag found: ${item} . Consider using text markers: <>${item}</>.`);
+					console.warn(`Text partially resembling end tag found: ${JSON.stringify(item)} . Consider using text markers: "<>",${JSON.stringify(item)},"</>" .`);
 				}
 				children.push(new TextComponent(item));
 			}
