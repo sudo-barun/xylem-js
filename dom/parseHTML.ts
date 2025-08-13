@@ -9,9 +9,9 @@ import type Supplier from '../types/Supplier.js';
 import TextComponent from './_internal/TextComponent.js';
 import type Subscriber from '../types/Subscriber.js';
 
-const elementStartRegex = /^<([a-zA-Z][0-9a-zA-Z-]+)>$/;
-const elementEndRegex = /^<\/([a-zA-Z][0-9a-zA-Z-]+)>$/;
-const selfClosingElementRegex = /^<([a-zA-Z][0-9a-zA-Z-]+)\/>$/;
+const elementStartRegex = /^<([a-zA-Z][0-9a-zA-Z-]*)>$/;
+const elementEndRegex = /^<\/([a-zA-Z][0-9a-zA-Z-]*)>$/;
+const selfClosingElementRegex = /^<([a-zA-Z][0-9a-zA-Z-]*)\/>$/;
 const commentStartRegex = /^<!--$/;
 const commentEndRegex = /^-->$/;
 const textStartRegex = /^<>$/;
