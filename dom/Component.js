@@ -154,10 +154,7 @@ export default class Component {
         this._context = 'createContext' in this ? this.createContext(parentContext) : parentContext;
         return this;
     }
-    getContextItem(key, default_) {
-        if (key in this._context) {
-            return this._context[key];
-        }
-        return default_;
+    getContext() {
+        return this._context;
     }
 }

@@ -15,6 +15,7 @@ import type EmittableStream from "../../types/EmittableStream.js";
 import type Stream from "../../types/Stream.js";
 import createEmittableStream from "../../core/createEmittableStream.js";
 import type HasLifecycle from "../../types/HasLifecycle.js";
+import type { Context } from "../context.js";
 
 export default
 class ElementComponent
@@ -86,7 +87,7 @@ class ElementComponent
 		return this._elementSubscriber;
 	}
 
-	setup(parentComponent: null|Component, namespace?: 'svg'|'mathml', modifier?: ComponentModifier, parentContext?: object): void
+	setup(parentComponent: null|Component, namespace?: 'svg'|'mathml', modifier?: ComponentModifier, parentContext?: Context<object>): void
 	{
 		if (this._tagName === 'svg') {
 			this._namespace = 'svg';

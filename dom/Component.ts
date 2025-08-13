@@ -4,9 +4,10 @@ import createEmittableStream from "../core/createEmittableStream.js";
 import ElementComponent from "./_internal/ElementComponent.js";
 import type EmittableStream from "../types/EmittableStream.js";
 import type Stream from "../types/Stream.js";
+import type { Context } from "./context.js";
 
 export default
-abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, Context extends object = object>
+abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, ContextData extends object = object>
 {
 	declare afterSetup: Stream<void>;
 	declare afterAttachToDom: Stream<void>;
@@ -14,7 +15,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	declare _attributes: EarlyAttributes & LateAttributes;
 	declare _modifier?: ComponentModifier|undefined;
-	declare _context: Context;
+	declare _context: Context<ContextData>;
 	declare _children: ComponentChildren;
 	declare _notifyAfterSetup: EmittableStream<void>;
 	declare _notifyAfterAttachToDom: EmittableStream<void>;
@@ -222,21 +223,16 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._lastNode.parentNode!.removeChild(this._lastNode);
 	}
 
-	createContext?(parentContext: object): Context;
+	createContext?(parentContext: object): Context<ContextData>;
 
-	setContext(parentContext: Context): this
+	setContext(parentContext: Context<ContextData>): this
 	{
 		this._context = 'createContext' in this ? this.createContext(parentContext) : parentContext;
 		return this;
 	}
 
-	getContextItem<T extends keyof Context>(key: T): Context[T];
-	getContextItem<T extends keyof Context>(key: T, default_: Context[T]): Context[T];
-	getContextItem<T extends keyof Context>(key: T, default_?: Context[T]): Context[T]|undefined
+	getContext(): Context<ContextData>
 	{
-		if (key in this._context) {
-			return this._context[key];
-		}
-		return default_;
+		return this._context;
 	}
 }
