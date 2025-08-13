@@ -86,7 +86,7 @@ class ElementComponent
 		return this._elementSubscriber;
 	}
 
-	setup(parentComponent: null|Component, namespace?: 'svg'|'mathml', modifier?: ComponentModifier): void
+	setup(parentComponent: null|Component, namespace?: 'svg'|'mathml', modifier?: ComponentModifier, parentContext?: object): void
 	{
 		if (this._tagName === 'svg') {
 			this._namespace = 'svg';
@@ -100,12 +100,15 @@ class ElementComponent
 		for (const child of this._children) {
 			if ((child instanceof Component)) {
 				child.setParentComponent(parentComponent);
+				if (parentContext !== undefined) {
+					child.setContext(parentContext);
+				}
 				if (this._namespace !== undefined) {
 					child.setNamespace(this._namespace);
 				}
 				child.setup(modifier);
 			} else if (child instanceof ElementComponent) {
-				child.setup(parentComponent, this._namespace, modifier);
+				child.setup(parentComponent, this._namespace, modifier, parentContext);
 			}
 		}
 	}

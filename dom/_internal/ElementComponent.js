@@ -41,7 +41,7 @@ export default class ElementComponent {
         }
         return this._elementSubscriber;
     }
-    setup(parentComponent, namespace, modifier) {
+    setup(parentComponent, namespace, modifier, parentContext) {
         if (this._tagName === 'svg') {
             this._namespace = 'svg';
         }
@@ -56,13 +56,16 @@ export default class ElementComponent {
         for (const child of this._children) {
             if ((child instanceof Component)) {
                 child.setParentComponent(parentComponent);
+                if (parentContext !== undefined) {
+                    child.setContext(parentContext);
+                }
                 if (this._namespace !== undefined) {
                     child.setNamespace(this._namespace);
                 }
                 child.setup(modifier);
             }
             else if (child instanceof ElementComponent) {
-                child.setup(parentComponent, this._namespace, modifier);
+                child.setup(parentComponent, this._namespace, modifier, parentContext);
             }
         }
     }

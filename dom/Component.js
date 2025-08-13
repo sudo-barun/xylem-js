@@ -47,13 +47,16 @@ export default class Component {
         for (const _vDom of children) {
             if ((_vDom instanceof Component)) {
                 _vDom.setParentComponent(this);
+                if (this._context !== undefined) {
+                    _vDom.setContext(this._context);
+                }
                 if (this._namespace !== undefined) {
                     _vDom.setNamespace(this._namespace);
                 }
                 _vDom.setup(modifier);
             }
             else if (_vDom instanceof ElementComponent) {
-                _vDom.setup(this, this._namespace, modifier);
+                _vDom.setup(this, this._namespace, modifier, this._context);
             }
         }
         this._children = children;
@@ -146,5 +149,15 @@ export default class Component {
         }
         this._firstNode.parentNode.removeChild(this._firstNode);
         this._lastNode.parentNode.removeChild(this._lastNode);
+    }
+    setContext(parentContext) {
+        this._context = 'createContext' in this ? this.createContext(parentContext) : parentContext;
+        return this;
+    }
+    getContextItem(key, default_) {
+        if (key in this._context) {
+            return this._context[key];
+        }
+        return default_;
     }
 }

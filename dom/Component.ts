@@ -6,7 +6,7 @@ import type EmittableStream from "../types/EmittableStream.js";
 import type Stream from "../types/Stream.js";
 
 export default
-abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}>
+abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, Context extends object = object>
 {
 	declare afterSetup: Stream<void>;
 	declare afterAttachToDom: Stream<void>;
@@ -14,6 +14,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	declare _attributes: EarlyAttributes & LateAttributes;
 	declare _modifier?: ComponentModifier|undefined;
+	declare _context: Context;
 	declare _children: ComponentChildren;
 	declare _notifyAfterSetup: EmittableStream<void>;
 	declare _notifyAfterAttachToDom: EmittableStream<void>;
@@ -88,12 +89,15 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		for (const _vDom of children) {
 			if ((_vDom instanceof Component)) {
 				_vDom.setParentComponent(this);
+				if (this._context !== undefined) {
+					_vDom.setContext(this._context);
+				}
 				if (this._namespace !== undefined) {
 					_vDom.setNamespace(this._namespace);
 				}
 				_vDom.setup(modifier);
 			} else if (_vDom instanceof ElementComponent) {
-				_vDom.setup(this, this._namespace, modifier);
+				_vDom.setup(this, this._namespace, modifier, this._context);
 			}
 		}
 
@@ -216,5 +220,23 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		}
 		this._firstNode.parentNode!.removeChild(this._firstNode);
 		this._lastNode.parentNode!.removeChild(this._lastNode);
+	}
+
+	createContext?(parentContext: object): Context;
+
+	setContext(parentContext: Context): this
+	{
+		this._context = 'createContext' in this ? this.createContext(parentContext) : parentContext;
+		return this;
+	}
+
+	getContextItem<T extends keyof Context>(key: T): Context[T];
+	getContextItem<T extends keyof Context>(key: T, default_: Context[T]): Context[T];
+	getContextItem<T extends keyof Context>(key: T, default_?: Context[T]): Context[T]|undefined
+	{
+		if (key in this._context) {
+			return this._context[key];
+		}
+		return default_;
 	}
 }
