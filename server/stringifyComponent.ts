@@ -77,7 +77,7 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 
 			const tagName = componentChild.tagName();
 			const childrenString = stringifyComponentChildren(componentChild.children());
-			const tagWithAttributes = attributesString ? [tagName, attributesString].join(' ') : tagName;
+			const tagWithAttributes = attributesString ? (tagName + ' ' + attributesString) : tagName;
 			if (componentChild.getNamespace() === 'html' && componentChild.tagName().toLowerCase() in voidElementsInHTML) {
 				return `<${tagWithAttributes}/>`;
 			}
@@ -86,11 +86,11 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 		} else if (componentChild instanceof Component) {
 
 			if (componentChild instanceof RawHTML) {
-				return [
-					`<!--${escapeSpecialChars(componentChild.getComponentName())}-->`,
-					componentChild.getContent(),
-					`<!--/${escapeSpecialChars(componentChild.getComponentName())}-->`,
-				].join('');
+				return (
+					`<!--${escapeSpecialChars(componentChild.getComponentName())}-->`
+					+ componentChild.getContent()
+					+ `<!--/${escapeSpecialChars(componentChild.getComponentName())}-->`
+				);
 			}
 
 			return stringifyComponent(componentChild);
@@ -109,9 +109,9 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 export default
 function stringifyComponent(component: Component): string
 {
-	return [
-		`<!--${escapeSpecialChars(component.getComponentName())}-->`,
-		stringifyComponentChildren(component.children()),
-		`<!--/${escapeSpecialChars(component.getComponentName())}-->`,
-	].join('');
+	return (
+		`<!--${escapeSpecialChars(component.getComponentName())}-->`
+		+ stringifyComponentChildren(component.children())
+		+ `<!--/${escapeSpecialChars(component.getComponentName())}-->`
+	);
 }

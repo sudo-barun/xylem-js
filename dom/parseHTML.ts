@@ -238,13 +238,12 @@ function parseHTML(arr: unknown[]): ComponentChildren
 	}
 
 	if (unclosedElement !== null) {
-		const errorMessage = [
-			`Unclosed element found with tagName "${unclosedElement.tagName()}".`,
-			' ',
-			`Close it with corresponding end tag (</${unclosedElement.tagName()}>)`,
-			` or make it self-closing (<${unclosedElement.tagName()}/>)`,
-			` if it is a void element.`,
-		].join('');
+		const errorMessage = (
+			`Unclosed element found with tagName "${unclosedElement.tagName()}".`
+			+ ` Close it with corresponding end tag (</${unclosedElement.tagName()}>)`
+			+ ` or make it self-closing (<${unclosedElement.tagName()}/>)`
+			+ ` if it is a void element.`
+		);
 		console.error(errorMessage, arr);
 		throw new Error(errorMessage);
 	}
