@@ -180,6 +180,15 @@ class ElementComponent
 				this._elementSubscriber._(element);
 			}
 		}
+		this.beforeDetachFromDom.subscribe(() => {
+			if (this._elementSubscriber) {
+				if (typeof this._elementSubscriber === 'function') {
+					this._elementSubscriber(null!);
+				} else {
+					this._elementSubscriber._(null!);
+				}
+			}
+		});
 	}
 
 	getChildNodes(): ChildNode[]
