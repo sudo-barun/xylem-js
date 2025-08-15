@@ -1,22 +1,19 @@
 import type ComponentChildren from '../types/ComponentChildren.js';
 import Component from './Component.js';
 
-export default
-class RawHTML extends Component
-{
-	declare _content: string;
-	declare _childNodes: Array<ChildNode>;
+type Attrs = {
+	children: string,
+};
 
-	constructor(content: string)
-	{
-		super();
-		this._content = content;
-	}
+export default
+class RawHTML extends Component<Attrs>
+{
+	declare _childNodes: Array<ChildNode>;
 
 	setupDom(): void
 	{
 		super.setupDom();
-		const doc = new DOMParser().parseFromString(this._content, 'text/html');
+		const doc = new DOMParser().parseFromString(this._attributes.children, 'text/html');
 		this._childNodes = Array.from(doc.body.childNodes);
 	}
 
@@ -40,6 +37,6 @@ class RawHTML extends Component
 
 	getContent(): string
 	{
-		return this._content;
+		return this._attributes.children;
 	}
 }

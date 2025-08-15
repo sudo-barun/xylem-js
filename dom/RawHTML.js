@@ -1,12 +1,8 @@
 import Component from './Component.js';
 export default class RawHTML extends Component {
-    constructor(content) {
-        super();
-        this._content = content;
-    }
     setupDom() {
         super.setupDom();
-        const doc = new DOMParser().parseFromString(this._content, 'text/html');
+        const doc = new DOMParser().parseFromString(this._attributes.children, 'text/html');
         this._childNodes = Array.from(doc.body.childNodes);
     }
     build() {
@@ -22,6 +18,6 @@ export default class RawHTML extends Component {
         return nodes;
     }
     getContent() {
-        return this._content;
+        return this._attributes.children;
     }
 }
