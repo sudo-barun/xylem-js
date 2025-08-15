@@ -1,7 +1,5 @@
-import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import createEmittableStream from "../core/createEmittableStream.js";
 import ElementComponent from "./_internal/ElementComponent.js";
-import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 export default class Component {
     constructor(attributes = {}) {
         this._attributes = attributes;
@@ -148,35 +146,5 @@ export default class Component {
         }
         this._firstNode.parentNode.removeChild(this._firstNode);
         this._lastNode.parentNode.removeChild(this._lastNode);
-    }
-    bindSupplier(supplier) {
-        return new ComponentBoundedSupplier(this, supplier);
-    }
-}
-class ComponentBoundedSupplier {
-    constructor(component, supplier) {
-        this._component = component;
-        this._supplier = supplier;
-        this._subscribers = [];
-        component.beforeDetachFromDom.subscribe(supplier.subscribe(new SubscriberImpl(this)));
-    }
-    _() {
-        return this._supplier._.apply(this._supplier, arguments);
-    }
-    _emit(value) {
-        const callSubscribers = new CallSubscribers(this);
-        callSubscribers._.apply(callSubscribers, arguments);
-    }
-    subscribe(subscriber) {
-        this._subscribers.push(subscriber);
-        return new UnsubscriberImpl(this, subscriber);
-    }
-}
-class SubscriberImpl {
-    constructor(componentBoundedSupplier) {
-        this._componentBoundedSupplier = componentBoundedSupplier;
-    }
-    _(value) {
-        this._componentBoundedSupplier._emit(value);
     }
 }

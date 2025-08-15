@@ -1,9 +1,11 @@
 import Component from "../Component.js";
 import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
+import map from "../../core/map.js";
 function getArray(array) {
     return array instanceof Array ? array : array._();
 }
+const identity = v => v;
 export default class ForEachBlock extends Component {
     build(attributes) {
         if ('subscribe' in this._attributes.array) {
@@ -34,7 +36,7 @@ export default class ForEachBlock extends Component {
                 index$ = createStore(index);
             }
             else if ('index$Array' in attributes.array) {
-                index$ = this.bindSupplier(attributes.array.index$Array[index]);
+                index$ = map(this, attributes.array.index$Array[index], identity);
             }
             else {
                 index$ = createStore(index);
@@ -50,7 +52,7 @@ export default class ForEachBlock extends Component {
             build: this._attributes.build,
             buildArgs: [
                 item,
-                this.bindSupplier(this._attributes.array.index$Array[index]),
+                map(this, this._attributes.array.index$Array[index], identity),
             ],
         });
     }

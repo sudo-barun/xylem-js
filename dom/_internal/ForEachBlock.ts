@@ -6,6 +6,7 @@ import createStore from "../../core/createStore.js";
 import ForEachBlockItem from "./ForEachBlockItem.js";
 import type Supplier from "../../types/Supplier.js";
 import type ForEachBuild from "../../types/_internal/ForEachBuild.js";
+import map from "../../core/map.js";
 
 type Attributes<T> = {
 	array: T[]|Supplier<T[]>|ArraySupplier<T>;
@@ -16,6 +17,8 @@ function getArray<T>(array: T[]|Supplier<T[]>|ArraySupplier<T>): T[]
 {
 	return array instanceof Array ? array : array._();
 }
+
+const identity: <T>(v:T)=>T = v => v;
 
 export default
 class ForEachBlock<T> extends Component<Attributes<T>>
@@ -55,7 +58,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			if (attributes.array instanceof Array) {
 				index$ = createStore(index);
 			} else if ('index$Array' in attributes.array) {
-				index$ = this.bindSupplier(attributes.array.index$Array[index]);
+				index$ = map(this, attributes.array.index$Array[index], identity as (value: number) => number);
 			} else {
 				index$ = createStore(index);
 			}
@@ -72,7 +75,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			build: this._attributes.build,
 			buildArgs: [
 				item,
-				this.bindSupplier((this._attributes.array as ArraySupplier<T>).index$Array[index]),
+				map(this, (this._attributes.array as ArraySupplier<T>).index$Array[index], identity as (value: number) => number),
 			],
 		});
 	}

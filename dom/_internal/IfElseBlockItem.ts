@@ -13,11 +13,11 @@ class IfElseBlockItem extends Component<Attributes>
 {
 	build(attributes: Attributes): ComponentChildren
 	{
-		const isActive$ = this.bindSupplier(attributes.isActive$);
+		const isActive$ = attributes.isActive$;
 
-		isActive$.subscribe(() => {
+		this.beforeDetachFromDom.subscribe(isActive$.subscribe(() => {
 			this.reload();
-		});
+		}));
 
 		if (isActive$._()) {
 			const build = attributes.build;

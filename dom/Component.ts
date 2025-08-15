@@ -1,15 +1,9 @@
-import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import type ComponentChildren from "../types/ComponentChildren.js";
 import type ComponentModifier from "../types/ComponentModifier.js";
 import createEmittableStream from "../core/createEmittableStream.js";
-import type Supplier from "../types/Supplier.js";
 import ElementComponent from "./_internal/ElementComponent.js";
 import type EmittableStream from "../types/EmittableStream.js";
 import type Stream from "../types/Stream.js";
-import type Subscriber from "../types/Subscriber.js";
-import type SubscriberObject from "../types/SubscriberObject.js";
-import type Unsubscriber from "../types/Unsubscriber.js";
-import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
 
 export default
 abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}>
@@ -222,58 +216,5 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		}
 		this._firstNode.parentNode!.removeChild(this._firstNode);
 		this._lastNode.parentNode!.removeChild(this._lastNode);
-	}
-
-	bindSupplier<R extends Supplier<unknown>>(supplier: R): R
-	{
-		return new ComponentBoundedSupplier(this, supplier) as unknown as R;
-	}
-}
-
-class ComponentBoundedSupplier<T> implements Supplier<T>
-{
-	declare _component: Component;
-	declare _supplier: Supplier<T>;
-	declare _subscribers: Subscriber<T>[];
-
-	constructor(component: Component, supplier: Supplier<T>)
-	{
-		this._component = component;
-		this._supplier = supplier;
-		this._subscribers = [];
-
-		component.beforeDetachFromDom.subscribe(supplier.subscribe(new SubscriberImpl(this)));
-	}
-
-	_(): T
-	{
-		return this._supplier._.apply(this._supplier, arguments as unknown as []);
-	}
-
-	_emit(value: T)
-	{
-		const callSubscribers = new CallSubscribers(this);
-		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);
-	}
-
-	subscribe(subscriber: Subscriber<T>): Unsubscriber
-	{
-		this._subscribers.push(subscriber);
-		return new UnsubscriberImpl(this, subscriber);
-	}
-}
-
-class SubscriberImpl<T> implements SubscriberObject<T>
-{
-	declare _componentBoundedSupplier: ComponentBoundedSupplier<T>;
-
-	constructor(componentBoundedSupplier: ComponentBoundedSupplier<T>)
-	{
-		this._componentBoundedSupplier = componentBoundedSupplier;
-	}
-
-	_(value: T): void
-	{
-		this._componentBoundedSupplier._emit(value);
 	}
 }
