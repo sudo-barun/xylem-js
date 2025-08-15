@@ -11,7 +11,6 @@ export default class Component {
         this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
         this._notifyBeforeDetachFromDom = createEmittableStream();
         this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
-        this._eventUnsubscribers = [];
         this._modifier = undefined;
         this._children = undefined;
         this._firstNode = undefined;

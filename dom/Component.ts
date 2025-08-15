@@ -24,7 +24,6 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	declare _notifyAfterSetup: EmittableStream<void>;
 	declare _notifyAfterAttachToDom: EmittableStream<void>;
 	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
-	declare _eventUnsubscribers: Array<()=>void>;
 
 	declare _firstNode: Comment;
 	declare _lastNode: Comment;
@@ -41,7 +40,6 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
 		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
 		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
-		this._eventUnsubscribers = [];
 		this._modifier = undefined;
 		this._children = undefined!;
 		this._firstNode = undefined!;
