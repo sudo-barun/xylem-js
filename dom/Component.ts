@@ -6,8 +6,13 @@ import type EmittableStream from "../types/EmittableStream.js";
 import type Stream from "../types/Stream.js";
 import type { Context } from "./context.js";
 
+export
+type GlobalContextData = {
+	$$DEBUG?: boolean,
+};
+
 export default
-abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, ContextData extends object = object>
+abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, ContextData extends GlobalContextData = GlobalContextData>
 {
 	declare afterSetup: Stream<void>;
 	declare afterAttachToDom: Stream<void>;
@@ -140,8 +145,10 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	setupDom(): void
 	{
-		this._firstNode = this._firstNode || document.createComment(`${this.getComponentName()}`);
-		this._lastNode = this._lastNode || document.createComment(`/${this.getComponentName()}`);
+		const isDebug = this.getContext().getItem('$$DEBUG', false);
+		const name = this.getComponentName();
+		this._firstNode = this._firstNode || document.createComment(isDebug ? name : '');
+		this._lastNode = this._lastNode || document.createComment(isDebug ? '/'+name : '');
 
 		for (const vDom of this._children) {
 			vDom.setupDom();

@@ -87,8 +87,10 @@ export default class Component {
         return typeof componentName === 'string' ? componentName : '';
     }
     setupDom() {
-        this._firstNode = this._firstNode || document.createComment(`${this.getComponentName()}`);
-        this._lastNode = this._lastNode || document.createComment(`/${this.getComponentName()}`);
+        const isDebug = this.getContext().getItem('$$DEBUG', false);
+        const name = this.getComponentName();
+        this._firstNode = this._firstNode || document.createComment(isDebug ? name : '');
+        this._lastNode = this._lastNode || document.createComment(isDebug ? '/' + name : '');
         for (const vDom of this._children) {
             vDom.setupDom();
         }

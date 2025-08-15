@@ -86,10 +86,12 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 		} else if (componentChild instanceof Component) {
 
 			if (componentChild instanceof RawHTML) {
+				const isDebug = componentChild.getContext()?.getItem('$$DEBUG', false);
+				const name = escapeSpecialChars(componentChild.getComponentName());
 				return (
-					`<!--${escapeSpecialChars(componentChild.getComponentName())}-->`
+					`<!--${isDebug ? name : ''}-->`
 					+ componentChild.getContent()
-					+ `<!--/${escapeSpecialChars(componentChild.getComponentName())}-->`
+					+ `<!--${isDebug ? '/'+name : ''}-->`
 				);
 			}
 
@@ -109,9 +111,11 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 export default
 function stringifyComponent(component: Component): string
 {
+	const isDebug = component.getContext()?.getItem('$$DEBUG', false);
+	const name = escapeSpecialChars(component.getComponentName());
 	return (
-		`<!--${escapeSpecialChars(component.getComponentName())}-->`
+		`<!--${isDebug ? name : ''}-->`
 		+ stringifyComponentChildren(component.children())
-		+ `<!--/${escapeSpecialChars(component.getComponentName())}-->`
+		+ `<!--${isDebug ? '/'+name : ''}-->`
 	);
 }
