@@ -12,6 +12,9 @@ class MappedSupplier {
         hasLifecycle.beforeDetachFromDom.subscribe(supplier.subscribe(new StoreSubscriber(this, mapper)));
     }
     _() {
+        if (arguments.length > 0) {
+            throw new Error('Set operation not supported');
+        }
         if (typeof this._mapper === 'function') {
             return this._mapper(this._supplier._());
         }

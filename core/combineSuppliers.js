@@ -13,6 +13,9 @@ class CombinedSupplier {
         }
     }
     _() {
+        if (arguments.length > 0) {
+            throw new Error('Set operation not supported');
+        }
         return this._suppliers.map((store) => store._());
     }
     subscribe(subscriber) {

@@ -12,6 +12,9 @@ class CombinedSupplier {
         }
     }
     _() {
+        if (arguments.length > 0) {
+            throw new Error('Set operation not supported');
+        }
         return Object.keys(this._stores).reduce((acc, key) => {
             acc[key] = this._stores[key]._();
             return acc;

@@ -37,6 +37,9 @@ class CombinedSupplier<T extends {[key: string]: Supplier<unknown>}> implements 
 
 	_(): ObjectOfSupplierToSupplierOfObject<T>
 	{
+		if (arguments.length > 0) {
+			throw new Error('Set operation not supported');
+		}
 		return Object.keys(this._stores).reduce((acc, key) => {
 			acc[key] = this._stores[key]._();
 			return acc;

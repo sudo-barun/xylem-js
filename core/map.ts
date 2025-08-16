@@ -45,6 +45,9 @@ class MappedSupplier<I,O> implements Supplier<O>
 
 	_(): O
 	{
+		if (arguments.length > 0) {
+			throw new Error('Set operation not supported');
+		}
 		if (typeof this._mapper === 'function') {
 			return this._mapper(this._supplier._());
 		} else {

@@ -51,6 +51,9 @@ class CombinedSupplier<T extends Array<Supplier<unknown>>> implements Supplier<A
 
 	_(): ArrayOfSupplierToSupplierOfArray<T>
 	{
+		if (arguments.length > 0) {
+			throw new Error('Set operation not supported');
+		}
 		return this._suppliers.map((store) => store._()) as ArrayOfSupplierToSupplierOfArray<T>;
 	}
 
