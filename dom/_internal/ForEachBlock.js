@@ -12,7 +12,7 @@ export default class ForEachBlock extends Component {
             const unsubscribe = this._attributes.array.subscribe((array) => {
                 super.reload();
             });
-            this.beforeDetachFromDom.subscribe(unsubscribe);
+            this.beforeDetach.subscribe(unsubscribe);
             if ('mutate' in this._attributes.array) {
                 const unsubscribeMutation = this._attributes.array.mutation.subscribe((arrayMutation) => {
                     const [_, action, ...mutationArgs] = arrayMutation;
@@ -26,7 +26,7 @@ export default class ForEachBlock extends Component {
                     }
                     handler.apply(this, mutationArgs);
                 });
-                this.beforeDetachFromDom.subscribe(unsubscribeMutation);
+                this.beforeDetach.subscribe(unsubscribeMutation);
             }
         }
         const array = getArray(attributes.array);

@@ -29,7 +29,7 @@ class Combined<T extends {[key: string]: Supplier<unknown>}> implements Supplier
 		this._subscribers = [];
 
 		for (const key of Object.keys(stores)) {
-			hasLifecycle.beforeDetachFromDom.subscribe(
+			hasLifecycle.beforeDetach.subscribe(
 				stores[key].subscribe(new StoreSubscriber(this, key))
 			);
 		}

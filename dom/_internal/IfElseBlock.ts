@@ -84,7 +84,7 @@ class IfElseBlock extends Component<Attributes>
 					}
 				}
 			});
-			this.beforeDetachFromDom.subscribe(unsubscribe);
+			this.beforeDetach.subscribe(unsubscribe);
 		}
 
 		return attributes.itemAttributesArray.map((itemAttributes, index) => {

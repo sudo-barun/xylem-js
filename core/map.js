@@ -9,7 +9,7 @@ class MappedSupplier {
         this._supplier = supplier;
         this._mapper = mapper;
         this._subscribers = [];
-        hasLifecycle.beforeDetachFromDom.subscribe(supplier.subscribe(new StoreSubscriber(this, mapper)));
+        hasLifecycle.beforeDetach.subscribe(supplier.subscribe(new StoreSubscriber(this, mapper)));
     }
     _() {
         if (arguments.length > 0) {

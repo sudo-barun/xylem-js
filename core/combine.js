@@ -9,7 +9,7 @@ class Combined {
         this._subscribers = [];
         for (let index = 0; index < suppliers.length; index++) {
             const supplier = suppliers[index];
-            hasLifecycle.beforeDetachFromDom.subscribe(supplier.subscribe(new StoreSubscriber(this, index)));
+            hasLifecycle.beforeDetach.subscribe(supplier.subscribe(new StoreSubscriber(this, index)));
         }
     }
     _() {

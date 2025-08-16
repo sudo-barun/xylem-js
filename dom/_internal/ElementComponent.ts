@@ -31,8 +31,8 @@ class ElementComponent
 	declare _elementSubscriber: Subscriber<Element>|null;
 	declare _domNode: Element;
 	declare _namespace?: 'svg'|'mathml';
-	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
-	declare beforeDetachFromDom: Stream<void>;
+	declare _notifyBeforeDetach: EmittableStream<void>;
+	declare beforeDetach: Stream<void>;
 
 	constructor(
 		tagName: string,
@@ -45,8 +45,8 @@ class ElementComponent
 		this._listeners = {};
 		this._elementSubscriber = null;
 		this._domNode = undefined!;
-		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
-		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+		this._notifyBeforeDetach = createEmittableStream<void>();
+		this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
 	}
 
 	tagName(): string
@@ -184,7 +184,7 @@ class ElementComponent
 				this._elementSubscriber._(element);
 			}
 		}
-		this.beforeDetachFromDom.subscribe(() => {
+		this.beforeDetach.subscribe(() => {
 			if (this._elementSubscriber) {
 				if (typeof this._elementSubscriber === 'function') {
 					this._elementSubscriber(null!);
@@ -224,7 +224,7 @@ class ElementComponent
 
 	notifyBeforeDetachFromDom(): void
 	{
-		this._notifyBeforeDetachFromDom._();
+		this._notifyBeforeDetach._();
 		for (const vDomItem of this._children) {
 			vDomItem.notifyBeforeDetachFromDom();
 		}
@@ -387,7 +387,7 @@ function createAttributeFunction(hasLifecycle: HasLifecycle, supplier: Supplier<
 		if (isNewNode) {
 			setAttribute(element, attributeName, supplier._());
 		}
-		hasLifecycle.beforeDetachFromDom.subscribe(
+		hasLifecycle.beforeDetach.subscribe(
 			supplier.subscribe(new AttributeSubscriber(element, attributeName))
 		);
 	};

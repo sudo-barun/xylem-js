@@ -38,7 +38,7 @@ class MappedSupplier<I,O> implements Supplier<O>
 		this._mapper = mapper;
 		this._subscribers = [];
 
-		hasLifecycle.beforeDetachFromDom.subscribe(
+		hasLifecycle.beforeDetach.subscribe(
 			supplier.subscribe(new StoreSubscriber(this, mapper))
 		);
 	}

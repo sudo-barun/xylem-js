@@ -14,8 +14,8 @@ export default class ElementComponent {
         this._listeners = {};
         this._elementSubscriber = null;
         this._domNode = undefined;
-        this._notifyBeforeDetachFromDom = createEmittableStream();
-        this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+        this._notifyBeforeDetach = createEmittableStream();
+        this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
     }
     tagName() {
         return this._tagName;
@@ -130,7 +130,7 @@ export default class ElementComponent {
                 this._elementSubscriber._(element);
             }
         }
-        this.beforeDetachFromDom.subscribe(() => {
+        this.beforeDetach.subscribe(() => {
             if (this._elementSubscriber) {
                 if (typeof this._elementSubscriber === 'function') {
                     this._elementSubscriber(null);
@@ -163,7 +163,7 @@ export default class ElementComponent {
         }
     }
     notifyBeforeDetachFromDom() {
-        this._notifyBeforeDetachFromDom._();
+        this._notifyBeforeDetach._();
         for (const vDomItem of this._children) {
             vDomItem.notifyBeforeDetachFromDom();
         }
@@ -265,7 +265,7 @@ function createAttributeFunction(hasLifecycle, supplier) {
         if (isNewNode) {
             setAttribute(element, attributeName, supplier._());
         }
-        hasLifecycle.beforeDetachFromDom.subscribe(supplier.subscribe(new AttributeSubscriber(element, attributeName)));
+        hasLifecycle.beforeDetach.subscribe(supplier.subscribe(new AttributeSubscriber(element, attributeName)));
     };
 }
 function setAttribute(element, name, value) {

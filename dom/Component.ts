@@ -15,16 +15,16 @@ export default
 abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, ContextData extends GlobalContextData = GlobalContextData>
 {
 	declare afterSetup: Stream<void>;
-	declare afterAttachToDom: Stream<void>;
-	declare beforeDetachFromDom: Stream<void>;
+	declare afterAttach: Stream<void>;
+	declare beforeDetach: Stream<void>;
 
 	declare _attributes: EarlyAttributes & LateAttributes;
 	declare _modifier?: ComponentModifier|undefined;
 	declare _context: Context<ContextData>;
 	declare _children: ComponentChildren;
 	declare _notifyAfterSetup: EmittableStream<void>;
-	declare _notifyAfterAttachToDom: EmittableStream<void>;
-	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
+	declare _notifyAfterAttach: EmittableStream<void>;
+	declare _notifyBeforeDetach: EmittableStream<void>;
 
 	declare _firstNode: Comment;
 	declare _lastNode: Comment;
@@ -37,10 +37,10 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		this._attributes = attributes as typeof this._attributes;
 		this._notifyAfterSetup = createEmittableStream<void>();
 		this.afterSetup = this._notifyAfterSetup.subscribeOnly;
-		this._notifyAfterAttachToDom = createEmittableStream<void>();
-		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
-		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
-		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+		this._notifyAfterAttach = createEmittableStream<void>();
+		this.afterAttach = this._notifyAfterAttach.subscribeOnly;
+		this._notifyBeforeDetach = createEmittableStream<void>();
+		this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
 		this._modifier = undefined;
 		this._children = undefined!;
 		this._firstNode = undefined!;
@@ -119,10 +119,10 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 		this._notifyAfterSetup = createEmittableStream<void>();
 		this.afterSetup = this._notifyAfterSetup.subscribeOnly;
-		this._notifyAfterAttachToDom = createEmittableStream<void>();
-		this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
-		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
-		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+		this._notifyAfterAttach = createEmittableStream<void>();
+		this.afterAttach = this._notifyAfterAttach.subscribeOnly;
+		this._notifyBeforeDetach = createEmittableStream<void>();
+		this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
 
 		this.setup(this._modifier);
 		this.notifyAfterSetup();
@@ -205,7 +205,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	notifyAfterAttachToDom()
 	{
-		this._notifyAfterAttachToDom._();
+		this._notifyAfterAttach._();
 		for (const vDomItem of this._children) {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
 				vDomItem.notifyAfterAttachToDom();
@@ -215,7 +215,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	notifyBeforeDetachFromDom()
 	{
-		this._notifyBeforeDetachFromDom._();
+		this._notifyBeforeDetach._();
 		for (const vDomItem of this._children) {
 			vDomItem.notifyBeforeDetachFromDom();
 		}

@@ -5,10 +5,10 @@ export default class Component {
         this._attributes = attributes;
         this._notifyAfterSetup = createEmittableStream();
         this.afterSetup = this._notifyAfterSetup.subscribeOnly;
-        this._notifyAfterAttachToDom = createEmittableStream();
-        this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
-        this._notifyBeforeDetachFromDom = createEmittableStream();
-        this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+        this._notifyAfterAttach = createEmittableStream();
+        this.afterAttach = this._notifyAfterAttach.subscribeOnly;
+        this._notifyBeforeDetach = createEmittableStream();
+        this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
         this._modifier = undefined;
         this._children = undefined;
         this._firstNode = undefined;
@@ -68,10 +68,10 @@ export default class Component {
         }
         this._notifyAfterSetup = createEmittableStream();
         this.afterSetup = this._notifyAfterSetup.subscribeOnly;
-        this._notifyAfterAttachToDom = createEmittableStream();
-        this.afterAttachToDom = this._notifyAfterAttachToDom.subscribeOnly;
-        this._notifyBeforeDetachFromDom = createEmittableStream();
-        this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+        this._notifyAfterAttach = createEmittableStream();
+        this.afterAttach = this._notifyAfterAttach.subscribeOnly;
+        this._notifyBeforeDetach = createEmittableStream();
+        this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
         this.setup(this._modifier);
         this.notifyAfterSetup();
         for (const vDom of this._children) {
@@ -132,7 +132,7 @@ export default class Component {
         }
     }
     notifyAfterAttachToDom() {
-        this._notifyAfterAttachToDom._();
+        this._notifyAfterAttach._();
         for (const vDomItem of this._children) {
             if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
                 vDomItem.notifyAfterAttachToDom();
@@ -140,7 +140,7 @@ export default class Component {
         }
     }
     notifyBeforeDetachFromDom() {
-        this._notifyBeforeDetachFromDom._();
+        this._notifyBeforeDetach._();
         for (const vDomItem of this._children) {
             vDomItem.notifyBeforeDetachFromDom();
         }

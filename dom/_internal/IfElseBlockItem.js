@@ -2,7 +2,7 @@ import Component from "../Component.js";
 export default class IfElseBlockItem extends Component {
     build(attributes) {
         const isActive$ = attributes.isActive$;
-        this.beforeDetachFromDom.subscribe(isActive$.subscribe(() => {
+        this.beforeDetach.subscribe(isActive$.subscribe(() => {
             this.reload();
         }));
         if (isActive$._()) {

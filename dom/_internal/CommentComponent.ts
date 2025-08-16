@@ -13,20 +13,20 @@ class CommentComponent
 {
 	declare _textContent: string|Supplier<string>;
 	declare _domNode: Comment;
-	declare _notifyBeforeDetachFromDom: EmittableStream<void>;
-	declare beforeDetachFromDom: Stream<void>;
+	declare _notifyBeforeDetach: EmittableStream<void>;
+	declare beforeDetach: Stream<void>;
 
 	constructor(textContent: string|Supplier<string>)
 	{
 		this._textContent = textContent;
 		this._domNode = undefined!;
-		this._notifyBeforeDetachFromDom = createEmittableStream<void>();
-		this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+		this._notifyBeforeDetach = createEmittableStream<void>();
+		this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
 	}
 
 	notifyBeforeDetachFromDom()
 	{
-		this._notifyBeforeDetachFromDom._();
+		this._notifyBeforeDetach._();
 	}
 
 	textContent(textContent?: string|Supplier<string>)
@@ -52,7 +52,7 @@ class CommentComponent
 		}
 
 		if (isSupplier(this._textContent)) {
-			this.beforeDetachFromDom.subscribe(
+			this.beforeDetach.subscribe(
 				this._textContent.subscribe(new TextContentSubscriber(this))
 			);
 		}

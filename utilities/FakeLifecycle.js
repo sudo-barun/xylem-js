@@ -1,6 +1,6 @@
 export default class FakeLifecycle {
     constructor() {
-        this.beforeDetachFromDom = new FakeLifecycleEvent;
+        this.beforeDetach = new FakeLifecycleEvent;
     }
 }
 class FakeLifecycleEvent {

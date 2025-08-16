@@ -52,7 +52,7 @@ export default class IfElseBlock extends Component {
                     }
                 }
             });
-            this.beforeDetachFromDom.subscribe(unsubscribe);
+            this.beforeDetach.subscribe(unsubscribe);
         }
         return attributes.itemAttributesArray.map((itemAttributes, index) => {
             return new IfElseBlockItem({

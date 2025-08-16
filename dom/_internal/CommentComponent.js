@@ -6,11 +6,11 @@ export default class CommentComponent {
     constructor(textContent) {
         this._textContent = textContent;
         this._domNode = undefined;
-        this._notifyBeforeDetachFromDom = createEmittableStream();
-        this.beforeDetachFromDom = this._notifyBeforeDetachFromDom.subscribeOnly;
+        this._notifyBeforeDetach = createEmittableStream();
+        this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
     }
     notifyBeforeDetachFromDom() {
-        this._notifyBeforeDetachFromDom._();
+        this._notifyBeforeDetach._();
     }
     textContent(textContent) {
         if (arguments.length !== 0) {
@@ -30,7 +30,7 @@ export default class CommentComponent {
             }
         }
         if (isSupplier(this._textContent)) {
-            this.beforeDetachFromDom.subscribe(this._textContent.subscribe(new TextContentSubscriber(this)));
+            this.beforeDetach.subscribe(this._textContent.subscribe(new TextContentSubscriber(this)));
         }
         this._domNode = this._domNode || document.createComment(textContent);
     }

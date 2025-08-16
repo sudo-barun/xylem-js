@@ -8,7 +8,7 @@ class Combined {
         this._stores = stores;
         this._subscribers = [];
         for (const key of Object.keys(stores)) {
-            hasLifecycle.beforeDetachFromDom.subscribe(stores[key].subscribe(new StoreSubscriber(this, key)));
+            hasLifecycle.beforeDetach.subscribe(stores[key].subscribe(new StoreSubscriber(this, key)));
         }
     }
     _() {

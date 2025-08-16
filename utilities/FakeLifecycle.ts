@@ -5,11 +5,11 @@ import type Unsubscriber from "../types/Unsubscriber.js";
 export default
 class FakeLifecycle implements HasLifecycle
 {
-	declare beforeDetachFromDom: Stream<void>
+	declare beforeDetach: Stream<void>
 
 	constructor()
 	{
-		this.beforeDetachFromDom = new FakeLifecycleEvent;
+		this.beforeDetach = new FakeLifecycleEvent;
 	}
 }
 

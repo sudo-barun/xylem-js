@@ -15,7 +15,7 @@ class IfElseBlockItem extends Component<Attributes>
 	{
 		const isActive$ = attributes.isActive$;
 
-		this.beforeDetachFromDom.subscribe(isActive$.subscribe(() => {
+		this.beforeDetach.subscribe(isActive$.subscribe(() => {
 			this.reload();
 		}));
 
