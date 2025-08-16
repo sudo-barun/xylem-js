@@ -44,3 +44,11 @@ function createContext<T extends object>(parentContext: Context<T>|null, context
 	Object.freeze(contextData);
 	return new Context(contextData);
 }
+
+export
+type DefaultContextData = {
+	$$DEBUG?: boolean,
+};
+
+export
+const defaultContext = createContext<DefaultContextData>(null, { $$DEBUG: false });

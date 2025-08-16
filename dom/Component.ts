@@ -4,15 +4,10 @@ import createEmittableStream from "../core/createEmittableStream.js";
 import ElementComponent from "./_internal/ElementComponent.js";
 import type EmittableStream from "../types/EmittableStream.js";
 import type Stream from "../types/Stream.js";
-import type { Context } from "./context.js";
-
-export
-type GlobalContextData = {
-	$$DEBUG?: boolean,
-};
+import { type Context, type DefaultContextData } from "./context.js";
 
 export default
-abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, ContextData extends GlobalContextData = GlobalContextData>
+abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, ContextData extends DefaultContextData = DefaultContextData>
 {
 	declare afterSetup: Stream<void>;
 	declare afterAttach: Stream<void>;

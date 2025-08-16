@@ -28,3 +28,4 @@ export function createContext(parentContext, contextData_) {
     Object.freeze(contextData);
     return new Context(contextData);
 }
+export const defaultContext = createContext(null, { $$DEBUG: false });

@@ -1,5 +1,6 @@
 import createEmittableStream from "../core/createEmittableStream.js";
 import ElementComponent from "./_internal/ElementComponent.js";
+import {} from "./context.js";
 export default class Component {
     constructor(attributes = {}) {
         this._attributes = attributes;
