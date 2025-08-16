@@ -13,12 +13,12 @@ type ObjectOfSupplierToSupplierOfObject<T extends { [key: string]: Supplier<unkn
 };
 
 export default
-function combineNamedSuppliers<T extends {[key: string]: Supplier<unknown>}>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ObjectOfSupplierToSupplierOfObject<T>>
+function combineNamed<T extends {[key: string]: Supplier<unknown>}>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ObjectOfSupplierToSupplierOfObject<T>>
 {
-	return new CombinedSupplier(hasLifecycle, suppliers);
+	return new Combined(hasLifecycle, suppliers);
 }
 
-class CombinedSupplier<T extends {[key: string]: Supplier<unknown>}> implements Supplier<ObjectOfSupplierToSupplierOfObject<T>>
+class Combined<T extends {[key: string]: Supplier<unknown>}> implements Supplier<ObjectOfSupplierToSupplierOfObject<T>>
 {
 	declare _stores: T
 	declare _subscribers: Array<Subscriber<ObjectOfSupplierToSupplierOfObject<T>>>;
@@ -66,10 +66,10 @@ class CombinedSupplier<T extends {[key: string]: Supplier<unknown>}> implements 
 
 class StoreSubscriber<T extends {[key: string]: Supplier<unknown>}> implements SubscriberObject<unknown>
 {
-	declare _combinedStore: CombinedSupplier<T>;
+	declare _combinedStore: Combined<T>;
 	declare _key: string;
 
-	constructor(combinedStore: CombinedSupplier<T>, key: string)
+	constructor(combinedStore: Combined<T>, key: string)
 	{
 		this._combinedStore = combinedStore;
 		this._key = key;

@@ -1,6 +1,6 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
-import combineNamedSuppliers from "../../core/combineNamedSuppliers.js";
-import combineSuppliers from "../../core/combineSuppliers.js";
+import combineNamed from "../../core/combineNamed.js";
+import combine from "../../core/combine.js";
 import Component from "../Component.js";
 import type ComponentChildren from "../../types/ComponentChildren.js";
 import type ComponentModifier from "../../types/ComponentModifier.js";
@@ -269,7 +269,7 @@ function attrStyle(hasLifecycle: HasLifecycle, styleDefinitions: StyleDefinition
 	if (styleDefinitions instanceof Array) {
 		return map(
 			hasLifecycle,
-			combineSuppliers(hasLifecycle, styleDefinitions.map(styleDefn => {
+			combine(hasLifecycle, styleDefinitions.map(styleDefn => {
 				if (isSupplier<string|false>(styleDefn)) {
 					return styleDefn;
 				}
@@ -283,7 +283,7 @@ function attrStyle(hasLifecycle: HasLifecycle, styleDefinitions: StyleDefinition
 					}
 					return map(
 						hasLifecycle,
-						combineNamedSuppliers(hasLifecycle, namedSuppliers),
+						combineNamed(hasLifecycle, namedSuppliers),
 						styleObjectToStringMapper
 					);
 				}
@@ -330,7 +330,7 @@ function attrClass(hasLifecycle: HasLifecycle, classDefinitions: ClassDefinition
 	if (classDefinitions instanceof Array) {
 		return map(
 			hasLifecycle,
-			combineSuppliers(hasLifecycle, classDefinitions.map(classDefn => {
+			combine(hasLifecycle, classDefinitions.map(classDefn => {
 				if (isSupplier<string|false>(classDefn)) {
 					return classDefn;
 				}
@@ -344,7 +344,7 @@ function attrClass(hasLifecycle: HasLifecycle, classDefinitions: ClassDefinition
 					}
 					return map(
 						hasLifecycle,
-						combineNamedSuppliers(hasLifecycle, namedSuppliers),
+						combineNamed(hasLifecycle, namedSuppliers),
 						classObjectToStringMapper,
 					);
 				}

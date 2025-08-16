@@ -13,24 +13,24 @@ type ArrayOfSupplierToSupplierOfArray<T extends Array<Supplier<unknown>>> = {
 };
 
 export default
-function combineSuppliers<A,T extends [Supplier<A>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combine<A,T extends [Supplier<A>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,T extends [Supplier<A>,Supplier<B>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combine<A,B,T extends [Supplier<A>,Supplier<B>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,C,T extends [Supplier<A>,Supplier<B>,Supplier<C>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combine<A,B,C,T extends [Supplier<A>,Supplier<B>,Supplier<C>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,C,D,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combine<A,B,C,D,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<A,B,C,D,E,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>,Supplier<E>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combine<A,B,C,D,E,T extends [Supplier<A>,Supplier<B>,Supplier<C>,Supplier<D>,Supplier<E>]>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<T extends Array<Supplier<unknown>>>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combine<T extends Array<Supplier<unknown>>>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 export default
-function combineSuppliers<T extends Array<Supplier<unknown>>>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+function combine<T extends Array<Supplier<unknown>>>(hasLifecycle: HasLifecycle, suppliers: T): Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 {
-	return new CombinedSupplier(hasLifecycle, suppliers);
+	return new Combined(hasLifecycle, suppliers);
 }
 
-class CombinedSupplier<T extends Array<Supplier<unknown>>> implements Supplier<ArrayOfSupplierToSupplierOfArray<T>>
+class Combined<T extends Array<Supplier<unknown>>> implements Supplier<ArrayOfSupplierToSupplierOfArray<T>>
 {
 	declare _suppliers: T;
 	declare _subscribers: Array<Subscriber<ArrayOfSupplierToSupplierOfArray<T>>>;
@@ -77,10 +77,10 @@ class CombinedSupplier<T extends Array<Supplier<unknown>>> implements Supplier<A
 
 class StoreSubscriber<T extends Array<Supplier<unknown>>> implements SubscriberObject<unknown>
 {
-	declare _combinedStore: CombinedSupplier<T>;
+	declare _combinedStore: Combined<T>;
 	declare _index: number;
 
-	constructor(combinedStore: CombinedSupplier<T>, index: number)
+	constructor(combinedStore: Combined<T>, index: number)
 	{
 		this._combinedStore = combinedStore;
 		this._index = index;

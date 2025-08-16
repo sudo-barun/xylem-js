@@ -1,6 +1,6 @@
 import applyNativeComponentMixin from "./applyNativeComponentMixin.js";
-import combineNamedSuppliers from "../../core/combineNamedSuppliers.js";
-import combineSuppliers from "../../core/combineSuppliers.js";
+import combineNamed from "../../core/combineNamed.js";
+import combine from "../../core/combine.js";
 import Component from "../Component.js";
 import createStore from "../../core/createStore.js";
 import isSupplier from "../../utilities/isSupplier.js";
@@ -189,7 +189,7 @@ function styleArrayToStringMapper(styles) {
 }
 export function attrStyle(hasLifecycle, styleDefinitions) {
     if (styleDefinitions instanceof Array) {
-        return map(hasLifecycle, combineSuppliers(hasLifecycle, styleDefinitions.map(styleDefn => {
+        return map(hasLifecycle, combine(hasLifecycle, styleDefinitions.map(styleDefn => {
             if (isSupplier(styleDefn)) {
                 return styleDefn;
             }
@@ -201,7 +201,7 @@ export function attrStyle(hasLifecycle, styleDefinitions) {
                         ? propValue
                         : createStore(propValue);
                 }
-                return map(hasLifecycle, combineNamedSuppliers(hasLifecycle, namedSuppliers), styleObjectToStringMapper);
+                return map(hasLifecycle, combineNamed(hasLifecycle, namedSuppliers), styleObjectToStringMapper);
             }
             return createStore(styleDefn);
         })), styleArrayToStringMapper);
@@ -230,7 +230,7 @@ function classArrayToStringMapper(classes) {
 }
 export function attrClass(hasLifecycle, classDefinitions) {
     if (classDefinitions instanceof Array) {
-        return map(hasLifecycle, combineSuppliers(hasLifecycle, classDefinitions.map(classDefn => {
+        return map(hasLifecycle, combine(hasLifecycle, classDefinitions.map(classDefn => {
             if (isSupplier(classDefn)) {
                 return classDefn;
             }
@@ -242,7 +242,7 @@ export function attrClass(hasLifecycle, classDefinitions) {
                         ? propValue
                         : createStore(propValue);
                 }
-                return map(hasLifecycle, combineNamedSuppliers(hasLifecycle, namedSuppliers), classObjectToStringMapper);
+                return map(hasLifecycle, combineNamed(hasLifecycle, namedSuppliers), classObjectToStringMapper);
             }
             return createStore(classDefn);
         })), classArrayToStringMapper);

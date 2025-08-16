@@ -1,9 +1,9 @@
 import CallSubscribers from "../utilities/_internal/CallSubscribers.js";
 import UnsubscriberImpl from "../utilities/_internal/UnsubscriberImpl.js";
-export default function combineSuppliers(hasLifecycle, suppliers) {
-    return new CombinedSupplier(hasLifecycle, suppliers);
+export default function combine(hasLifecycle, suppliers) {
+    return new Combined(hasLifecycle, suppliers);
 }
-class CombinedSupplier {
+class Combined {
     constructor(hasLifecycle, suppliers) {
         this._suppliers = suppliers;
         this._subscribers = [];
