@@ -4,7 +4,7 @@ import createEmittableStream from "../core/createEmittableStream.js";
 import ElementComponent from "./_internal/ElementComponent.js";
 import type EmittableStream from "../types/EmittableStream.js";
 import type Stream from "../types/Stream.js";
-import { type Context, type DefaultContextData } from "./context.js";
+import { defaultContext, type Context, type DefaultContextData } from "./context.js";
 
 export default
 abstract class Component<EarlyAttributes extends object = {}, LateAttributes extends object = {}, ContextData extends DefaultContextData = DefaultContextData>
@@ -86,13 +86,14 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 			modifier(this);
 		}
 
+		if (this._context === undefined) {
+			this._context = defaultContext as Context<ContextData>;
+		}
 		const children = this.build(this._attributes);
 		for (const _vDom of children) {
 			if ((_vDom instanceof Component)) {
 				_vDom.setParentComponent(this);
-				if (this._context !== undefined) {
-					_vDom.setContext(this._context);
-				}
+				_vDom.setContext(this._context);
 				if (this._namespace !== undefined) {
 					_vDom.setNamespace(this._namespace);
 				}

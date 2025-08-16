@@ -1,8 +1,4 @@
-import { defaultContext } from "./context.js";
 export default function mountComponent(component, node, position = 'beforeend') {
-    if (component.getContext() === undefined) {
-        component.setContext(defaultContext);
-    }
     component.setup();
     component.notifyAfterSetup();
     component.setupDom();

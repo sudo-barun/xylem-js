@@ -1,6 +1,6 @@
 import createEmittableStream from "../core/createEmittableStream.js";
 import ElementComponent from "./_internal/ElementComponent.js";
-import {} from "./context.js";
+import { defaultContext } from "./context.js";
 export default class Component {
     constructor(attributes = {}) {
         this._attributes = attributes;
@@ -44,13 +44,14 @@ export default class Component {
         if (modifier) {
             modifier(this);
         }
+        if (this._context === undefined) {
+            this._context = defaultContext;
+        }
         const children = this.build(this._attributes);
         for (const _vDom of children) {
             if ((_vDom instanceof Component)) {
                 _vDom.setParentComponent(this);
-                if (this._context !== undefined) {
-                    _vDom.setContext(this._context);
-                }
+                _vDom.setContext(this._context);
                 if (this._namespace !== undefined) {
                     _vDom.setNamespace(this._namespace);
                 }
