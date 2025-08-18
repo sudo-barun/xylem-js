@@ -109,8 +109,19 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 	reload(): void
 	{
 		this.notifyBeforeDetach();
-		for (const vDomItem of this._children) {
-			vDomItem.detach();
+		const parentNode = this._firstNode.parentNode!;
+		if (
+			(parentNode.firstChild === this._firstNode)
+			&&
+			(parentNode.lastChild === this._lastNode)
+		) {
+			parentNode.textContent = '';
+			parentNode.appendChild(this._firstNode);
+			parentNode.appendChild(this._lastNode);
+		} else {
+			for (const vDomItem of this._children) {
+				vDomItem.detach();
+			}
 		}
 
 		this._notifyAfterSetup = createEmittableStream<void>();
@@ -219,11 +230,20 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	detach()
 	{
-		for (const vDomItem of this._children) {
-			vDomItem.detach();
+		const parentNode = this._firstNode.parentNode!;
+		if (
+			(parentNode.firstChild === this._firstNode)
+			&&
+			(parentNode.lastChild === this._lastNode)
+		) {
+			parentNode.textContent = '';
+		} else {
+			for (const vDomItem of this._children) {
+				vDomItem.detach();
+			}
+			parentNode.removeChild(this._firstNode);
+			parentNode.removeChild(this._lastNode);
 		}
-		this._firstNode.parentNode!.removeChild(this._firstNode);
-		this._lastNode.parentNode!.removeChild(this._lastNode);
 	}
 
 	createContext?(parentContext: object): Context<ContextData>;

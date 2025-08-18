@@ -65,8 +65,18 @@ export default class Component {
     }
     reload() {
         this.notifyBeforeDetach();
-        for (const vDomItem of this._children) {
-            vDomItem.detach();
+        const parentNode = this._firstNode.parentNode;
+        if ((parentNode.firstChild === this._firstNode)
+            &&
+                (parentNode.lastChild === this._lastNode)) {
+            parentNode.textContent = '';
+            parentNode.appendChild(this._firstNode);
+            parentNode.appendChild(this._lastNode);
+        }
+        else {
+            for (const vDomItem of this._children) {
+                vDomItem.detach();
+            }
         }
         this._notifyAfterSetup = createEmittableStream();
         this.afterSetup = this._notifyAfterSetup.subscribeOnly;
@@ -148,11 +158,19 @@ export default class Component {
         }
     }
     detach() {
-        for (const vDomItem of this._children) {
-            vDomItem.detach();
+        const parentNode = this._firstNode.parentNode;
+        if ((parentNode.firstChild === this._firstNode)
+            &&
+                (parentNode.lastChild === this._lastNode)) {
+            parentNode.textContent = '';
         }
-        this._firstNode.parentNode.removeChild(this._firstNode);
-        this._lastNode.parentNode.removeChild(this._lastNode);
+        else {
+            for (const vDomItem of this._children) {
+                vDomItem.detach();
+            }
+            parentNode.removeChild(this._firstNode);
+            parentNode.removeChild(this._lastNode);
+        }
     }
     setContext(parentContext) {
         this._context = 'createContext' in this ? this.createContext(parentContext) : parentContext;
