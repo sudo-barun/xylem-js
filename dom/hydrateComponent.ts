@@ -8,10 +8,10 @@ function hydrateComponent(component: Component, startNode: ChildNode)
 	component.notifyAfterSetup();
 	hydrate(component, startNode);
 	component.setupDom();
-	component.notifyAfterAttachToDom();
+	component.notifyAfterAttach();
 
 	return () => {
-		component.notifyBeforeDetachFromDom();
-		component.detachFromDom();
+		component.notifyBeforeDetach();
+		component.detach();
 	}
 }

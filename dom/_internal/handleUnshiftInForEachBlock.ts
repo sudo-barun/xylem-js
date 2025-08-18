@@ -21,5 +21,5 @@ function handleUnshiftInForEachBlock<T>(this: ForEachBlock<T>, item: T)
 		firstNode.parentNode!.insertBefore(node, nodeAfterFirst);
 	}
 	this._children.unshift(forEachBlockItem);
-	forEachBlockItem.notifyAfterAttachToDom();
+	forEachBlockItem.notifyAfterAttach();
 }

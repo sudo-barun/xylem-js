@@ -14,7 +14,7 @@ const NativeComponentMixin = {
         }
         return this._domNode;
     },
-    detachFromDom() {
+    detach() {
         this._domNode.parentNode.removeChild(this._domNode);
     }
 };

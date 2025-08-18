@@ -24,7 +24,7 @@ class TextComponent
 		this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
 	}
 
-	notifyBeforeDetachFromDom()
+	notifyBeforeDetach()
 	{
 		this._notifyBeforeDetach._();
 	}

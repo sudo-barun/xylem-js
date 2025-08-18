@@ -64,9 +64,9 @@ export default class Component {
         this._children = children;
     }
     reload() {
-        this.notifyBeforeDetachFromDom();
+        this.notifyBeforeDetach();
         for (const vDomItem of this._children) {
-            vDomItem.detachFromDom();
+            vDomItem.detach();
         }
         this._notifyAfterSetup = createEmittableStream();
         this.afterSetup = this._notifyAfterSetup.subscribeOnly;
@@ -82,7 +82,7 @@ export default class Component {
         for (const node of this.childNodes()) {
             this._lastNode.parentNode.insertBefore(node, this._lastNode);
         }
-        this.notifyAfterAttachToDom();
+        this.notifyAfterAttach();
     }
     getComponentName() {
         const componentName = Object.getPrototypeOf(this).constructor.name;
@@ -133,23 +133,23 @@ export default class Component {
             }
         }
     }
-    notifyAfterAttachToDom() {
+    notifyAfterAttach() {
         this._notifyAfterAttach._();
         for (const vDomItem of this._children) {
             if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
-                vDomItem.notifyAfterAttachToDom();
+                vDomItem.notifyAfterAttach();
             }
         }
     }
-    notifyBeforeDetachFromDom() {
+    notifyBeforeDetach() {
         this._notifyBeforeDetach._();
         for (const vDomItem of this._children) {
-            vDomItem.notifyBeforeDetachFromDom();
+            vDomItem.notifyBeforeDetach();
         }
     }
-    detachFromDom() {
+    detach() {
         for (const vDomItem of this._children) {
-            vDomItem.detachFromDom();
+            vDomItem.detach();
         }
         this._firstNode.parentNode.removeChild(this._firstNode);
         this._lastNode.parentNode.removeChild(this._lastNode);

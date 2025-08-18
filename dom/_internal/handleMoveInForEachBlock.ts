@@ -9,7 +9,7 @@ function handleMoveInForEachBlock<T>(
 {
 	const destination = this.children()[toIndex];
 	const removedItem = this.children().splice(fromIndex, 1)[0];
-	removedItem.detachFromDom();
+	removedItem.detach();
 
 	this.children().splice(toIndex, 0, removedItem);
 

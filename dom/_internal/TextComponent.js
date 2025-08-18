@@ -9,7 +9,7 @@ export default class TextComponent {
         this._notifyBeforeDetach = createEmittableStream();
         this.beforeDetach = this._notifyBeforeDetach.subscribeOnly;
     }
-    notifyBeforeDetachFromDom() {
+    notifyBeforeDetach() {
         this._notifyBeforeDetach._();
     }
     textContent(textContent) {

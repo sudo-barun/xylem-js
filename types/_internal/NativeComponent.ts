@@ -12,7 +12,7 @@ type NativeComponent = {
 
 	lastNode(): ChildNode;
 
-	detachFromDom(): void;
+	detach(): void;
 
 };
 

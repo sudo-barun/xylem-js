@@ -13,5 +13,5 @@ export default function handleUnshiftInForEachBlock(item) {
         firstNode.parentNode.insertBefore(node, nodeAfterFirst);
     }
     this._children.unshift(forEachBlockItem);
-    forEachBlockItem.notifyAfterAttachToDom();
+    forEachBlockItem.notifyAfterAttach();
 }

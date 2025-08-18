@@ -12,5 +12,5 @@ export default function handlePushInForEachBlock(item) {
         lastNode.parentNode.insertBefore(node, lastNode);
     }
     this._children.push(forEachBlockItem);
-    forEachBlockItem.notifyAfterAttachToDom();
+    forEachBlockItem.notifyAfterAttach();
 }

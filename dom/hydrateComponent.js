@@ -4,9 +4,9 @@ export default function hydrateComponent(component, startNode) {
     component.notifyAfterSetup();
     hydrate(component, startNode);
     component.setupDom();
-    component.notifyAfterAttachToDom();
+    component.notifyAfterAttach();
     return () => {
-        component.notifyBeforeDetachFromDom();
-        component.detachFromDom();
+        component.notifyBeforeDetach();
+        component.detach();
     };
 }

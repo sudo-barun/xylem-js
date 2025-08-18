@@ -1,7 +1,7 @@
 export default function handleMoveInForEachBlock(fromIndex, toIndex) {
     const destination = this.children()[toIndex];
     const removedItem = this.children().splice(fromIndex, 1)[0];
-    removedItem.detachFromDom();
+    removedItem.detach();
     this.children().splice(toIndex, 0, removedItem);
     if (fromIndex < toIndex) {
         const destinationNode = destination.lastNode();

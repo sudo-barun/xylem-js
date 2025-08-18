@@ -155,17 +155,17 @@ export default class ElementComponent {
             }
         }
     }
-    notifyAfterAttachToDom() {
+    notifyAfterAttach() {
         for (const vDomItem of this._children) {
             if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
-                vDomItem.notifyAfterAttachToDom();
+                vDomItem.notifyAfterAttach();
             }
         }
     }
-    notifyBeforeDetachFromDom() {
+    notifyBeforeDetach() {
         this._notifyBeforeDetach._();
         for (const vDomItem of this._children) {
-            vDomItem.notifyBeforeDetachFromDom();
+            vDomItem.notifyBeforeDetach();
         }
     }
 }

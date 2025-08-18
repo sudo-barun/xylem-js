@@ -5,6 +5,6 @@ export default
 function handleRemoveInForEachBlock<T>(this: ForEachBlock<T>, index: number)
 {
 	const forEachBlockItem = this._children.splice(index, 1)[0];
-	(forEachBlockItem as ForEachBlockItem<T>).notifyBeforeDetachFromDom();
-	forEachBlockItem.detachFromDom();
+	(forEachBlockItem as ForEachBlockItem<T>).notifyBeforeDetach();
+	forEachBlockItem.detach();
 }

@@ -108,9 +108,9 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	reload(): void
 	{
-		this.notifyBeforeDetachFromDom();
+		this.notifyBeforeDetach();
 		for (const vDomItem of this._children) {
-			vDomItem.detachFromDom();
+			vDomItem.detach();
 		}
 
 		this._notifyAfterSetup = createEmittableStream<void>();
@@ -130,7 +130,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 			this._lastNode.parentNode!.insertBefore(node, this._lastNode);
 		}
 
-		this.notifyAfterAttachToDom();
+		this.notifyAfterAttach();
 	}
 
 	getComponentName(): string
@@ -199,28 +199,28 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 		}
 	}
 
-	notifyAfterAttachToDom()
+	notifyAfterAttach()
 	{
 		this._notifyAfterAttach._();
 		for (const vDomItem of this._children) {
 			if ((vDomItem instanceof Component) || (vDomItem instanceof ElementComponent)) {
-				vDomItem.notifyAfterAttachToDom();
+				vDomItem.notifyAfterAttach();
 			}
 		}
 	}
 
-	notifyBeforeDetachFromDom()
+	notifyBeforeDetach()
 	{
 		this._notifyBeforeDetach._();
 		for (const vDomItem of this._children) {
-			vDomItem.notifyBeforeDetachFromDom();
+			vDomItem.notifyBeforeDetach();
 		}
 	}
 
-	detachFromDom()
+	detach()
 	{
 		for (const vDomItem of this._children) {
-			vDomItem.detachFromDom();
+			vDomItem.detach();
 		}
 		this._firstNode.parentNode!.removeChild(this._firstNode);
 		this._lastNode.parentNode!.removeChild(this._lastNode);

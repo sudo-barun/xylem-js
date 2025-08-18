@@ -26,9 +26,9 @@ export default function mountComponent(component, node, position = 'beforeend') 
             node.parentNode.insertBefore(element_, node);
         }
     }
-    component.notifyAfterAttachToDom();
+    component.notifyAfterAttach();
     return () => {
-        component.notifyBeforeDetachFromDom();
-        component.detachFromDom();
+        component.notifyBeforeDetach();
+        component.detach();
     };
 }

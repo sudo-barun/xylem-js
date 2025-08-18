@@ -20,5 +20,5 @@ function handlePushInForEachBlock<T>(this: ForEachBlock<T>, item: T)
 		lastNode.parentNode!.insertBefore(node, lastNode);
 	}
 	this._children.push(forEachBlockItem);
-	forEachBlockItem.notifyAfterAttachToDom();
+	forEachBlockItem.notifyAfterAttach();
 }

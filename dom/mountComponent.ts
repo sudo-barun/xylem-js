@@ -29,10 +29,10 @@ function mountComponent(component: Component, node: ChildNode, position: 'before
 		}
 	}
 
-	component.notifyAfterAttachToDom();
+	component.notifyAfterAttach();
 
 	return () => {
-		component.notifyBeforeDetachFromDom();
-		component.detachFromDom();
+		component.notifyBeforeDetach();
+		component.detach();
 	}
 }
