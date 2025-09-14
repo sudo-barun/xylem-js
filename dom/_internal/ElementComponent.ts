@@ -119,19 +119,19 @@ class ElementComponent
 		if (this._namespace === undefined) {
 			return document.createElement(
 				this._tagName,
-				{ is: this._attributes.is as string }
+				{ is: this._attributes['is'] as string }
 			);
 		} else if (this._namespace === 'svg') {
 			return document.createElementNS(
 				'http://www.w3.org/2000/svg',
 				this._tagName,
-				{ is: this._attributes.is as string }
+				{ is: this._attributes['is'] as string }
 			);
 		} else if (this._namespace === 'mathml') {
 			return document.createElementNS(
 				'http://www.w3.org/1998/Math/MathML',
 				this._tagName,
-				{ is: this._attributes.is as string }
+				{ is: this._attributes['is'] as string }
 			);
 		} else {
 			throw new Error(`Unsupported namespace "${this._namespace}" encountered`);

@@ -60,7 +60,7 @@ function normalizeArrayStore<T,U>(
 	});
 
 	arrayStore.mutation.subscribe(([ value, action, ...mutationArgs ]: ArrayMutation<T>) => {
-		const handler = action.normalizeArrayStore;
+		const handler = action['normalizeArrayStore'];
 		if (! ('normalizeArrayStore' in action)) {
 			console.error('Array was mutated with action but no handler found for the action.', action);
 			throw new Error('Array was mutated with action but no handler found for the action.');

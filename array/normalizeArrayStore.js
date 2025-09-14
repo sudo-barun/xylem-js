@@ -30,7 +30,7 @@ export default function normalizeArrayStore(arrayStore, createStoreForItem) {
         stream._(normalizedData._());
     });
     arrayStore.mutation.subscribe(([value, action, ...mutationArgs]) => {
-        const handler = action.normalizeArrayStore;
+        const handler = action['normalizeArrayStore'];
         if (!('normalizeArrayStore' in action)) {
             console.error('Array was mutated with action but no handler found for the action.', action);
             throw new Error('Array was mutated with action but no handler found for the action.');

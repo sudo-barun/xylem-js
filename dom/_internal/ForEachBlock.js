@@ -16,7 +16,7 @@ export default class ForEachBlock extends Component {
             if ('mutate' in this._attributes.array) {
                 const unsubscribeMutation = this._attributes.array.mutation.subscribe((arrayMutation) => {
                     const [_, action, ...mutationArgs] = arrayMutation;
-                    const handler = action.forEachBlock;
+                    const handler = action['forEachBlock'];
                     if (!('forEachBlock' in action)) {
                         console.error('Array was mutated with action but no handler found for the action.', action);
                         throw new Error('Array was mutated with action but no handler found for the action.');

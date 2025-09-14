@@ -71,13 +71,13 @@ export default class ElementComponent {
     }
     createDomNode() {
         if (this._namespace === undefined) {
-            return document.createElement(this._tagName, { is: this._attributes.is });
+            return document.createElement(this._tagName, { is: this._attributes['is'] });
         }
         else if (this._namespace === 'svg') {
-            return document.createElementNS('http://www.w3.org/2000/svg', this._tagName, { is: this._attributes.is });
+            return document.createElementNS('http://www.w3.org/2000/svg', this._tagName, { is: this._attributes['is'] });
         }
         else if (this._namespace === 'mathml') {
-            return document.createElementNS('http://www.w3.org/1998/Math/MathML', this._tagName, { is: this._attributes.is });
+            return document.createElementNS('http://www.w3.org/1998/Math/MathML', this._tagName, { is: this._attributes['is'] });
         }
         else {
             throw new Error(`Unsupported namespace "${this._namespace}" encountered`);
