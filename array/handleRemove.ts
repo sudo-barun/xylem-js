@@ -25,7 +25,7 @@ const handleRemove: ArrayMutateHandler<[number|Supplier<number>]> = function <T>
 	}
 
 	for (let i = index_+1; i < index$Array.length; i++) {
-		index$Array[i]._(index$Array[i]._()-1);
+		index$Array[i]!._(index$Array[i]!._()-1);
 	}
 	index$Array.splice(index_, 1);
 

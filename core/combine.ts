@@ -41,7 +41,7 @@ class Combined<T extends Array<Supplier<unknown>>> implements Supplier<ArrayOfSu
 		this._subscribers = [];
 
 		for (let index = 0; index < suppliers.length; index++) {
-			const supplier = suppliers[index];
+			const supplier = suppliers[index]!;
 
 			hasLifecycle.beforeDetach.subscribe(
 				supplier.subscribe(new StoreSubscriber(this, index))

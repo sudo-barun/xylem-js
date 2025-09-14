@@ -20,7 +20,7 @@ function mountComponent(component: Component, node: ChildNode, position: 'before
 		let lastInsertedElement: ChildNode = node;
 		const componentNodes = component.domNodes();
 		for (let i = 0; i < componentNodes.length; i++) {
-			node.parentNode!.insertBefore(componentNodes[i], lastInsertedElement.nextSibling);
+			node.parentNode!.insertBefore(componentNodes[i]!, lastInsertedElement.nextSibling);
 			lastInsertedElement = lastInsertedElement.nextSibling!;
 		}
 	} else if (position === 'beforebegin') {

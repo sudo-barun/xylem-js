@@ -30,7 +30,7 @@ class Combined<T extends {[key: string]: Supplier<unknown>}> implements Supplier
 
 		for (const key of Object.keys(stores)) {
 			hasLifecycle.beforeDetach.subscribe(
-				stores[key].subscribe(new StoreSubscriber(this, key))
+				stores[key]!.subscribe(new StoreSubscriber(this, key))
 			);
 		}
 	}
@@ -41,7 +41,7 @@ class Combined<T extends {[key: string]: Supplier<unknown>}> implements Supplier
 			throw new Error('Set operation not supported');
 		}
 		return Object.keys(this._stores).reduce((acc, key) => {
-			acc[key] = this._stores[key]._();
+			acc[key] = this._stores[key]!._();
 			return acc;
 		}, {} as {[key: string] :unknown}) as ObjectOfSupplierToSupplierOfObject<T>;
 	}
@@ -81,7 +81,7 @@ class StoreSubscriber<T extends {[key: string]: Supplier<unknown>}> implements S
 			if (key === this._key) {
 				acc[key] = value;
 			} else {
-				acc[key] = this._combinedStore._stores[key]._();
+				acc[key] = this._combinedStore._stores[key]!._();
 			}
 			return acc;
 		}, {} as {[key: string]: unknown});

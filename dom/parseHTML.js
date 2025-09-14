@@ -56,13 +56,13 @@ export default function parseHTML(arr) {
         }
         else if (typeof item === 'string') {
             if (selfClosingElementRegex.test(item)) {
-                const [, tagName] = selfClosingElementRegex.exec(item);
+                const tagName = selfClosingElementRegex.exec(item)[1];
                 const element = new ElementComponent(tagName);
                 children.push(element);
                 previousElementWasSelfClosed = true;
             }
             else if (elementStartRegex.test(item)) {
-                const [, tagName] = elementStartRegex.exec(item);
+                const tagName = elementStartRegex.exec(item)[1];
                 if (unclosedElement !== null) {
                     console.error(`New element "<${tagName}>" found but unclosed element "<${unclosedElement.tagName()}>" exists.`);
                     console.error(`Check following array at index ${i}.`, arr);
@@ -170,7 +170,7 @@ export default function parseHTML(arr) {
                 for (const key of Object.keys(item)) {
                     const listenerRegex = /^@(.*)$/;
                     if (listenerRegex.test(key)) {
-                        const [, eventName] = listenerRegex.exec(key);
+                        const eventName = listenerRegex.exec(key)[1];
                         const listener = item[key];
                         try {
                             if (typeof listener === 'function') {

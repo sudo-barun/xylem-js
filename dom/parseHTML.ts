@@ -58,12 +58,12 @@ function parseHTML(arr: unknown[]): ComponentChildren
 			}
 		} else if (typeof item === 'string') {
 			if (selfClosingElementRegex.test(item)) {
-				const [ , tagName ] = selfClosingElementRegex.exec(item)!;
+				const tagName = selfClosingElementRegex.exec(item)![1]!;
 				const element = new ElementComponent(tagName);
 				children.push(element);
 				previousElementWasSelfClosed = true;
 			} else if (elementStartRegex.test(item)) {
-				const [ , tagName ] = elementStartRegex.exec(item)!;
+				const tagName = elementStartRegex.exec(item)![1]!;
 				if (unclosedElement !== null) {
 					console.error(`New element "<${tagName}>" found but unclosed element "<${unclosedElement.tagName()}>" exists.`);
 					console.error(`Check following array at index ${i}.`, arr);
@@ -164,7 +164,7 @@ function parseHTML(arr: unknown[]): ComponentChildren
 				for (const key of Object.keys(item)) {
 					const listenerRegex = /^@(.*)$/;
 					if (listenerRegex.test(key)) {
-						const [ , eventName ] = listenerRegex.exec(key)!;
+						const eventName = listenerRegex.exec(key)![1]!;
 						const listener = (item as {[k: string]: unknown})[key] as ElementComponent['_listeners'][''];
 
 						try {
@@ -214,7 +214,7 @@ function parseHTML(arr: unknown[]): ComponentChildren
 					} else if (key === '<>') {
 						elementOfAttributes.elementSubscriber((item as {[k: string]: Subscriber<Element>})[key]);
 					} else if (key === '=') {
-						(item as {[k: string]: (e: ElementComponent) => void})[key](elementOfAttributes);
+						(item as {[k: string]: (e: ElementComponent) => void})[key]!(elementOfAttributes);
 					} else {
 						elementOfAttributes.attributes()[key] = (item as {[k: string]: unknown})[key];
 					}

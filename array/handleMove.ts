@@ -44,11 +44,11 @@ const handleMove: ArrayMutateHandler<[number|Supplier<number>, number|Supplier<n
 			cumulate(index$, (v) => v + 1);
 		}
 	}
-	fromIndex$._(toIndex_);
-	const removedIndex = index$Array.splice(fromIndex_, 1)[0];
+	fromIndex$!._(toIndex_);
+	const removedIndex = index$Array.splice(fromIndex_, 1)[0]!;
 	index$Array.splice(toIndex_, 0, removedIndex);
 
-	const removedItem = array.splice(fromIndex_, 1)[0];
+	const removedItem = array.splice(fromIndex_, 1)[0]!;
 	array.splice(toIndex_, 0, removedItem);
 
 	return [fromIndex_, toIndex_];

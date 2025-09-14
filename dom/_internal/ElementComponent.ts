@@ -160,7 +160,7 @@ class ElementComponent
 		}
 
 		for (const event of Object.keys(this._listeners)) {
-			const listener = this._listeners[event];
+			const listener = this._listeners[event]!;
 			if (listener instanceof Array) {
 				element.addEventListener(event, listener[0], listener[1]);
 			} else {

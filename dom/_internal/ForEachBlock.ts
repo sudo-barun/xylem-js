@@ -58,7 +58,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			if (attributes.array instanceof Array) {
 				index$ = createStore(index);
 			} else if ('index$Array' in attributes.array) {
-				index$ = map(this, attributes.array.index$Array[index], identity as (value: number) => number);
+				index$ = map(this, attributes.array.index$Array[index]!, identity as (value: number) => number);
 			} else {
 				index$ = createStore(index);
 			}
@@ -75,7 +75,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 			build: this._attributes.build,
 			buildArgs: [
 				item,
-				map(this, (this._attributes.array as ArraySupplier<T>).index$Array[index], identity as (value: number) => number),
+				map(this, (this._attributes.array as ArraySupplier<T>).index$Array[index]!, identity as (value: number) => number),
 			],
 		});
 	}
