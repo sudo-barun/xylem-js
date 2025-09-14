@@ -250,7 +250,7 @@ abstract class Component<EarlyAttributes extends object = {}, LateAttributes ext
 
 	setContext(parentContext: Context<ContextData>): this
 	{
-		this._context = 'createContext' in this ? this.createContext(parentContext) : parentContext;
+		this._context = 'createContext' in this ? this.createContext!(parentContext) : parentContext;
 		return this;
 	}
 
