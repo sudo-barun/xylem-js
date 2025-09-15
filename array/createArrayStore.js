@@ -72,7 +72,7 @@ class ArrayLengthStore {
         this._subscribers.push(subscriber);
         return new UnsubscriberImpl(this, subscriber);
     }
-    _emit(value) {
+    _emit(_value) {
         const callSubscribers = new CallSubscribers(this);
         callSubscribers._.apply(callSubscribers, arguments);
     }

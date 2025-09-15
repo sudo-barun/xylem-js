@@ -29,7 +29,7 @@ class ItemStoreSubscriber<T> implements SubscriberObject<T>
 		this._stream = stream;
 	}
 
-	_(value: T): void
+	_(_value: T): void
 	{
 		// TODO: use emitted value
 		this._stream._(this._normalizedData._());
@@ -59,7 +59,7 @@ function normalizeArrayStore<T,U>(
 		stream._(normalizedData._());
 	});
 
-	arrayStore.mutation.subscribe(([ value, action, ...mutationArgs ]: ArrayMutation<T>) => {
+	arrayStore.mutation.subscribe(([ , action, ...mutationArgs ]: ArrayMutation<T>) => {
 		const handler = action['normalizeArrayStore'];
 		if (! ('normalizeArrayStore' in action)) {
 			console.error('Array was mutated with action but no handler found for the action.', action);

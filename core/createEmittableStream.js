@@ -8,7 +8,7 @@ class EmittableStreamImpl {
         this._subscribers = [];
         this.subscribeOnly = new SubscribeOnlyStream(this);
     }
-    _(value) {
+    _(_value) {
         const callSubscribers = new CallSubscribers(this);
         callSubscribers._.apply(callSubscribers, arguments);
     }

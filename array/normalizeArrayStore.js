@@ -10,7 +10,7 @@ class ItemStoreSubscriber {
         this._normalizedData = normalizedData;
         this._stream = stream;
     }
-    _(value) {
+    _(_value) {
         // TODO: use emitted value
         this._stream._(this._normalizedData._());
     }
@@ -29,7 +29,7 @@ export default function normalizeArrayStore(arrayStore, createStoreForItem) {
         initItemStores(value);
         stream._(normalizedData._());
     });
-    arrayStore.mutation.subscribe(([value, action, ...mutationArgs]) => {
+    arrayStore.mutation.subscribe(([, action, ...mutationArgs]) => {
         const handler = action['normalizeArrayStore'];
         if (!('normalizeArrayStore' in action)) {
             console.error('Array was mutated with action but no handler found for the action.', action);

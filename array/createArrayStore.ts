@@ -125,7 +125,7 @@ class ArrayLengthStore implements Supplier<number>
 		return new UnsubscriberImpl(this, subscriber);
 	}
 
-	_emit(value: number)
+	_emit(_value: number)
 	{
 		const callSubscribers = new CallSubscribers(this);
 		callSubscribers._.apply(callSubscribers, arguments as unknown as [number]);

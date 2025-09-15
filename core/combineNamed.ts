@@ -52,7 +52,7 @@ class Combined<T extends {[key: string]: Supplier<unknown>}> implements Supplier
 		return new UnsubscriberImpl(this, subscriber);
 	}
 
-	_emit(value: ObjectOfSupplierToSupplierOfObject<T>)
+	_emit(_value: ObjectOfSupplierToSupplierOfObject<T>)
 	{
 		const callSubscribers = new CallSubscribers(this);
 		callSubscribers._.apply(callSubscribers, arguments as unknown as [ObjectOfSupplierToSupplierOfObject<T>]);

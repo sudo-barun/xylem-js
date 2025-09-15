@@ -13,7 +13,7 @@ class SupplierImpl {
     _() {
         return this._getter._();
     }
-    _emit(value) {
+    _emit(_value) {
         const callSubscribers = new CallSubscribers(this);
         callSubscribers._.apply(callSubscribers, arguments);
     }

@@ -63,7 +63,7 @@ class Combined<T extends Array<Supplier<unknown>>> implements Supplier<ArrayOfSu
 		return new UnsubscriberImpl(this, subscriber);
 	}
 
-	_emit(value: ArrayOfSupplierToSupplierOfArray<T>)
+	_emit(_value: ArrayOfSupplierToSupplierOfArray<T>)
 	{
 		const callSubscribers = new CallSubscribers(this);
 		callSubscribers._.apply(callSubscribers, arguments as unknown as [ArrayOfSupplierToSupplierOfArray<T>]);

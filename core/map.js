@@ -22,7 +22,7 @@ class MappedSupplier {
             return this._mapper._(this._supplier._());
         }
     }
-    _emit(value) {
+    _emit(_value) {
         const callSubscribers = new CallSubscribers(this);
         callSubscribers._.apply(callSubscribers, arguments);
     }

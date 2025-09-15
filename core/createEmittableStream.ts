@@ -22,7 +22,7 @@ class EmittableStreamImpl<T> implements EmittableStream<T>
 		this.subscribeOnly = new SubscribeOnlyStream(this);
 	}
 
-	_(value: T): void
+	_(_value: T): void
 	{
 		const callSubscribers = new CallSubscribers(this);
 		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);

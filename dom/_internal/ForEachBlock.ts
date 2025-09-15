@@ -27,7 +27,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 	build(attributes: Attributes<T>): ComponentChildren
 	{
 		if ('subscribe' in this._attributes.array) {
-			const unsubscribe = this._attributes.array.subscribe((array) => {
+			const unsubscribe = this._attributes.array.subscribe(() => {
 				super.reload();
 			});
 			this.beforeDetach.subscribe(unsubscribe);
@@ -53,7 +53,7 @@ class ForEachBlock<T> extends Component<Attributes<T>>
 
 		const array = getArray(attributes.array);
 
-		return array.map((value, index, array) => {
+		return array.map((value, index) => {
 			let index$;
 			if (attributes.array instanceof Array) {
 				index$ = createStore(index);
@@ -95,4 +95,4 @@ function isHandler(value: unknown): value is Handler
 	return typeof value === 'function';
 }
 
-type Handler = <T>(...args: unknown[]) => void;
+type Handler = (...args: unknown[]) => void;

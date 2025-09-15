@@ -4,8 +4,8 @@ import getValue from "../utilities/getValue.js";
 
 export default
 function handleMoveInArrayNormalization<T,U>(
-	createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
-	emit: Emitter<U[]>,
+	_createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
+	_emit: Emitter<U[]>,
 	itemStores: Supplier<U>[],
 	fromIndex: number|Supplier<number>,
 	toIndex: number|Supplier<number>

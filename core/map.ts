@@ -55,7 +55,7 @@ class MappedSupplier<I,O> implements Supplier<O>
 		}
 	}
 
-	_emit(value: O)
+	_emit(_value: O)
 	{
 		const callSubscribers = new CallSubscribers(this);
 		callSubscribers._.apply(callSubscribers, arguments as unknown as [O]);

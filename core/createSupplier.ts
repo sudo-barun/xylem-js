@@ -36,7 +36,7 @@ class SupplierImpl<T> implements Supplier<T>
 		return this._getter._();
 	}
 
-	_emit(value: T)
+	_emit(_value: T)
 	{
 		const callSubscribers = new CallSubscribers(this);
 		callSubscribers._.apply(callSubscribers, arguments as unknown as [T]);

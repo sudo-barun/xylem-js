@@ -3,8 +3,8 @@ import type Supplier from "../types/Supplier.js";
 
 export default
 function handleRemoveInArrayNormalization<T,U>(
-	createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
-	emit: Emitter<U[]>,
+	_createStoreForItem: ((item: T) => Supplier<U>) = ((item: T) => item as Supplier<U>),
+	_emit: Emitter<U[]>,
 	itemStores: Supplier<U>[],
 	index : number
 ): void

@@ -9,7 +9,7 @@ const identity = v => v;
 export default class ForEachBlock extends Component {
     build(attributes) {
         if ('subscribe' in this._attributes.array) {
-            const unsubscribe = this._attributes.array.subscribe((array) => {
+            const unsubscribe = this._attributes.array.subscribe(() => {
                 super.reload();
             });
             this.beforeDetach.subscribe(unsubscribe);
@@ -30,7 +30,7 @@ export default class ForEachBlock extends Component {
             }
         }
         const array = getArray(attributes.array);
-        return array.map((value, index, array) => {
+        return array.map((value, index) => {
             let index$;
             if (attributes.array instanceof Array) {
                 index$ = createStore(index);

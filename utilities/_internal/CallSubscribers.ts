@@ -10,7 +10,7 @@ class CallSubscribers<T>
 		this._stream = stream;
 	}
 
-	_(value?: T): void
+	_(_value?: T): void
 	{
 		for (const subscriber of this._stream._subscribers) {
 			if (typeof subscriber === 'function') {

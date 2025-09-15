@@ -1,5 +1,5 @@
 import getValue from "../utilities/getValue.js";
-export default function handleMoveInArrayNormalization(createStoreForItem = ((item) => item), emit, itemStores, fromIndex, toIndex) {
+export default function handleMoveInArrayNormalization(_createStoreForItem = ((item) => item), _emit, itemStores, fromIndex, toIndex) {
     const fromIndex_ = getValue(fromIndex);
     const toIndex_ = getValue(toIndex);
     const removedItemStore = itemStores.splice(fromIndex_, 1)[0];
