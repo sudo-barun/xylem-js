@@ -1,5 +1,4 @@
 import type Stream from "./Stream";
-import type Unsubscriber from "./Unsubscriber";
 
 type ProxyStream<T> = (
 	Stream<T>
