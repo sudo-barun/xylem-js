@@ -10,7 +10,7 @@ class RawHTML extends Component<Attrs>
 {
 	declare _childNodes: Array<ChildNode>;
 
-	setupDom(): void
+	override setupDom(): void
 	{
 		super.setupDom();
 		const doc = new DOMParser().parseFromString(this._attributes.children, 'text/html');
@@ -27,7 +27,7 @@ class RawHTML extends Component<Attrs>
 		this._childNodes = childNodes;
 	}
 
-	domNodes(): ChildNode[]
+	override domNodes(): ChildNode[]
 	{
 		const nodes = this._childNodes.slice();
 		nodes.unshift(this._firstNode);
