@@ -7,7 +7,7 @@ import type ComponentChildren from "../types/ComponentChildren.js";
 import RawHTML from "../dom/RawHTML.js";
 import isSupplier from "../utilities/isSupplier.js";
 import type Supplier from "../types/Supplier.js";
-import FakeLifecycle from "../utilities/FakeLifecycle.js";
+import { none } from "../utilities/Lifecycle.js";
 
 const entities = {
 	'&': '&amp;',
@@ -59,9 +59,9 @@ function stringifyComponentChildren(componentChildren: ComponentChildren): strin
 				if (isSupplier<Attribute>(attributeValue)) {
 					attributeValuePrimitive = (attributeValue as Supplier<Attribute>)._();
 				} else if (attributeName === 'class' && typeof attributeValue === 'object' && attributeValue !== null) {
-					attributeValuePrimitive = attrClass(new FakeLifecycle, attributeValue as ClassDefinitions)._();
+					attributeValuePrimitive = attrClass(none, attributeValue as ClassDefinitions)._();
 				} else if (attributeName === 'style' && typeof attributeValue === 'object' && attributeValue !== null) {
-					attributeValuePrimitive = attrStyle(new FakeLifecycle, attributeValue as StyleDefinitions)._();
+					attributeValuePrimitive = attrStyle(none, attributeValue as StyleDefinitions)._();
 				} else {
 					attributeValuePrimitive = attributeValue as Attribute;
 				}

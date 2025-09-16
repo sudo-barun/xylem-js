@@ -5,7 +5,7 @@ import getValue from "../utilities/getValue.js";
 import TextComponent from "../dom/_internal/TextComponent.js";
 import RawHTML from "../dom/RawHTML.js";
 import isSupplier from "../utilities/isSupplier.js";
-import FakeLifecycle from "../utilities/FakeLifecycle.js";
+import { none } from "../utilities/Lifecycle.js";
 const entities = {
     '&': '&amp;',
     '<': '&lt;',
@@ -46,10 +46,10 @@ function stringifyComponentChildren(componentChildren) {
                     attributeValuePrimitive = attributeValue._();
                 }
                 else if (attributeName === 'class' && typeof attributeValue === 'object' && attributeValue !== null) {
-                    attributeValuePrimitive = attrClass(new FakeLifecycle, attributeValue)._();
+                    attributeValuePrimitive = attrClass(none, attributeValue)._();
                 }
                 else if (attributeName === 'style' && typeof attributeValue === 'object' && attributeValue !== null) {
-                    attributeValuePrimitive = attrStyle(new FakeLifecycle, attributeValue)._();
+                    attributeValuePrimitive = attrStyle(none, attributeValue)._();
                 }
                 else {
                     attributeValuePrimitive = attributeValue;
