@@ -6,6 +6,9 @@
 		"email": "kharelbarun@gmail.com"
 	},
 	"type": "module",
+	"exports": {
+		"./*": "./*"
+	},
 	"devDependencies": {
 		"typescript": "^5.8.3"
 	},
